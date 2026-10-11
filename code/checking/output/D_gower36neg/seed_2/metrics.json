@@ -1,0 +1,64 @@
+{
+  "run_dir": "code\\checking\\output\\D_gower36neg\\seed_2",
+  "k": 5,
+  "beta": 0.1,
+  "seed": 2,
+  "iters": 200,
+  "final_obj": 3791.8015560931526,
+  "cluster_sizes": [
+    133,
+    1298,
+    2111,
+    1788,
+    701
+  ],
+  "elapsed_sec": 120.8,
+  "fuzzy_internal": {
+    "PC": 0.50371253490448,
+    "PE": 0.9134260416030884,
+    "XB": 0.3833543732959763
+  },
+  "hard_internal": {
+    "silhouette": 0.3980359102257036,
+    "CH": 8887.76421328818,
+    "DB": 0.8526072505209941
+  },
+  "constraint_metrics": {
+    "constrained_same_cluster_rate": 0.41430801127495515,
+    "random_baseline_rate": 0.27072745053667757,
+    "same_cluster_lift": 1.5303509505727997,
+    "constraint_residual_mean_s_du2": 0.26707745982420394
+  },
+  "external_vs_roberts": {
+    "3a": {
+      "ARI": 0.0132,
+      "NMI": 0.0268,
+      "n_labeled": 6031
+    },
+    "3h": {
+      "ARI": 0.0138,
+      "NMI": 0.0314,
+      "n_labeled": 3950
+    },
+    "3u": {
+      "ARI": 0.0154,
+      "NMI": 0.0342,
+      "n_labeled": 2081
+    },
+    "ca": {
+      "ARI": 0.0168,
+      "NMI": 0.0376,
+      "n_labeled": 1786
+    },
+    "ch": {
+      "ARI": 0.022,
+      "NMI": 0.0441,
+      "n_labeled": 1260
+    },
+    "cu": {
+      "ARI": 0.0172,
+      "NMI": 0.0528,
+      "n_labeled": 526
+    }
+  }
+}

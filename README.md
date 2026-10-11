@@ -15,14 +15,14 @@
 > ⑦ FCM 家族谱系补全根节点与关键分支（见 3.2 末尾）。
 >
 > **更新记录（三）**：2026-08-27 —— ⑧ SSFPC（Wang 2022）与 EWSS-FCM（Liu 2019）
-> 精读完成（两篇 TXT 提取件已生成至 `相关论文/国外论文/核心参考/TXT/`）：
+> 精读完成（两篇 TXT 提取件已生成至 `literature/international/core_references/TXT/`）：
 > SSFPC 确证为**加项式两两模板**（式 5/6，写法 A 近亲成立），但约束对象是隶属度
 > 向量对（u 空间成对约束，非特征空间标量），隶属度更新无闭式解需 DBCD 解 IQPP——
 > 恰反衬写法 B 保持标准闭式更新的工程优势；EWSS-FCM **定位修正：非加项式**
 > （J 不变、熵权重调制中心更新 + 标签隶属度钉死，属机制①的权重自动化变体），
 > 仅作"加权式 vs 加项式"对照；FCM_S（Ahmed 2002）据此升格为写法 B 在
 > "特征空间加项 + 完整重推"层面的最近血亲（待精读）；⑨ 本文第六节文献路径
-> 表述按 `相关论文/README.md` 结构修正。
+> 表述按 `literature/README.md` 结构修正。
 >
 > **更新记录（四）**：2026-08-27 —— ⑩ 第二层主创新方向定稿：由"写法 B（特征
 > 空间连续标量加项，源自 Relangi 2022 水刊意图）"转向 **SSFPC 式 u 空间成对
@@ -34,7 +34,7 @@
 > 户无缺失，见 data/README.md）。
 >
 > **更新记录（五）**：2026-09-11 —— ⑪ SSFPC 实现落地并与官方代码核对完成：
-> 官方 MATLAB 码（github.com/gamer1882/FDC，本地 `代码/参考代码/FDC-main`）
+> 官方 MATLAB 码（github.com/gamer1882/FDC，本地 `code/reference/FDC-main`）
 > 逐行对照，确认我们的拉普拉斯构造与论文式 (15)(18)(19) 在 s≥0 时数学等价
 > （平方项↔度矩阵、交叉项↔非对角 −W）；发现**论文与官方代码不一致**——
 > 代码私加 m/|S| 归一化因子（论文无），不采用；⑫ **路线决策：走"正约束
@@ -42,7 +42,7 @@
 > 分支，重新推导后 Algorithm 2 塌缩为单次凸 QP（恒严格正定，有定理与每块
 > λ_min 数值验证双保险），DBCD 与负约束降级为 future work；⑬ 修复 v1 的
 > 因子 2 缺陷（v1 标称 β 实为论文口径 2 倍）；⑭ 代码重整为
-> `ssfpc_v1_初版`（冻结基线）+ `ssfpc_v2_正约束特例`（当前版本，含
+> `ssfpc_v1_initial`（冻结基线）+ `ssfpc_v2_positive_constraints`（当前版本，含
 > SSFPC构造说明.md 完整推导链）；⑮ Gower 约束生成管线（15 字段、
 > Top-K(10)、54,473 对）与 Luo Table I 五特征提取管线均已跑通并对齐
 > （见第五节目录地图）；⑯ 待办：k/β 网格扫描（β 需按约束密度重定标）、
@@ -53,7 +53,7 @@
 > HAS_INTERNET_ACCESS + 12 个问卷字段 δ 缺失处理），解决"大家都像"——
 > s 唯一值 79,196、满分平局 3.1%→0.21%、20.7% 对子自然为负（按阈值 0 截断
 > 为 unknown，负约束完整版列为 future work）；旧版留档
-> `代码/dispose/output_v1_gower15字段/`；⑱ 评估体系落地（`代码/checking/`）：
+> `code/dispose/output_v1_gower15_fields/`；⑱ 评估体系落地（`code/checking/`）：
 > evaluate.py 四层指标（PC/PE/XB/silhouette/CH/DB + 约束 lift/残差 +
 > Roberts 标签外部参照 + seed 间 ARI），run_compare.py 三组对照 ×3 seeds
 > 全部收敛且 seed 间 ARI=1.0——**结论：约束有用**（lift 1.32→1.48，
@@ -65,17 +65,17 @@
 >
 > **更新记录（七）**：2026-09-12 —— ⑳ **负约束（完整版式 6）落地**：
 > similarity.py 加 `EMIT_NEGATIVE` 开关，负约束（s<0，Bottom-10 选边）
-> 输出至 `代码/dispose/output_negative/`（59,760 对，s∈[−0.871,0)；
+> 输出至 `code/dispose/output_negative/`（59,760 对，s∈[−0.871,0)；
 > 每户负值对中位数 828 个，材料充足；正+负边合并后全图 1 个连通块，
 > v2 块切分失效）；㉑ "对角平移投影+OSQP"快速验证版试跑后**否决**
 > （λ_min(βM)=−5.21 ⇒ 投影 τ=5.21 岭项压垮距离项，隶属度退化均匀，
 > PC 0.507→0.260）——恰好印证论文用 DBCD 的必要性；㉒ **串行 DBCD
-> 正式版**（`代码/ssfpc_v3_负约束/`）严格对齐官方 QPP_IDsolver/Solver_x0：
+> 正式版**（`code/ssfpc_v3_negative_constraints/`）严格对齐官方 QPP_IDsolver/Solver_x0：
 > 逐样本 Gauss-Seidel + 每样本恒凸 5 维子问题精确水填充解，不采用官方
 > 私加的 m/|S| 因子（既定立场），顶点遍历分支不移植（官方仅用于
 > ≤3 样本微块）；凸情形（POSITIVE_ONLY）与 v2 OSQP 解对照验证通过
 > （mean|ΔU|=5.7e-8）；㉓ **D 组三 seed 全量运行完成**（
-> `代码/checking/output/D_gower36neg/`）：负对同簇率 30.5%→16.5%
+> `code/checking/output/D_gower36neg/`）：负对同簇率 30.5%→16.5%
 > （随机基线 26.9%）、负对隶属度内积减半、正约束 lift 1.475→1.541、
 > 内部指标仅轻微下降（silhouette −0.04），三 seed ARI=1.0/0.9565/0.9565，
 > objective_ascents 全 0——**Q3 结论：负约束有效且代价小，C↔D 消融即
@@ -89,14 +89,14 @@
 |---|---|
 | `README.md`（本文） | 项目总纲：研究背景、创新点论证、技术方案、对照设计、代码地图、文献清单、写作要点、协作约定 |
 | `data/README.md` | 数据集说明：SGSC 数据来源与引用、文件清单、parquet 转换、负荷五特征提取（load_features.py）口径、demographic 字段用途与排除纪律、相似度约束输出位置指引 |
-| `代码/dispose/README.md` | 约束生成：社会画像 → s_pq 的字段口径（v2 36 字段）、v1/v2 输出对照统计、负约束 future work、运行方法 |
-| `代码/checking/README.md` | 评估与对照实验：output/ 目录结构、四层指标口径、四组对照（A 纯 FCM / B 旧约束 / C 新约束 / D 新约束+负约束）的实验结果与结论 |
-| `代码/ssfpc_v3_负约束/README.md` | 完整版式 6（含负约束）串行 DBCD 版：求解方法、与官方偏差、运行方法、凸情形验证记录、投影版否决记录 |
-| `代码/ssfpc_v2_正约束特例/README.md` | 当前聚类版本说明：运行方法、与 v1 差异、验证记录、fp32/求解器复用等工程变更；完整数学推导见同目录 `SSFPC构造说明.md` |
-| `代码/ssfpc_v1_初版/README.md` | 冻结基线说明：首版 SSFPC 实现记录，含因子 2 缺陷的存档说明（勿再用） |
-| `相关论文/README.md` | 文献库结构与检索记录：核心参考/水刊/知网/约束生成各子库的组织与精读状态 |
-| `代码/参考代码/FDC-main/README.md` | SSFPC 官方 MATLAB 码（github.com/gamer1882/FDC）自带的原始说明，非本项目撰写 |
-| `代码/docx_build/README.md` | Word 综述文档生成脚本与 docx-js 环境说明，含 TOC 手写 XML 解析 bug 排错记录与 docx-js 组件陷阱 |
+| `code/dispose/README.md` | 约束生成：社会画像 → s_pq 的字段口径（v2 36 字段）、v1/v2 输出对照统计、负约束 future work、运行方法 |
+| `code/checking/README.md` | 评估与对照实验：output/ 目录结构、四层指标口径、四组对照（A 纯 FCM / B 旧约束 / C 新约束 / D 新约束+负约束）的实验结果与结论 |
+| `code/ssfpc_v3_negative_constraints/README.md` | 完整版式 6（含负约束）串行 DBCD 版：求解方法、与官方偏差、运行方法、凸情形验证记录、投影版否决记录 |
+| `code/ssfpc_v2_positive_constraints/README.md` | 当前聚类版本说明：运行方法、与 v1 差异、验证记录、fp32/求解器复用等工程变更；完整数学推导见同目录 `SSFPC构造说明.md` |
+| `code/ssfpc_v1_initial/README.md` | 冻结基线说明：首版 SSFPC 实现记录，含因子 2 缺陷的存档说明（勿再用） |
+| `literature/README.md` | 文献库结构与检索记录：core_references/non_core/知网/constraint_generation各子库的组织与精读状态 |
+| `code/reference/FDC-main/README.md` | SSFPC 官方 MATLAB 码（github.com/gamer1882/FDC）自带的原始说明，非本项目撰写 |
+| `code/docx_build/README.md` | Word 综述文档生成脚本与 docx-js 环境说明，含 TOC 手写 XML 解析 bug 排错记录与 docx-js 组件陷阱 |
 
 ---
 
@@ -142,8 +142,8 @@ in [31]"，**没有给出目标函数、模糊指数 m、聚类数等任何参�
 因此：
 
 - 复现基线 = 教科书标准 FCM（Bezdek et al. 1984，即原论文参考文献 [31]，
-  本地 `代码\FCM - The Fuzzy c-Means Clustering Algorithm.pdf`）；
-- 本地 `代码\main.py` 已实现标准 FCM，经核对与该文献式 (11a) 中心更新、
+  本地 `code\FCM - The Fuzzy c-Means Clustering Algorithm.pdf`）；
+- 本地 `code\main.py` 已实现标准 FCM，经核对与该文献式 (11a) 中心更新、
   式 (11b) 隶属度更新、式 (12a/12b) PC/PE 有效性指标一致，可直接作为基线；
 - m 与聚类数 c 原论文未交代，复现时需自行设定并说明依据
   （建议用 XB / Silhouette 指标扫描自动选择，并做敏感性分析）；
@@ -169,7 +169,7 @@ in [31]"，**没有给出目标函数、模糊指数 m、聚类数等任何参�
     —— 家族定位：正则化/半监督 FCM 的机制②加项式（J = FCM 项 + λ·辅助信息项），
        但走 **u 空间成对约束分支**（与写法 B 的特征空间标量分支相对）。
        方法学基础：SSFPC（Wang et al. 2022, IEEE TFS，已精读 2026-08-27，
-       📁 `相关论文\国外论文\核心参考\PDF\Semisupervised_Fuzzy_Clustering_With_Fuzzy_Pairwise_Constraints.pdf`）。
+       📁 `literature\international\core_references\PDF\Semisupervised_Fuzzy_Clustering_With_Fuzzy_Pairwise_Constraints.pdf`）。
        其目标函数（原文式 5/6）：
        J = ΣΣ (u_ir^q − α)·‖x_r−v_i‖² + β·Σ_{(p,q)∈NS} C(u_p,u_q)
        C(u_p,u_q) = ½·s_pq·‖u_p−u_q‖²（s_pq ≥ 0 相似）或 −s_pq·u_pᵀ·u_q（s_pq < 0 不相似）
@@ -185,7 +185,7 @@ in [31]"，**没有给出目标函数、模糊指数 m、聚类数等任何参�
        与论文标题"社会信息过滤（Social Information Filtering）"语义一致；
        ③ 场景与验证：电力零售套餐推荐 + 下游推荐 MAE（SSFPC 为通用聚类 +
        ARI/NMI）
-    —— 约束生成（✅ 已实现 2026-09-09，`代码/dispose/similarity.py`）：
+    —— 约束生成（✅ 已实现 2026-09-09，`code/dispose/similarity.py`）：
        画像字段 15 个——有序（收入、燃气 LOW-MED-HI，按 1−|档差|/2）、
        名义（房型、气候区）、二值（11 个 HAS_*/IS_*）；
        **Gower 相似度为主线**（处理混合类型 + 有序渐进，避免 one-hot 余弦的
@@ -194,22 +194,22 @@ in [31]"，**没有给出目标函数、模糊指数 m、聚类数等任何参�
        输出 54,473 对约束（22 个连通块，最大 1,820 户，100% 样本受约束）。
        已知问题：s=1.0 满分对占 3.1%（平局泛滥），备选"等价类内限边"未实现。
        电力领域先例：闫泓序 2021 工业用户画像（Gower+RST+PAM，
-       `相关论文/约束生成/`），定位差异已辨析（Gower 在彼处是聚类距离、
+       `literature/constraint_generation/`），定位差异已辨析（Gower 在彼处是聚类距离、
        在此是约束生成器；硬聚类 vs 模糊；工业价值评级 vs 居民推荐）。
        字段纪律：排除 ASSRTD_ELECTRICITY_USE_GRP_CD / eDaily / peakTime
        （源自负荷曲线，与 5 维特征冗余）与 TRIAL_CUSTOMER_TYPE /
        CONTROL_GROUP_FLAG（试验分组，非画像属性）、cluster_*（信息泄漏）。
        素材：`data/index files/demographic_lookup_3_groups.parquet`
-    —— 求解实现（✅ 已实现并验证 2026-09-11，`代码/ssfpc_v2_正约束特例/`）：
+    —— 求解实现（✅ 已实现并验证 2026-09-11，`code/ssfpc_v2_positive_constraints/`）：
        走**正约束特例**路线（2026-09-11 定稿，见更新记录五）——简化式 (6)
        删去负约束分支，块子问题恒严格正定（有定理证明 + 每块 λ_min 数值
        验证），Algorithm 2 塌缩为单次凸 QP（OSQP 稀疏 ADMM + 热启动）。
        ~~DBCD 与负约束列为 future work~~ → **已完成（2026-09-12，见更新
        记录七）**：负约束 Bottom-10 选边 + 完整版式 (6) 串行 DBCD 求解器
-       （`代码/ssfpc_v3_负约束/`，对齐官方 QPP_IDsolver），D 组对照证实
+       （`code/ssfpc_v3_negative_constraints/`，对齐官方 QPP_IDsolver），D 组对照证实
        负约束有效（负对同簇率 30.5%→16.5%）。完整推导链与偏差声明见
-       `代码/ssfpc_v2_正约束特例/SSFPC构造说明.md`；
-       已与官方 MATLAB 码（`代码/参考代码/FDC-main`）逐行核对，
+       `code/ssfpc_v2_positive_constraints/SSFPC构造说明.md`；
+       已与官方 MATLAB 码（`code/reference/FDC-main`）逐行核对，
        不采用其私加的 m/|S| 因子（论文式 18/19 无此项）；
        β=0.1（论文口径）、k=5 验证运行：168 轮收敛，目标函数 168 步
        0 次上升，簇规模 [1939, 110, 599, 2140, 1243]
@@ -289,7 +289,7 @@ project/
 │   │                              #   工作时间(工作日9-17)/非工作时间周均）+ z-score，
 │   │                              #   按 demographic 行序对齐（输出 data/output/）
 │   └── output/                    # load_features.parquet / features_std.npy / ...
-├── 代码/
+├── code/
 │   ├── dispose/
 │   │   ├── similarity.py          # demographic 36 字段(v2, 2026-09-11 扩充: 地理分层/
 │   │   │                          #   普查码/计量计数/问卷字段δ缺失处理) → Gower 两两相似度
@@ -299,7 +299,7 @@ project/
 │   │   │                          #   customer_ids.npy / run_meta.json (v2 新约束)
 │   │   ├── output_negative/       # 负约束 (2026-09-12): constraints_gower_negative.parquet
 │   │   │                          #   (s<0, Bottom-10, 59,760 对) + customer_ids.npy + run_meta.json
-│   │   └── output_v1_gower15字段/  # 旧 15 字段版留档 (54,473 对, 22 块)
+│   │   └── output_v1_gower15_fields/  # 旧 15 字段版留档 (54,473 对, 22 块)
 │   ├── checking/                  # ★评估与对照实验 (2026-09-11 建)
 │   │   ├── evaluate.py            #   四层指标: PC/PE/XB + silhouette/CH/DB +
 │   │   │                          #   约束lift/残差 + Roberts标签ARI/NMI (无sklearn依赖)
@@ -307,24 +307,24 @@ project/
 │   │   ├── README.md              #   output/ 内容与指标口径说明
 │   │   └── output/                #   A_fcm / B_gower15 / C_gower36 / D_gower36neg
 │   │                              #   各 3 seeds + summary.csv + stability.json
-│   ├── ssfpc_v1_初版/             # 冻结基线：首个可运行 SSFPC（有因子2缺陷，
+│   ├── ssfpc_v1_initial/             # 冻结基线：首个可运行 SSFPC（有因子2缺陷，
 │   │   ├── ssfpc.py               #   标称β实为论文口径2倍；详见其 README）
 │   │   └── output/                # β=0.1 验证运行记录
-│   ├── ssfpc_v2_正约束特例/        # ★当前版本：正约束特例，因子2已修复，
+│   ├── ssfpc_v2_positive_constraints/        # ★当前版本：正约束特例，因子2已修复，
 │   │   ├── ssfpc.py               #   λ_min 正定性验证; run_ssfpc() 可复用接口;
 │   │   │                          #   fp32 + BlockQPSolver 求解器复用 (2026-09-11)
 │   │   ├── SSFPC构造说明.md        # 简化式(6)完整推导链+偏差声明（论文章节草稿）
 │   │   └── output/                # β=0.1 k=5 验证运行记录
-│   ├── ssfpc_v3_负约束/            # ★完整版式6 (2026-09-12): 串行DBCD对齐官方
+│   ├── ssfpc_v3_negative_constraints/            # ★完整版式6 (2026-09-12): 串行DBCD对齐官方
 │   │   ├── ssfpc_v3.py            #   QPP_IDsolver; POSITIVE_ONLY 验证开关;
 │   │   │                          #   进度条+ETA; checkpoint 续跑
 │   │   ├── output/                #   seed_0 原始运行 (副本归档 checking D 组)
-│   │   └── output_positive_only_对照v2验证/  # 凸情形验证留档 (mean|ΔU|=5.7e-8)
-│   ├── 参考代码/FDC-main/          # SSFPC 官方 MATLAB 码（github.com/gamer1882/FDC，
+│   │   └── output_positive_only_vs_v2/  # 凸情形验证留档 (mean|ΔU|=5.7e-8)
+│   ├── reference/FDC-main/          # SSFPC 官方 MATLAB 码（github.com/gamer1882/FDC，
 │   │                              #   已逐行对照；PNNG.m 为 GBK 编码）
 │   ├── docx_build/                # Word 综述生成脚本 create.js + docx-js 环境（2026-09-12）
-│   └── 旧版FCM/                   # 标准 FCM 手写实现（复刻基线，已核对 Bezdek 1984）
-└── 相关论文/                      # 文献库（见 相关论文/README.md）
+│   └── fcm_legacy/                   # 标准 FCM 手写实现（复刻基线，已核对 Bezdek 1984）
+└── literature/                      # 文献库（见 literature/README.md）
 ```
 
 运行环境纪律：用 conda **yolo** 环境（`/c/Users/BugCat/miniconda3/envs/yolo/python.exe`，
@@ -337,36 +337,36 @@ polars/torch-CUDA/scipy/osqp 齐备）；Git Bash 下必须 `export POLARS_SKIP_
 ## 六、参考文献清单
 
 本地目录说明（相对本 README 所在目录）：
-- `相关论文\` —— 文献库（2026-08-27 重整，详见 `相关论文\README.md`）：
-  `国外论文\核心参考\PDF|TXT`（英文核心文献）、`国外论文\水刊\`、
-  `知网参考\*.txt`（转换件，公式可能有缺失，正式引用以原 PDF 为准）、
-  `知网参考\CAJ\`（知网原始格式，需 CAJViewer 打开）
+- `literature\` —— 文献库（2026-08-27 重整，详见 `literature\README.md`）：
+  `international\core_references\PDF|TXT`（英文核心文献）、`international\non_core\`、
+  `cnki\*.txt`（转换件，公式可能有缺失，正式引用以原 PDF 为准）、
+  `cnki\CAJ\`（知网原始格式，需 CAJViewer 打开）
 - `相关论文索引\` —— Connected Papers 导出的 .bib 文献条目
-- 全文提取件位置按文献库结构（详见 `相关论文\README.md`）：
-  `相关论文\国外论文\核心参考\TXT\`（核心英文文献，与 PDF 分目录存放）、
-  `相关论文\国外论文\水刊\*.txt`（与 PDF 同目录）、
-  `相关论文\知网参考\*.txt`（与 CAJ 分目录）。提取件便于全文检索，公式可能缺失，
+- 全文提取件位置按文献库结构（详见 `literature\README.md`）：
+  `literature\international\core_references\TXT\`（核心英文文献，与 PDF 分目录存放）、
+  `literature\international\non_core\*.txt`（与 PDF 同目录）、
+  `literature\cnki\*.txt`（与 CAJ 分目录）。提取件便于全文检索，公式可能缺失，
   正式引用与公式核对一律以原 PDF 为准
 
 ### 复刻基准
 - Luo F, Ranzi G, Wang X, Dong ZY. Social Information Filtering-Based Electricity
   Retail Plan Recommender System for Smart Grid End Users. IEEE Trans. Smart Grid,
   2019, 10(1): 95-104.（被引 68）
-  📁 本地：`相关论文\国外论文\核心参考\PDF\Social Information Filtering-Based Electricity.pdf`
+  📁 本地：`literature\international\core_references\PDF\Social Information Filtering-Based Electricity.pdf`
   ⚠️ 已核实：FCM 部分无任何实现细节，仅引用 Bezdek 1984 [31]
 
 ### 方法基础
 - Bezdek JC, Ehrlich R, Full W. FCM: The fuzzy c-means clustering algorithm.
   Computers & Geosciences, 1984, 10(2-3): 191-203.（FCM 原始文献，原论文参考文献 [31]；
   该文只给更新公式不给推导，推导在 Bezdek 1981 专著中）
-  📁 本地：`代码\FCM - The Fuzzy c-Means Clustering Algorithm.pdf`
+  📁 本地：`code\FCM - The Fuzzy c-Means Clustering Algorithm.pdf`
 - Relangi NDSSK, Chaparala A, Sajja R. Identification of Potential Quality of
   Groundwater Using Improved Fuzzy C Means Clustering Method. Mathematical
   Modelling of Engineering Problems (IIETA), 2022, 9(5). DOI: 10.18280/mmep.090527.
   （第二层**消融对照（写法 B）**的思路来源：目标函数加领域标量项。⚠️ 已核实其
   式 14 加项后未重推更新公式、不可计算、与迭代脱节，仅存思路价值——写法 B 的
   规范形式为本文自推，措辞纪律：只写"受其启发"，不写"基于其方法"）
-  📁 本地：`相关论文\国外论文\水刊\地下水改进 FCM.pdf`
+  📁 本地：`literature\international\non_core\地下水改进 FCM.pdf`
 
 ### 同团队迭代（相关工作定位用）
 - Yang J, et al. Household power usage pattern filtering-based residential electricity
@@ -374,7 +374,7 @@ polars/torch-CUDA/scipy/osqp 齐备）；Git Bash 下必须 `export POLARS_SKIP_
   内容包含于下条学位论文中）
 - Zhao P. Household Energy Consumption Analysis-based Electricity Plan Recommender
   System. MPhil Thesis, UNSW, 2022.（含期刊版扩写，已精读：未改进聚类）
-  📁 本地：`相关论文\国外论文\核心参考\PDF\Household power usage pattern filtering-based residential electricity plan recommender system.pdf`
+  📁 本地：`literature\international\core_references\PDF\Household power usage pattern filtering-based residential electricity plan recommender system.pdf`
 - Guo X, Zhang Y, Luo F, Dong ZY. User-centric recommendations on energy-efficient
   appliances in smart grids: A Multi-task learning approach. Knowledge-Based Systems,
   2024.（⚠️ 未下载，ScienceDirect 获取）
@@ -382,23 +382,23 @@ polars/torch-CUDA/scipy/osqp 齐备）；Git Bash 下必须 `export POLARS_SKIP_
 ### 方法参考（改进 FCM + CF 的通用场景先例）
 - 徐新卫, 陶飞, 等. 融合FCM和TFNs的协同过滤推荐算法. 计算机技术与发展,
   2023, 33(3): 161-166.（GA-FCM + 梯形模糊数，参数齐全可复现）
-  📁 本地：`相关论文\知网参考\融合FCM和TFNs的协同过滤推荐算法_徐新卫.txt`；
-  原始 CAJ：`相关论文\知网参考\CAJ\融合FCM和TFNs的协同过滤推荐算法_徐新卫.caj`
+  📁 本地：`literature\cnki\融合FCM和TFNs的协同过滤推荐算法_徐新卫.txt`；
+  原始 CAJ：`literature\cnki\CAJ\融合FCM和TFNs的协同过滤推荐算法_徐新卫.caj`
 - 王丽. 基于麻雀搜索优化模糊C均值聚类的推荐算法研究. 桂林理工大学硕士论文, 2022.
   （ISSA-FCM 三层消融实验设计模板）
-  📁 本地：`相关论文\知网参考\基于麻雀搜索优化模糊C均值聚类的推荐算法研究_王丽.txt`；
-  原始 CAJ：`相关论文\知网参考\CAJ\基于麻雀搜索优化模糊C均值聚类的推荐算法研究_王丽.caj`
+  📁 本地：`literature\cnki\基于麻雀搜索优化模糊C均值聚类的推荐算法研究_王丽.txt`；
+  原始 CAJ：`literature\cnki\CAJ\基于麻雀搜索优化模糊C均值聚类的推荐算法研究_王丽.caj`
 - 李朋起. 基于改进FCM的协同过滤推荐系统设计与实现. 南京邮电大学硕士论文, 2020.
   （混合相似度 + 系统设计参考）
-  📁 本地：`相关论文\知网参考\基于改进FCM的协同过滤推荐系统设计与实现_李朋起.txt`；
-  原始 CAJ：`相关论文\知网参考\CAJ\基于改进FCM的协同过滤推荐系统设计与实现_李朋起.caj`
+  📁 本地：`literature\cnki\基于改进FCM的协同过滤推荐系统设计与实现_李朋起.txt`；
+  原始 CAJ：`literature\cnki\CAJ\基于改进FCM的协同过滤推荐系统设计与实现_李朋起.caj`
 - 马静, 等. 基于FCM-PSO算法的大工业用电价格峰谷调节策略. 2025.
   （电力领域 PSO-FCM 先例，仅聚类无推荐）
-  📁 本地：`相关论文\知网参考\基于FCM-PSO算法的大工业用电价格峰谷调节策略_马静.txt`；
-  原始 CAJ：`相关论文\知网参考\CAJ\基于FCM-PSO算法的大工业用电价格峰谷调节策略_马静.caj`
+  📁 本地：`literature\cnki\基于FCM-PSO算法的大工业用电价格峰谷调节策略_马静.txt`；
+  原始 CAJ：`literature\cnki\CAJ\基于FCM-PSO算法的大工业用电价格峰谷调节策略_马静.caj`
 
 ### 其他已下载待读的中文文献（CAJ 原件，暂未转换）
-位于 `相关论文\知网参考\CAJ\`：
+位于 `literature\cnki\CAJ\`：
 - 基于QPSO与FCM融合的协同过滤推荐算法_王晓云.caj（QPSO，PSO 的量子改进版）
 - 基于直觉模糊C均值聚类和用户兴趣的协同过滤推荐算法_余洁茹.caj（直觉模糊路线）
 - 改进模糊划分聚类的协同过滤推荐算法_苏庆.caj
@@ -428,7 +428,7 @@ polars/torch-CUDA/scipy/osqp 齐备）；Git Bash 下必须 `export POLARS_SKIP_
   家族血统文献，related work 必引。**已精读 2026-08-27**：ssFCM 走"变量固定/约束式"
   注入——J 不变、标签样本隶属度钉死、中心由标签样本播种；Pedrycz 1985 才是
   加项式祖先）
-  📁 本地：`相关论文\国外论文\核心参考\PDF\1996prssfcmimages.pdf`；全文提取件同名 .txt
+  📁 本地：`literature\international\core_references\PDF\1996prssfcmimages.pdf`；全文提取件同名 .txt
   （中间段文本层损坏，公式以 PDF 第 3–5 页原貌为准）
 - Wang Z, Wang SS, Bai L, Wang WS, Shao YH. Semisupervised fuzzy clustering with
   fuzzy pairwise constraints. IEEE Trans. Fuzzy Systems, 2022, 30(9).（SSFPC；
@@ -438,8 +438,8 @@ polars/torch-CUDA/scipy/osqp 齐备）；Git Bash 下必须 `export POLARS_SKIP_
   (13) 不受加项影响（仍为加权均值）；③ 隶属度更新无闭式解、需 DBCD 解 IQPP。
   本文差异点（新颖性）：约束 s_pq 由 demographic 画像相似度自动生成（原文为
   监督者人工标注）、监督空间从行为结果迁移到社会属性、下游用推荐 MAE 验证）
-  📁 本地：`相关论文\国外论文\核心参考\PDF\Semisupervised_Fuzzy_Clustering_With_Fuzzy_Pairwise_Constraints.pdf`；
-  全文提取件：`相关论文\国外论文\核心参考\TXT\` 同名 .txt（2026-08-27 生成）
+  📁 本地：`literature\international\core_references\PDF\Semisupervised_Fuzzy_Clustering_With_Fuzzy_Pairwise_Constraints.pdf`；
+  全文提取件：`literature\international\core_references\TXT\` 同名 .txt（2026-08-27 生成）
 - Liu CL, Hsaio WH, Chang TH, Li HH. Clustering data with partial background
   information. Int. J. of Machine Learning & Cybernetics, 2019.（EWSS-FCM。
   **已精读 2026-08-27，⚠️ 定位修正：非加项式**——J 保持标准 FCM 形式（式 1），
@@ -448,8 +448,8 @@ polars/torch-CUDA/scipy/osqp 齐备）；Git Bash 下必须 `export POLARS_SKIP_
   仅作为 Constrained-NMF 的初始化组件。不属本文加项式血统线，仅作"加权式 vs
   加项式"两分法对照，其熵权重思想可在 λ 敏感性/权重设计讨论中挂名。真正的
   特征空间加项推导模板为 FCM_S（Ahmed 2002，建议升格精读））
-  📁 本地：`相关论文\国外论文\核心参考\PDF\Clustering data with partial background information.pdf`；
-  全文提取件：`相关论文\国外论文\核心参考\TXT\` 同名 .txt（2026-08-27 生成）
+  📁 本地：`literature\international\core_references\PDF\Clustering data with partial background information.pdf`；
+  全文提取件：`literature\international\core_references\TXT\` 同名 .txt（2026-08-27 生成）
 - Ahmed MN, Yamany SM, Mohamed N, Farag AA, Moriarty T. A modified fuzzy c-means
   algorithm for bias field estimation and segmentation of MRI data. IEEE Trans.
   Medical Imaging, 2002.（FCM_S，空间邻域一致性正则化。⚠️ 2026-08-27 定位修正：
@@ -531,7 +531,7 @@ polars/torch-CUDA/scipy/osqp 齐备）；Git Bash 下必须 `export POLARS_SKIP_
 2026-09-10 更新：确立协作约定（复刻遇缺失细节先问用户，官方源码为准）；
 2026-09-11 更新：SSFPC 落地并与官方 MATLAB 码核对（不采用 m/|S| 因子）、
 正约束特例路线定稿（Algorithm 2 塌缩为凸 QP）、因子 2 修复、代码重整为
-ssfpc_v1_初版（冻结）+ ssfpc_v2_正约束特例（当前）、Gower 约束生成与
+ssfpc_v1_initial（冻结）+ ssfpc_v2_positive_constraints（当前）、Gower 约束生成与
 五特征提取管线跑通；2026-09-11（二）更新：相似度字段扩充 v2（36 字段）、
 评估模块与三组对照实验落地（约束有效、字段扩充全面更优）、fp32 与
 QP 求解器复用性能优化。*

@@ -50,11 +50,11 @@ data/
     └── load_meta.json            # 口径与统计留痕
 ```
 
-> **用户相似度约束（s_pq）的输出不在本目录**：由 `代码/dispose/similarity.py`
-> 生成，暂存于代码侧 **`代码/dispose/output/`**（正约束：constraints_gower.parquet、
+> **用户相似度约束（s_pq）的输出不在本目录**：由 `code/dispose/similarity.py`
+> 生成，暂存于代码侧 **`code/dispose/output/`**（正约束：constraints_gower.parquet、
 > constraints_cosine.parquet、customer_ids.npy、run_meta.json；旧 15 字段版
-> 留档于 `代码/dispose/output_v1_gower15字段/`）；**负约束（s<0，Bottom-10
-> 选边，59,760 对，2026-09-12 起）输出至 `代码/dispose/output_negative/`**。
+> 留档于 `code/dispose/output_v1_gower15_fields/`）；**负约束（s<0，Bottom-10
+> 选边，59,760 对，2026-09-12 起）输出至 `code/dispose/output_negative/`**。
 > 字段口径与统计见本文第四节 demographic 表的「用途参考」。
 
 ### 转换产物：data_3_groups.parquet
@@ -150,9 +150,9 @@ CSV 仅在重新转换时读取，实验代码一律以 parquet 为输入。
   日均用电量（`eDaily`）、用电峰值时刻（`peakTime`）等。
 - 用途参考：可用于特征工程的补充、分层分析；**第二层主创新的辅助信息来源
   （2026-08-27 定，2026-09-11 已实现）**——已编码为"社会画像向量"并生成
-  SSFPC 成对约束 s_pq，生成脚本为 `代码/dispose/similarity.py`（v2 扩展字段版），
-  输出暂存于代码侧 `代码/dispose/output/`（constraints_gower.parquet 等；
-  旧 15 字段版留档于 `代码/dispose/output_v1_gower15字段/`），
+  SSFPC 成对约束 s_pq，生成脚本为 `code/dispose/similarity.py`（v2 扩展字段版），
+  输出暂存于代码侧 `code/dispose/output/`（constraints_gower.parquet 等；
+  旧 15 字段版留档于 `code/dispose/output_v1_gower15_fields/`），
   后续可考虑迁回本目录，暂维持现状。
   - v2 使用 36 个字段：21 个全量字段（含地理分层 suburb/LGA/region 复合计分、
     CENSUS_GROUP_CODE、计量配置计数、HAS_INTERNET_ACCESS）+ 12 个问卷字段
@@ -164,8 +164,8 @@ CSV 仅在重新转换时读取，实验代码一律以 parquet 为输入。
     3.1%→0.21%，20.7% 对子为负值；
   - **负约束已启用（2026-09-12）**：`EMIT_NEGATIVE=True` 时另按
     Bottom-M(10) 选边输出 s<0 的 cannot-link 对子至
-    `代码/dispose/output_negative/`（59,760 对），供完整版式 6 求解器
-    `代码/ssfpc_v3_负约束/`（串行 DBCD）使用；每户负值对中位数 828 个。
+    `code/dispose/output_negative/`（59,760 对），供完整版式 6 求解器
+    `code/ssfpc_v3_negative_constraints/`（串行 DBCD）使用；每户负值对中位数 828 个。
 
 ### Column Mappings.csv
 

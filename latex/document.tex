@@ -184,7 +184,7 @@
 		\]
 		固定其余样本后，所有交叉项 \(u_i^{\top}D_{ij}u_j\)（\(j\neq i\)）退化为 \(u_i\) 的线性项，二次项只剩下 \(\frac{1}{2}u_i^{\top}D_{ii}u_i\)。而 \(D\) 的不定性恰来自样本间耦合（负约束经非对角块产生的正耦合撞出负特征值），\(D_{ii}\) 由构造恒正定（距离平方与正约束强度之和），且 \(D\) 的负特征值方向必然同时涉及多个样本、在单样本方向上不存在负曲率。因此子问题~\eqref{eq:qp-sample} 的黑塞矩阵恒正定，其全局解可由 CQPP 求解器获得；由于每个子问题都精确解到全局最小，目标值随扫描单调不增，DBCD 循环直至相邻两轮解的变化小于容差（通常取 \(10^{-3}\)），并收敛到式~\eqref{eq:qp-matrix} 的一个驻点（原论文证明了该收敛性）。
 		
-		在实现上，我们采用逐样本 Gauss--Seidel 串行扫描；每个样本的 \(k\) 维子问题以精确水填充算法解出，即按线性项排序枚举活跃前缀并以二分法兜底。该实现严格对齐官方 MATLAB 代码\footnote{\url{https://github.com/gamer1882/FDC}} 中的 \texttt{QPP\_IDsolver}/\texttt{Solver\_x0} 结构。
+		在实现上，我们采用逐样本 Gauss--Seidel 串行扫描；每个样本的 \(k\) 维子问题以精确水填充算法解出，即按线性项排序枚举活跃前缀并以二分法兜底。该实现严格对齐官方 MATLAB code\footnote{\url{https://github.com/gamer1882/FDC}} 中的 \texttt{QPP\_IDsolver}/\texttt{Solver\_x0} 结构。
 	\end{enumerate}
 	
 	\textbf{偏差声明}：官方代码私加了 $m/s$ 归一化因子（论文式18/19中并无此项），本文不采用；$\beta$ 一律按论文式(5)(6)口径报告。完整推导链与验证记录见项目内《SSFPC构造说明.md》及各版本README。
