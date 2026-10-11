@@ -1,4 +1,4 @@
-# 超过 GitHub 100MB 限制的大文件（保留在本地）
+# 大数据文件/目录（保留在本地，不提交）
 data/zm4f727vvr-1.zip
-data/interval load data/data_3_groups.csv
-data/interval load data/data_3_groups.parquet
+data/interval load data/
+data/index files/
