@@ -1,0 +1,32 @@
+[
+  {
+    "config": "A_fcm",
+    "seed_pair_ARI": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ARI_mean": 1.0,
+    "ARI_std": 0.0
+  },
+  {
+    "config": "B_gower15",
+    "seed_pair_ARI": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ARI_mean": 1.0,
+    "ARI_std": 0.0
+  },
+  {
+    "config": "C_gower36",
+    "seed_pair_ARI": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "ARI_mean": 1.0,
+    "ARI_std": 0.0
+  }
+]

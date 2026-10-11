@@ -1,0 +1,948 @@
+IEEE TRANSACTIONS ON SMART GRID, VOL. 10, NO. 1, JANUARY 2019 95
+Social Information Filtering-Based Electricity
+Retail Plan Recommender System
+for Smart Grid End Users
+Fengji Luo, Member, IEEE, Gianluca Ranzi, Member, IEEE, Xibin Wang,
+and Zhao Yang Dong, Fellow, IEEE
+Abstract—Rapid growth of data in smart grids provides great
+potentials for the utility to discover knowledge of demand side
+and design proper demand side management schemes to optimize
+the grid operation. The overloaded data also impose challenges
+on the data analytics and decision making. This paper introduces
+the service computing technique into the smart grid, and pro-
+poses a personalized electricity retail plan recommender system
+for residential users. The proposed personalized recommender
+system (PRS) is based on the collaborative ﬁltering technique.
+The energy consumption data of users are ﬁrstly collected from
+the smart meter, and then key energy consumption features
+of the users are extracted and stored into a user knowledge
+database (UKD), together with the information of their chosen
+electricity retail plans. For a target user, the recommender system
+analyzes his/her energy consumption pattern, ﬁnd users having
+similar energy consumption patterns with him/her from the UKD,
+and then recommend most suitable pricing plan to the target user.
+Experiments are conducted based on actual smart meter data and
+retail plan data to verify the effectiveness of the proposed PRS.
+Index Terms —Smart grid, service computing, recommender
+system, demand side management, energy management system.
+I. I NTRODUCTION
+V
+ARIOUS wide-area and distributed data sources in
+today’s power grids generate unprecedented data vol-
+umes in the grids’ daily operations. For example, a provincial
+Manuscript received February 4, 2017; revised June 8, 2017; accepted
+July 22, 2017. Date of publication July 31, 2017; date of current version
+December 19, 2018. This work was supported in part by the Australian
+Research Council through Its Future Fellowship Scheme under Grant
+FT140100130, in part by the Visiting Scholarship of State Key Laboratory
+of Power Transmission Equipment & System Security and New Technology
+(Chongqing University, China) under Grant 2007DA10512716401, in part by
+the Early Career Research Development Scheme of Faculty of Engineering
+and Information Technology, University of Sydney, Australia, and in part by
+the Scientiﬁc and Technological Research Program of Chongqing Municipal
+Education Commission under Grant KJ1600437. Paper no. TSG-00173-2017.
+(Corresponding author: Fengji Luo.)
+F. Luo and G. Ranzi are with the School of Civil Engineering, University
+of Sydney, NSW 2006, Australia (e-mail: fengji.luo@sydney.edu.au;
+gianluca.ranzi@sydney.edu.au).
+X. Wang is with the School of Electrical and Information Engineering,
+Guizhou Institute of Technology, Guiyang 550003, China (e-mail:
+binxi.wang@cqu.edu.cn).
+Z. Y . Dong is with the School of Electrical Engineering and
+Telecommunications, University of New South Wales, NSW, Australia
+(e-mail: zydong@ieee.org).
+Color versions of one or more of the ﬁgures in this paper are available
+online at http://ieeexplore.ieee.org.
+Digital Object Identiﬁer 10.1109/TSG.2017.2732346
+utility grid in China can reach 20 million meters. And if one
+considers the data is collected every 5-15 minutes, this grid
+alone will generate about 1-terabyte a day [ 1]. The large avail-
+able data sets provide opportunities for the utility to learn
+knowledge from the data and make proper strategies to opti-
+mize the grid operation, but also impose signiﬁcant challenges
+on the data collection, transmission, and analytics [ 2], [3].
+Meanwhile, driven by the advances in Web technology, there
+is an ongoing trend for transforming utility services to be an
+E-commerce. For example, the Public Utility of Commission
+of Texas, the U.S., has established the “Power-to-Choose”
+Web platform for selling the electricity retail plans to the end
+users [4]. The end users can view, compare, and choose the
+retail plans from different retailers on the website.
+Above development trends provide new opportunities for the
+utility to learn end users’ needs and preferences on the electri-
+cal services/products, and design efﬁcient demand side energy
+management systems (EMSs) to maximize the users’ response
+rates and improve the grid energy efﬁciency. Currently, the
+prevalent demand side management (DSM) techniques can be
+generally categorized into two classes: Incentive based DSM
+programs and pricing based DSM programs.
+A. Overview of Demand Side Management Techniques
+The incentive based DSM technique is also known as direct
+load control (DLC) [5]. In DLC, the utility directly controls the
+settings or ON/OFF status of electrical resources of the end
+users through remote controllers and actuators. These elec-
+trical resources could include household appliances, electric
+vehicles (EVs), etc. The utility would provide incentives or
+rewards to the users as the subsidy of the load control. DLC
+control techniques has been widely studied in the literature.
+For example, many works study the direct control of the ther-
+mostatically controlled loads (TCLs) to support the grid-level
+applications [6], [7]. Some researchers investigate the coordi-
+nated direct control scheme of various household appliances
+by considering the users’ utilization preferences [ 8]. There
+are also some DLC industrial projects implemented around
+the world, such as the ‘SmartAC’ program of Paciﬁc Gas &
+Electric (PG&E) [ 9].
+The pricing based DSM technique is also known as indirect
+load control [10]. In the pricing based DSM programs, the util-
+ity sets up a certain pricing signals to stimulate users actively
+1949-3053 c⃝ 2017 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission.
+See http://www.ieee.org/publications_standards/publications/rights/index.html for more information.
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+96 IEEE TRANSACTIONS ON SMART GRID, VOL. 10, NO. 1, JANUARY 2019
+adjust their appliance utilization time to the periods with lower
+rates. The widely adopted variable pricing schemes mainly
+include the Time-of-Use (TOU) pricing [ 11], real-time pric-
+ing (RTP) [12], and critical peak pricing (CPP) [ 13], refers to
+the programs in which customers respond to the time-varying
+changes in retail electricity tariffs. TOU rates can achieve
+greater beneﬁts, but its main drawback is that its structure
+and rates are not frequently updated. RTP is a dynamic pric-
+ing scheme with a price updating cycle of one hour or less.
+RTP can more accurately reﬂect the demand-supply balance
+and marginal cost variations in a power grid, but its frequent
+update cycles are often too complex for residential customers.
+CPP is a compromise between TOU and RTP. In a CPP pro-
+gram, TOU rates are still applied in normal periods. When
+a peak event is predicted by the control centre, it will send
+a notice to customers to indicate that a critical peak period, in
+which a much higher critical peak rate will be applied.
+B. A New Type of Energy Management System: Smart Grid
+Personalized Recommender Systems
+According to [ 14], demand response (DR) programs can be
+implemented at different levels: manual DR, semi-automated
+DR, and fully-automated DR. Existing residential energy man-
+agement systems (REMSs) often work in fully-automated and
+semi-automated DR environments, in which energy manage-
+ment systems directly schedule and control the residential
+energy resources (energy storage systems, appliances, plug-in
+electric vehicles, etc.). Currently, the manual DR is often based
+on the aforementioned varying pricing signals. Our recent
+researches [15], [16] show that even in the manual DR envi-
+ronment, there is still the opportunity to develop a typology
+of REMS to enhance the household energy efﬁciency. That
+is, to introduce the personalized recommendation (PR) (also
+known as service recommendation or recommendation) tech-
+nique to capture the user’s needs and interests, and recommend
+energy-aware products/suggestions to the user.
+With the prevalence of Web technology and data explo-
+sion, PR technology has attracted wide attentions in both
+the computer science academia and industry [ 17], [18]. PR
+provide powerful tools to learn users’ preferences and inter-
+ests from a large set of available user-related data (e.g., bank
+transaction records, user comments, etc.), and recommend per-
+sonalized services/products to users in which they are mostly
+interested. In the last a few years, recommendation techniques
+have already been widely applied in the e-commerce indus-
+try, and many personalized recommender systems (PRSs) have
+been developed to recommend different kinds of products to
+the users, such as movies, books, Web services, etc.
+As mentioned before, modern power systems are experi-
+encing a trend to deliver Web based electronic services to
+end users. Therefore, there could be huge potentials for the
+utility to apply PR technique to obtain end users’ needs and
+interests from the residential energy consumption data, and
+recommend different kinds of energy-aware products/services
+to the users. In [ 15], we discussed the vision of applying PR
+technique into smart grid, and proposed conceptual designs of
+three applications. Those application scenarios represent a new
+type of REMS, which is referred as the smart grid personalized
+recommender system (SGPRS). SGPRS is essentially a kind
+of data-driven, networked energy management system. It does
+not rely on incentive nor pricing signals to optimize the user’s
+energy consumption, but implicitly ﬁnd out mostly suitable,
+energy-aware products/services for a speciﬁc user from a large
+number of available items. In [16], we implemented one of the
+three applications in [ 15], which is an energy saving appliance
+recommendation system based on the information retrieving
+and non-intrusive load monitoring techniques.
+C. Scope of This Paper
+As aforementioned, developed countries have been trans-
+forming the power retail business to be an E-commerce.
+Also in the developing countries, deliberation of the power
+retail market is an ongoing trend [ 19]. For example, recently
+China has made strategic plans to open the electricity retail
+market, and established trial retail markets in some cities,
+in which a large number of retailers are authorized [ 20]. In
+this paper, following our former works [ 15], [16], we intro-
+duce PR into DSM and develop another speciﬁc application
+of SGPRS—a personalized electricity retail plan recommender
+system, which is the second application discussed in [ 15]. In
+this application, the utility analyzes the energy consumption
+features of a user, and recommend mostly suitable electricity
+retail plans to the user, so as to improve the energy efﬁciency
+of the demand side. The proposed PRS is based on the collab-
+orative ﬁltering (CF) recommendation technique, which ﬁlters
+the items from the social information of a group of users.
+For a target user, the proposed PRS extracts his/her house-
+hold energy consumption features, and recommends suitable
+electricity retail plans to the user by analyzing the choices of
+a group of users who have the similar energy consumption
+features with the target user.
+This paper is organized as follows. Section II gives an
+overview on the personalized recommendation techniques;
+Section III introduces the settings of typical electric retail
+plans; Section IV presents the proposed personalized elec-
+tricity retail plan recommender system; Section V discusses
+the experiment results; and Section VI gives conclusions and
+future works.
+II. I
+NTRODUCTION OF PERSONALIZED
+RECOMMENDATION
+With the overloaded information of today’s society, people
+often need to make choices on their interested or needed prod-
+ucts/services from a large number of available ones. Driven
+by this, PR techniques are developed to automatically learn
+users’ preferences and interests, and extract and recommend
+meaningful information to users. PR technique has gained
+large successes in the ﬁeld of E-commerce. For example, as
+the ﬁrst E-commerce website which applies the PR technique
+on its business, Amazon has a successful implementation on
+the precision marketing. Statistical data show that 35% of
+Amazon’s sales are provided by its product recommendation
+engine [21].
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+LUO et al.: SOCIAL INFORMATION FILTERING-BASED ELECTRICITY RETAIL PLAN RECOMMENDER SYSTEM 97
+To make readers more familiar with the research in this
+paper, in this section we ﬁrstly give a brief overview of PR
+techniques, and then particularly introduce the basics of the
+CF recommendation technique, which is applied in the design
+of the proposed PRS in this paper.
+A. Overview of Personalized Recommendation
+In despite of their prevalence in both computing academia
+and industry in recent years, the proposal of personalized rec-
+ommendation techniques actually can be traced back to the
+mid-1990s [24]. From then, many PRSs have been developed,
+aiming to assist people to deal with information overload
+and provide personalized item recommendations to them. For
+example, in our recent works, we developed a support vec-
+tor machine (SVM) based electronic movie recommendation
+system [22] and a quality-of-service (QoS) aware Web service
+recommendation system [ 23].
+Formally, a recommendation problem can be described as
+follows [17]. Let C and S be the sets of users and possible
+items which can be recommended, respectively. And let u be
+a utility function that measures the usefulness of item s to
+user c, i.e., u : C × S → R, where R is a totally ordered set of
+nonnegative integers of real numbers. Then, the recommender
+system chooses the items s
+′
+c ∈ S for a given user c ∈ C,t o
+maximize the user’s utility,
+s′
+c = arg max
+s∈S
+u(c, s) (1)
+In personalized recommendation, the utility of an item is
+usually represented by a rating of a user, which can be a binary
+value to indicate ‘like’ or ‘dislike’, or numerical value to indi-
+cate the preference degree of a user on a particular item [ 17].
+Note here the meaning of the word ‘utility’ is different with
+the power utility. In most situations, the utility u is often not
+deﬁned on the whole C × S space, but only a subset of it.
+That is, users only rate a subset of items [ 18]. Therefore, the
+core task of PR is to predict unknown ratings of the user on
+nonrated items from the known ratings, and make appropriate
+recommendations to the user based on those predictions.
+The most commonly used recommendation methods can
+be categories into two classes: content-based recommenda-
+tion methods and collaborative ﬁltering based recommendation
+methods [25]. Content-based recommendations recommend
+items to a user based on the similar items the user preferred
+in the past. For example, a book recommendation system will
+learn the commonalities among the books which have been
+highly rated by a speciﬁc user in the past. Then the books
+which have a high degree of similarity to whatever the user’s
+preferences will be selected and recommended to the user.
+Unlike content-based recommendations, CF based recommen-
+dations try to predict the score of items for a particular user
+based on the items previously rated by other users. It ﬁnds
+the “peers” of a speciﬁc user who have similar tastes. Then,
+only the items that are most preferred by the “peers” will be
+recommended [17], [18].
+B. CF Based Recommendation Technique
+CF based recommendations aim to make rating predictions
+for a user on a nonrated item, based on the similar users.
+Fig. 1. Sample of the electricity retail plan [ 4].
+Currently, the collaborative based recommendation techniques
+can be generally classiﬁed as two kinds: memory-based tech-
+niques and model-based techniques [ 26].
+Memory-based techniques generally make rating prediction
+from the entire collection of items which are previously rated
+by the users [ 27]. The predicted rating of a user c on a non-
+rated item s, r
+c,s, is computed as the aggregate of the ratings
+from the similar users:
+rc,s = agg
+c′∈C∗
+(rc′,s) (2)
+where C∗ is the set of similar users of user c and agg(•) is
+the aggregation function. Different aggregation functions can
+be used, such as the average function or weighted average
+function. Some similarity calculation functions can be applied
+to calculate the similar degree of two given users, such as the
+cosine function and Pearson correlation [ 18].
+Model-based techniques utilize the previously ratings to
+train a model, and then use the model to predict the rating of
+a user on a nonrated item. Different approaches can be used to
+do the model training, such as the probabilistic approach [ 26],
+Bayesian networks [ 28], maximum entropy model [ 29], etc.
+III. C
+ONFIGURATION OF ELECTRICITY RETAIL PLAN
+The choices of end users on electricity retail plans are
+heavily determined by the plan conﬁgurations. In this study,
+we consider the electricity retail plan conﬁgurations from the
+Power-to-Choose website [ 4]. Currently there are more than
+1,000 retail plans from different electricity retail companies of
+Texas are published on the Power-to-Choose platform. Users
+can login the website by inputting their post-codes, and then
+check the detailed information of different plans. In this sec-
+tion, we give a general introduction on the conﬁguration of the
+retail plans in the Power-to-Choose platform, which we will
+be used to produce our simulation data later. The introduction
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+98 IEEE TRANSACTIONS ON SMART GRID, VOL. 10, NO. 1, JANUARY 2019
+Fig. 2. Schematic of the personalized electricity retail plan recommender system.
+we give in this section can be also used as a useful reference
+for readers who are interested in the Texas electricity retail
+market.
+Fig. 1 shows a sample of the electricity retail plan in the
+Power-to-Choose platform. The main conﬁgurations of the
+plan often consist of following four parts:
+(1) Transmission and distribution utility (TDU) charges.
+Currently, the transmission and distribution services of Texas
+are undertaken by six transmission/distribution companies, and
+the retail companies collect the TDU charges on behalf of
+them. The TDU charges are calculated as:
+TDU = Rﬁx + Runit × Em (3)
+where Rﬁx is the monthly ﬁxed rate ($); Runit is the unit rate
+($/kWh); and Em is the monthly energy consumption of the
+user (kWh). In some plans, the TDU charges are integrated
+into the energy charges for calculation convenience purpose;
+(2) System administration fee. This fee is charged by the
+Electric Reliability Council of Texas (ERCOT), and is ﬁxed
+as 0.0555$/kWh;
+(3) Energy charge. This part is the main body of the retail
+pan. There are two kinds of energy charge rates: time-of-
+use (TOU) rate and non-TOU rate. For the non-TOU plan,
+a ﬁxed rate is used. The TOU plan often applies different
+rates in working periods and non-working periods (evenings
+and weekends). For both non-TOU and TOU plans, there are
+further different rates applied: (a) ﬁxed rate , which is ﬁxed
+during the whole contract period; (b) variable rate, which is
+variable in the monthly basis and determined by the retail
+company; (c) index rate , which is also variable along with
+a public index. Some ﬁxed rate, non-TOU plans adopt the pro-
+gressive charging scheme, where the rate per kWh increases
+or decreases with the increase of monthly energy usages;
+(4) Base charge and minimum usage charge. Base charge
+is a monthly ﬁxed fee. The minimum usage charge is an
+extra charge in case the user’s energy consumption in a month
+is less than the contracted minimum consumption threshold.
+The values of both charges are often in the range of [$5, $15].
+Each plan is also associated with a contract length. A cer-
+tain cancelling fee might be charged if the user terminates the
+contract before its expiration.
+IV . D
+ESIGN OF THE ELECTRICITY RETAIL PLAN
+RECOMMENDER SYSTEM
+In this paper, a PRS is developed to recommend suitable
+electricity retail plans to end users, based on their energy con-
+sumption analysis. The proposed PRS exploits the tastes of
+different users on retail plan, and recommend plans to a target
+user. Firstly, the working of the PRS is based on following
+assumption.
+Assumption: There are trends or patterns on choosing the
+electricity retail plans between groups of people.
+With the continuous increase of end users’ awareness on
+demand response, above assumption is reasonable in modern
+grid to a large extent. For example, a user who often has large
+energy consumption deviations during the different periods of
+a day would prefer the TOU plan. Another example is that the
+users would prefer the plans published by retailers with high
+reputations. Therefore, the aiming of the proposed PRS is to
+discover such trends and patterns from the collective prefer-
+ences of the user groups, and then make recommendations to
+the target user.
+For a target user, the PRS ﬁnds out his/her similar users
+from a database by calculating the user similarities, and then
+it aggregates choices of the similar users on retail plans to form
+a recommendation list. The schematic of the proposed PRS is
+shown as Fig. 2, and its working mechanism is summarized
+as below.
+(1) The PRS establishes a user knowledge database (UKD).
+The UKD stores prior knowledge of a set of users, including:
+(a) users’ energy consumption features, which are extracted
+from their energy consumption data collected by the Advanced
+Metering Infrastructure (AMI); and (b) the information of
+electricity retail plans historically chosen by the users;
+(2) The PRS uses a rating inference system to implicitly
+produce the ratings of the users on their current & historically
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+LUO et al.: SOCIAL INFORMATION FILTERING-BASED ELECTRICITY RETAIL PLAN RECOMMENDER SYSTEM 99
+0 5 10 15 20 25 30 35 40 45
+Sensing Interval
+0
+0.2
+0.4
+0.6
+0.8
+1
+1.2
+Household Energy Consumption (kWh)
+Day 1
+Day 2
+Day 3
+Average
+Fig. 3. Demonstration of energy consumption proﬁles of a typical Australian
+residential user [ 30].
+selected retail plans. The rating values represent the users’
+preferences on the plans;
+(3) For a target user, the PRS extracts his/her energy con-
+sumption features, and ﬁnds out the set of similar users of
+the target user. Then, the PRS applies a similarity metric to
+quantify the similarity degrees of the target user and users in
+the UKD;
+(4) The PRS reads out the retail plan choices of the similar
+users, and uses an aggregation method to aggregate the choices
+of similar users. Based on the aggregation results, the PRS
+makes rating predictions of the target user on different retail
+plans, and sorts the plans based on the predicted ratings; and
+(5) Finally, the top n electricity retail plans of the sorted list
+are recommended to the target user.
+Implementation methodology of the key components of the
+proposed PRS are presented as follows.
+A. Establishment of User Knowledge Database
+As introduced before, the user knowledge database stores
+2 kinds of user data:
+Firstly, the household energy consumption data of users are
+directly collected by the AMI. Currently, the sampling fre-
+quency of the smart meter infrastructure ranges from minutes
+to hourly basis, depending on the hardware implementation.
+As a demonstration, Fig. 3 shows 3-day energy consump-
+tion proﬁles and averaged proﬁle of a real residential user in
+New South Wales, Australia. Based on the energy consumption
+data, the users’ key energy consumption features are extracted,
+shown in Table I.
+Secondly, in the user knowledge database, each retail plan is
+associated with an identiﬁer (ID), which is a positive integer.
+Then, for each user, its currently and historically selected retail
+plans in the last 2 years are represented by the plan IDs.
+Combining above three kinds of information, theuser proﬁle
+of a user in UKD can be formed, represented in Table I.
+B. User Similarity Calculation
+In order to ﬁnd out the similar users of a target user, a cer-
+tain metric needs to be applied to calculate the similarity of
+different users. In conventional collaborative recommendation
+TABLE I
+USER PROFILE IN UKD
+techniques, to decide whether recommend a target item to the
+target user or not, similarities between the target user and other
+users are calculated based on their ratings on the items that
+all users have rated [ 17]. This is based on an observation that
+“if users have similar tastes on other items, they would have
+similar tastes on the target item ”. For the electricity retail
+plan recommendation application in this paper, we transfer this
+observation to be “ if users have similar energy consumption
+patterns, they would have similar preferences and needs on the
+electricity retail plans”. And the concept of “commonly rated
+items” in the conventional recommender systems is mapped to
+the “shared energy consumption features” of the users, as listed
+in the “Energy Consumption Features” category of Table I.
+In conventional collaborative recommendation technique,
+similarities between the target user and each other user is cal-
+culated to get a numerical similarity degree. In the smart grid
+context, the number of end users could be very large, and
+the similarity calculation between the target user and all other
+users would thus lead to high computational costs. Therefore,
+in this paper we propose a strategy to reduce the computational
+cost of user similarity calculation. Firstly, users are clustered
+based on their energy consumption features, and then only
+users who are in the same cluster with the target user are
+considered as the similar user of the target user. The similar-
+ity metrics are then applied to calculate the similarity degrees
+between the target user and his/her similar users.
+1) User Clustering: Firstly, users are clustered based on
+their energy consumption features. The ith user c
+i is repre-
+sented as a 5-dimensional vector ci = [ci1, ci2, ci3, ci4, ci5],
+where cij represents the jth energy consumption feature of the
+ith user shown in Table I.
+Then, the fuzzy C-means (FCM) clustering method [ 31]
+is used, which is a proven efﬁcient clustering method
+and has been applied in many industrial applications such
+as [32] and [ 33]. FCM uses a membership matrix to represent
+membership grads of the data points for multiple clusters. By
+iteratively updating cluster centers and membership grades for
+each data point, FCM moves the cluster centers to the right
+location within the dataset. More details about FCM can be
+found in [ 31].
+2) User Similarity Calculation: The similarity degrees
+between the target user and other users are calculated. In
+the recommendation research, there are several available sim-
+ilarity calculation methods, such as the Pearson correlation,
+cosine-based approach, mean squared difference measure,
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+100 IEEE TRANSACTIONS ON SMART GRID, VOL. 10, NO. 1, JANUARY 2019
+etc. [ 17], [18]. In this paper, the cosine-based approach is
+applied, which calculates the similarity of two users (denoted
+as c
+1 and c2)a s ,
+sim(c1, c2) = cos(−→c1 ,−→c2 ) =
+−→c1 · −→c2−→c1
+
+2 ×
+−→c2
+
+2
+=
+∑D
+i=1 c1ic2i√∑D
+i=1 c2
+1i
+√∑D
+i=1 c2
+2i
+(4)
+where sim(c1, c2) denotes the similarity degree of c1 and c2,
+which is a numerical value; −→c1 and −→c2 denote the feature
+vectors of the users c1 and c2; D is the dimension of the user
+feature vector; −→c1 · −→c2 denotes the dot-product between the
+users.
+C. Aggregation of Similar Users’ Choices
+Choices of users on electricity retail plans need to be aggre-
+gately considered to generate the recommendation list of retail
+plans to the target user. In conventional recommender systems,
+the choices, preferences, and interests of the users are often
+reﬂected by their explicit ratings on the items. For example,
+a user can rate an electronic movie on the Web pages with the
+number of ‘stars’ or a non-negative integer to express his/her
+interest degrees on the movie. In some applications, it would
+be difﬁcult to collect explicit ratings of the users, and some
+non-intrusive methods are therefore developed to implicitly
+infer the users’ interests based on their behaviors. For exam-
+ple, a Web page recommender system infers the user’s ratings
+on Web pages based on his/her click times [ 34].
+In smart grid, it is often difﬁcult to directly collect users’
+explicit ratings on the plans. Therefore, in this study we ﬁrstly
+propose a rating inference strategy to express users’ interests,
+and then employ a weighted aggregation strategy to aggregate
+the similar users’ ratings and predict the rating of the target
+user on a particular retail plan.
+1) Rating Inference Strategy: In this study, we design a rat-
+ing inference strategy to express the users’ interests on retail
+plans and represent them as non-negative integers. We mainly
+consider retail plans selected by a user in the past 2 years,
+and use an integer in the rage of [0, 5] to represent a user’s
+‘preferences on each plan. The larger value indicates the
+larger preference. The proposed rating inference strategy is
+as follows.
+(a) For a given user, sort his/her historical used retail plans
+in last 2 years by time;
+(b) Score the ﬁrst retail plan (user’s current plan) to be 5;
+(c) Score the last two plans except for the current plan to
+be 3 and 2, respectively;
+(d) Score all other historically selected plans to be 1;
+(e) Score all the plans which have not been used by the user
+in the last two years to be 0.
+Note that a same plan can be used multiple times by the
+user, and above rating inference strategy is simply applied in
+the individual plan choices. For example, if a user continuously
+uses a 6 month-contracted plan twice in the past year, then the
+rating of the user on that plan is 5 + 3 = 8.
+Fig. 4. Frequency distribution of the average monthly energy consumption
+of the 1,000 residential users.
+2) Rating Aggregation: By applying above rating infer-
+ence strategy, ratings of the users on retail plans can be
+obtained, which are then aggregated to generate the predicted
+rating of the target user on retail plans. In this study, we
+use the weighted sum function to do the aggregation (shown
+as Eq. (5)), which is the most commonly used aggregation
+function in PR [ 14].
+r
+c,s = k
+∑
+c′∈ˆC
+sim(c, c′) × rc′,s (5)
+where rc,s is the predicted rating of the target user c on retail
+plan s; k is the normalizing factor which is usually set as
+k = 1/∑
+c′∈ˆC |sim(c, c′)|; ˆC is the set of similar users of the
+target user c; rc′,s is the rating of the similar user c′ on plan s.
+D. Recommendation
+After calculating similarity degrees between the target
+user and other users and aggregating the users’ preferences,
+predicted ratings of the target user on different retail plans are
+calculated. Finally, the retail plans are sorted with the descend-
+ing order of the predicted ratings, and the top n plans are
+recommended to the target user.
+V. E
+XPERIMENTS
+A. Simulation Data Preparation
+1) Preparation of User Data and Retail Plans: We
+use 1-year smart meter data of 1,000 residential users
+in New South Wales, Australia, covering the period of
+Jan/2013 to Jan/2014. The data are available in [ 30]. The
+frequency distribution of the average monthly energy con-
+sumptions of the 1,000 users are shown in Fig. 4. For each
+user, we extract his/her energy consumption features listed in
+Table I. We then collect totally 46 electricity retail plans from
+the “Power-to-Choose” platform [ 4]. The plans are published
+by multiple retailers and each retailer is associated with a rep-
+utation level represented by the number of stars from 1 to 5.
+The plans are divided into 3 classes, shown in Table II (in
+Power-to-Choose platform, almost all the TOU plans are with
+variable rates).
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+LUO et al.: SOCIAL INFORMATION FILTERING-BASED ELECTRICITY RETAIL PLAN RECOMMENDER SYSTEM 101
+TABLE II
+GENERAL INFORMATION OF COLLECTED 150 R ETAIL PLANS
+Fig. 5. User samples with randomly assigned plan class labels.
+2) Electricity Retail Plan Selection Pattern Assumptions:
+Based on the collected residential energy consumption data
+and retail plans, in order to produce the data for simulation,
+we need to artiﬁcially associate the electricity plans to each
+of the 1,000 users. To simulate the practical situations, we
+consider following patterns:
+Pattern 1 Users with large seasonal energy consump-
+tion deviations would prefer to choose the ﬁxed rate plan;
+otherwise, the users would prefer the variable rate plan.
+Pattern 2 Users with large energy consumption during the
+non-working periods would prefer the TOU plan.
+Pattern 3 When the plan rates are close, users tend to
+choose the plans from the retailers with high reputations.
+Pattern 4 When the plan rates are close, users tend to
+choose the plans with high renewable penetrations.
+For a large group of users, above patterns are reasonable
+to a large extent. For example, the variable rate plans often
+have lower tariff rates than the ﬁxed rate plans, but they are
+heavily affected by the power market. High energy consump-
+tions in summer & winter seasons often imply the over high or
+over low ambient temperatures, which consequentially imply
+high network load and thus high risks of market price spikes.
+Also, pattern 4 tends to hold with the increase of the public’s
+environmental awareness.
+It is worth noting that the patterns assumed above are used
+for the simulation purpose. In real situations, there would be
+different trends or patterns existed in a particular group of
+users. However, as long as there exist certain patterns or trends
+for the choices of a group of users on electricity retail plans (in
+other words, as long as the assumption presented in Section IV
+holds), the proposed PRS would be able to extract the patterns
+from the collective behaviors of the users.
+3) Associating Retail Plans With Users: Based on above
+patterns, for each user, we identify the class of plan which
+TABLE III
+RECOMMENDATION PERFORMANCES OF THREE CROSS -VALIDATED
+CASES AND TWO BASE CASES
+is mostly suitable for the user, and then assign the plan class
+label to the user. The user samples with the assigned plan class
+label are shown in Fig. 5. Then, we artiﬁcially and randomly
+associate the plans from the corresponding plan class to each
+user. In this simulation process, we ensure that the users have
+high probability to choose the plans with relatively low rates
+and come from retailers with relatively high reputation and
+renewable penetrations.
+B. PRS Evaluation Settings
+From the simulation dataset, 20% user proﬁles are randomly
+removed and used the test dataset . The remaining 80% user
+proﬁles are used as the source dataset. To evaluate the pro-
+posed PRS, we predict the rating of the target user in the
+test dataset on each retail plan, using only the data in the
+source dataset. 3-fold cross validation is performed to ensure
+the consistency of the rating prediction results.
+Denote {r
+1, r2,..., rN} and {p1, p2,..., pN} as the real and
+predicted ratings of the test dataset, and denote E ={ p1 −
+r1, p2 − r2,..., pN − rN} as errors. Then, the mean absolute
+error and error standard deviation are used to evaluate the
+rating prediction of the PRS, expressed as Eqs. ( 6) and ( 7):
+|E| =
+∑N
+i=1|pi − ri|
+N (6)
+δ=
+
+√
+( ∑(
+E − E
+)2)
+N (7)
+For comparison purpose, two base cases are designed.
+(1) Base case 1: for each plan, the mean score received
+by the plan over all users in the source set is used as the
+predicted score for that plan. This base case represents an arbi-
+trary/random recommendation, and can be used for evaluating
+the collaborative ﬁltering mechanism in the proposed PRS.
+(2) Base case 2: no user clustering is performed, and the
+user similarity is calculated between the target user and each
+other user. This case is set up for evaluating the user clustering
+mechanism in the proposed PRS.
+The PRS is neither personalized nor accurate unless it has
+signiﬁcantly lower values over both base case 1 (arbitrary rec-
+ommendation) and base case 2 (without user clustering) on
+above two evaluation criteria.
+C. Recommendation Results
+We run both the base case and proposed PRS on the simu-
+lation dataset. We are only interest in the prediction errors on
+the samples with predicted ratings larger than 3, because only
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+102 IEEE TRANSACTIONS ON SMART GRID, VOL. 10, NO. 1, JANUARY 2019
+Fig. 6. Distribution of rating prediction error under the proposed PRS: test case 1 (a), base case 1 (b), and base case 2 (c).
+TABLE IV
+DEMONSTRATION OF TOP 5P LANS SORTED BY POWER -TO-CHOOSE PLATFORM AND RECOMMENDED BY PRS
+the plans with high ratings will be recommended to the user.
+Table III shows the values of |E| and δ under the two base
+cases and three cases generated in the 3-fold cross validation
+(denoted as test case 1, test case 2, and test case 3, respec-
+tively). The results show that the prediction performance of
+the three cases in the 3-fold cross validation are quite close,
+which proves the stability of the proposed recommendation
+framework. Table III also shows the values of
+|E| and δunder
+the 3 test cases are signiﬁcantly smaller than those under the
+base case 1 (0.12 and 0.87, respectively) and base case 2 (0.10
+and 0.76, respectively). As an illustration, we draw the distri-
+butions of errors under case 1 and the two base cases in Fig. 6.
+Comparing with base cases, it can be seen the error distribu-
+tion under the PRS generally shows a desired bell shape, which
+indicates a good rating prediction performance.
+Currently, there are some online ancillary tools developed to
+help users ﬁlter the electricity plans, such as the plan sorting
+function provided by Power-to-Choose platform [ 4] and the
+“Energy-Made-Easy” system [ 35]. These tools do not reveal
+the preference trends from the social information, but are
+purely price driven. User speciﬁes plan conditions, and the
+ancillary tools sort the ﬁltered plans with the ascending order
+of monthly costs. Since retail plan conﬁgurations (describeSec-
+tion II) are complex for most of the residential users, many
+users would tend to choose the plans ranked on top of the
+price-based ﬁltered list. This creates opportunities for some
+smart retailers to play a trick on their plan rakings and cheat
+the users. For example, there have been widely reported that
+some retailers play tricks on the plan conﬁgurations to create
+the “1-cent plans” to deliberately make their plans located on
+top of the price-based list, and the users actually pay much
+more electricity fees than what they expected [ 36], [37]. The
+social information ﬁltering based PRS can help to ﬁlter such
+fraud plans for the users. In a large group of users, such plans
+could cheat some users at ﬁrst, but will be gradually detected
+and abandoned by the users. The social information ﬁltering
+based PRS would not recommend the user the fraud plans
+which are detected by the user groups.
+As a demonstration, Table IV shows the top 5 ﬁltered plans
+from the Power-to-Choose platform and top 5 recommended
+plans by the proposed PRS respectively, for a user with aver-
+age month usage of 800 kWh. It can be seen that in the list
+ﬁltered by the Power-to-Choose, the top 3 plans are ﬁltered by
+retailers with only 2 stars, although these plans have lowest
+prices. In the list recommended by the PRS, 4 of the 5 ﬁltered
+plans are from retailers with 4 or 5 stars and/or with high
+renewable penetrations, and also with relatively low prices.
+This is because in our simulation settings, these plans are more
+preferred by the similar users of the target user.
+Lastly, it is worth noting that above discussions do not mean
+that the existing ancillary and the proposed PRS are con-
+ﬂict systems. They just use different ﬁltering mechanisms and
+can coordinately work together to provide information to the
+users, just as what have been adopted by most of the current
+e-commerce websites (e.g., Amazon, E-bay, etc.).
+VI. C
+ONCLUSION
+In this paper, a PRS is developed for the smart grid residen-
+tial end users. The proposed PRS is based on the collaborative
+recommendation technique, and ﬁlter the retail plans for the
+target user by extracting the preferences of the similar users on
+the plans. For a target user, his/her similar users on the aspects
+of energy consumption features are ﬁrstly found out by the
+PRS, and then the ratings of the target users on different plans
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+LUO et al.: SOCIAL INFORMATION FILTERING-BASED ELECTRICITY RETAIL PLAN RECOMMENDER SYSTEM 103
+are predicted by aggregating the ratings of the similar users.
+Experiments are conducted to validate the proposed PRS.
+One limitation of the CF method is the cold-start problem.
+A new plan which is not rated by other users will be never
+recommended to the target user. In future, the improvement
+strategies can be incorporated to relieve the cold-start problem.
+The authors are also working on developing other kinds of
+smart grid personalized recommender systems.
+A
+CKNOWLEDGMENT
+The authors would like to acknowledge Dr. Yang Chen from
+Microsoft Research Asia for his valuable assistance on the
+simulation organization.
+R
+EFERENCES
+[1] J. Giri, D. Sun, and R. Avila-Rosales, “A more intelligent grid,” IEEE
+Power Energy Mag., vol. 7, no. 2, pp. 34–40, Mar. 2009.
+[2] F. Luo et al., “Enabling the big data analysis in the smart grid,” in Proc.
+IEEE PES Gener. Meeting , Denver, CO, USA, 2015, pp. 1–5.
+[3] F. Luo et al. , “Cloud-based information infrastructure for next-
+generation power grid: Conception, architecture, and applications,” IEEE
+Trans. Smart Grid , vol. 7, no. 4, pp. 1896–1912, Jul. 2015.
+[4] Power-to-Choose. Accessed: Jun. 2017. [Online]. Available:
+http://www.powertochoose.org/
+[5] B. Ramanathan and V . Vittal, “A framework for evaluation of advanced
+direct load control with minimum disruption,” IEEE Trans. Power Syst.,
+vol. 23, no. 4, pp. 1681–1688, Nov. 2008.
+[6] F. Luo et al. , “Optimal dispatch of air conditioner loads in south-
+ern China region by direct load control,” IEEE Trans. Smart Grid,v o l .7 ,
+no. 1, pp. 439–450, Jan. 2015.
+[7] F. Luo et al. , “An operational planning framework for large-scale
+thermostatically controlled load dispatch,” IEEE Trans. Ind. Informat. ,
+vol. 13, no. 1, pp. 217–227, Feb. 2017.
+[8] C. Vivekananthan, Y . Mishra, G. Ledwich, and F. Li, “Demand response
+for residential appliances via customer reward scheme,” IEEE Trans.
+Smart Grid, vol. 5, no. 2, pp. 809–820, Mar. 2014.
+[9] SmartAC Program . Accessed: Jun. 2017. [Online].
+Available: http://www.pge.com/en/myhome/saveenergymoney/plans/
+smartac/index.page?WT.mc_id=Vanity_smartac
+[10] M. H. Albadi and E. F. EI-Saadany, “A summary of demand response
+in electricity markets,” Electric Power Syst. Res. , vol. 78, no. 11,
+pp. 1989–1996, 2008.
+[11] D. W. Caves and L. R. Christensen, “Econometric analysis of residential
+time-of-use electricity pricing experiments,” J. Econometrics , vol. 14,
+no. 3, pp. 287–306, 1980.
+[12] J. Y . Choi, S.-H. Rim, and J.-K. Park, “Optimal real time pricing of
+real and reactive powers,” IEEE Trans. Power Syst. , vol. 13, no. 4,
+pp. 1226–1231, Nov. 1998.
+[13] K. Herter, “Residential implementation of critical-peak pricing of elec-
+tricity,” Energy Policy, vol. 35, no. 4, pp. 2121–2130, 2007.
+[14] M. A. Piette, D. S. Watson, N. Motegi, S. Kiliccote, and E. Linkugel,
+“Automated demand response strategies and commissioning commer-
+cial building controls,” in Proc. 14th Nat. Conf. Build. Commissioning ,
+San Francisco, CA, USA, Apr. 2006, pp. 1–13.
+[15] F. Luo, G. Ranzi, X. Wang, and Z. Y . Dong, “Service recommendation
+in smart grid: Vision, technologies, and applications,” in Proc. 9th Int.
+Conf. Service Sci. , 2016, pp. 1–8.
+[16] F. Luo et al. , “Non-intrusive energy saving appliance recommender
+system for smart grid residential users,” IET Gener. Transm. Distrib. ,
+vol. 11, no. 7, pp. 1786–1793, Nov. 2017.
+[17] G. Adomavicius and A. Tuzhilin, “Toward the next generation of
+recommender systems: A survey of the state-of-the-art and possible
+extensions,” IEEE Trans. Knowl. Data Eng., vol. 17, no. 6, pp. 734–749,
+Jun. 2005.
+[18] J. Bobadilla, F. Ortega, A. Hernando, and A. Gutiérrez, “Recommender
+systems survey,” Knowl. Based Syst. , vol. 46, pp. 109–132, Jul. 2013.
+[19] Reforming Power Markets in Developing Countries . Accessed:
+Jun. 2017. [Online]. Available: http://siteresources.worldbank.org/
+INTENERGY/Resources/Energy19.pdf
+[20] Roadmap of Retail Electricity Market Reform in China: Assisting
+in Mitigating Wind Energy Curtailment . [Online]. Available:
+http://iopscience.iop.org/article/10.1088/1742-6596/52/1/012031/pdf
+[21] Was Amazon’s Recommendation Engine Crucial to the
+Company’s Success? Accessed: Jun. 2017. [Online]. Available:
+https://www.quora.com/Was-Amazon-s-recommendation-engine-
+crucial-to-the-company-s-success
+[22] X. Wang, F. Luo, Y . Qian, and G. Ranzi, “A personalized electronic
+movie recommendation system based on support vector machine and
+improved particle swarm optimization,” PLoS ONE , vol. 11, no. 11,
+2016, Art. no. e0165868.
+[23] S. Li et al. , “A new QoS-aware Web service recommendation system
+based on contextual feature recognition at server-side,” IEEE Trans.
+Netw. Service Manag., vol. 14, no. 2, pp. 332–342, Jun. 2017.
+[24] W. Hill, L. Stead, M. Rosenstein, and G. Furnas, “Recommending and
+evaluating choices in a virtual community of use,” in Proc. Conf. Human
+Factors Comput. Syst., Denver, CO, USA, 1995, pp. 194–201.
+[25] M. Balabanovi ´c and Y . Shoham, “Fab: Content-based, collaborative
+recommendation,” Commun. ACM, vol. 40, no. 3, pp. 66–72, 1997.
+[26] J. S. Breese, D. Heckerman, and C. Kadie, “Empirical analysis of
+predictive algorithms for collaborative ﬁltering,” in Proc. 14th Conf.
+Uncertainty Artif. Intell. , Madison, WI, USA, Jul. 1998, pp. 43–52.
+[27] J. Delgado and N. Ishii, “Memory-based weighted-majority predic-
+tion for recommender systems,” in Proc. ACM SIGIR Workshop
+Recommender Syst. Algorithms Eval. , 1999, pp. 1–10.
+[28] Y . Chien and E. George, “A Bayesian model for collaborative ﬁltering,”
+in Proc. 7th Int. Workshop Artif. Intell. Stat., Fort Lauderdale, FL, USA,
+1999, pp. 1–6.
+[29] D. Y . Pavlov and D. M. Pennock, “A maximum entropy approach to
+collaborative ﬁltering in dynamic, sparse, high-dimensional domains,”
+in Proc. 15th Annu. Conf. Neural Inf. Process. Syst. , Vancouver, BC,
+Canada, 2002, pp. 1465–1472.
+[30] Smart Grid, Smart City . Accessed: Jun. 2017. [Online].
+Available: http://www.industry.gov.au/ENERGY/PROGRAMMES/
+SMARTGRIDSMARTCITY/Pages/default.aspx
+[31] J. Bezdek, R. Ehrlich, and W. Full, “FCM: The fuzzy c-means clustering
+algorithm,” Comput. Geosci., vol. 10, nos. 2–3, pp. 191–203, 1984.
+[32] Y . Chen et al. , “Collector system layout optimization framework for
+large-scale offshore wind farms,” IEEE Trans. Sustain. Energy ,v o l .7 ,
+no. 4, pp. 1398–1407, Oct. 2016.
+[33] Y . Chen et al. , “A novel technique for the optimal design of offshore
+wind farm electrical layout,”J. Modern Power Syst. Clean Energy,v o l .1 ,
+no. 3, pp. 258–263, 2013.
+[34] D. Chakrabarti, D. Agarwal, and V . Josifovski, “Contextual advertising
+by combining relevance with click feedback,” in Proc. ACM Int. World
+Wide Web Conf., Beijing, China, 2008, pp. 417–426.
+[35]
+Energy Made Easy. Accessed: Jun. 2017. [Online]. Available:
+https://www.energymadeeasy.gov.au/
+[36] Misleading Rates of Power-to-Choose Website . Accessed: Jun. 2017.
+[Online]. Available: http://fuelﬁx.com/blog/2016/06/29/power-to-
+choose-website-tweaked-to-weed-out-misleading-rates/
+[37] The 5 Problems With Power-to-Choose. Accessed: Jun. 2017. [Online].
+Available: https://www.searchforenergy.com/blog/powertochoose/
+Fengji Luo (M’13) received the B.S. and M.S.
+degrees in software engineering from Chongqing
+University, China, in 2006 and 2009, respectively,
+and the Ph.D. degree in electrical engineering from
+the University of Newcastle, Australia, in 2013.
+He is currently a Post-Doctoral Research Associate
+with the School of Civil Engineering, University of
+Sydney, Australia. His research interests include the
+demand side management, active distribution net-
+works, renewable energy, and computational intel-
+ligence and its applications in smart grid. He has
+published over 90 papers in above areas.
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 
+104 IEEE TRANSACTIONS ON SMART GRID, VOL. 10, NO. 1, JANUARY 2019
+Gianluca Ranzi (M’16) received the degree in
+management and production engineering with the
+Politecnico di Milano, Italy, the B.E. (First Class
+Hons.) degree with the University of Wollongong,
+Australia, the degree in civil engineering with
+the Universita’ Politecnica delle Marche, Italy,
+and the Ph.D. degree with the University of
+New South Wales, Australia. He is currently an
+ARC Future Fellow, a Professor, and the Director
+of the Centre for Advanced Structural Engineering,
+University of Sydney, Australia. His research inter-
+ests include high performance building, building-to-grid technology, and
+demand side management.
+Xibin Wang received the M.S. degree in computer
+science from Guizhou University, China, in 2012
+and the Ph.D. degree in computer science from
+Chongqing University, China, in 2015. He is cur-
+rently a Lecturer with the School of Electrical
+and Information Engineering, Guizhou Institute of
+Technology, China. His research interests include
+computational intelligence, data mining and business
+intelligence, and machine learning.
+Zhao Yang Dong (M’96–SM’04–F’07) received
+the Ph.D. degree from the University of Sydney,
+Australia, in 1999. He is currently with the
+University of NSW, Sydney, Australia. His imme-
+diate role was a Professor and the Head of the
+School of Electrical and Information Engineering,
+University of Sydney, Australia. He was an Ausgrid
+Chair and the Director of the Centre for Intelligent
+Electricity Networks, University of Newcastle,
+Australia. He also worked as a Manager (sys-
+tem planning) with Transcend Networks (now
+TASNetworks), Tasmania, Australia. His research interests include power
+system planning, power system stability, smart grid, renewable energy sys-
+tems, computational intelligence, and data mining. He is an Editor of the
+IEEE T
+RANSACTIONS ON SMART GRID , the IEEE T RANSACTIONS OF
+SUSTAINABLE ENERGY , the IEEE Power Engineering Letters, and IET
+Renewable Power Generation.
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on March 19,2021 at 01:45:04 UTC from IEEE Xplore.  Restrictions apply. 

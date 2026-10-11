@@ -1,0 +1,1126 @@
+Pergamon 
+Pattern Recognition, Vol. 29, No. 5, pp. 859 871, 1996 
+Elsevier Science Ltd 
+Copyright © 1996 Pattern Recognition Society 
+Printed in Great Britain. All rights reserved 
+0031-3203/96 $15.00 +.00 
+0031-3203(95)00120-4 
+PARTIALLY SUPERVISED CLUSTERING FOR 
+IMAGE SEGMENTATION 
+AMINE M. BENSAID,I LAWRENCE O. HALL,~§ JAMES C. BEZDEK¶ and 
+LAURENCE P. CLARKE** 
+t Computer Science and Math Division, A1 Akhawayn University in Ifrane (AUI), P.O. Box 104, 
+Ave. Hassan II, Ifrane 53000, Morocco 
+§ Department of Computer Science and Engineering~ University of South Florida, Tampa, FL 33620, U.S.A. 
+¶ Department of Computer Science, University of West Florida, Pensacola, FL 32514, U.S.A. 
+** Department of Radiology, University of South Florida, Tampa, FL 33620, U.S.A. 
+(Received 12 September 1994; in revised form 25 June 1994; received for publication 15 August 1995) 
+Abstract--All clustering algorithms process unlabeled data and, consequently, suffer from two problems: 
+(P1) choosing and validating the correct number of clusters and (P2) insuring that algorithmic labels 
+correspond to meaningful physical labels. Clustering algorithms such as hard and fuzzy c-means, based on 
+optimizing sums of squared errors objective functions, suffer from a third problem: (P3) a tendency to 
+recommend solutions that equalize cluster populations. The semi-supervised c-means algorithms introduced in 
+this paper attempt to overcome these three problems for problem domains where a few data from each class 
+can be labeled. Segmentation of magnetic resonance images is a problem of this type and we use it to illustrate 
+the new algorithm. Our examples show that the semi-supervised approach provides MRI segmentations 
+that are superior to ordinary fuzzy c-means and to the crisp k-nearest neighbor rule and further, that the new 
+method ameliorates (P1) (P3). 
+Cluster analysis Fuzzy c-means 
+Partial supervision 
+Image segmentation Magnetic resonance images 
+l. INTRODUCTION 
+This paper describes a new method for classification. 
+The method is well suited to problems such as the 
+segmentation of Magnetic Resonance Images (MRI), 
+which is the domain discussed in this paper. Many 
+techniques for segmentation of MR images were re- 
+cently surveyed in reference (1). Here, we concentrate 
+on a derivative of the c-means clustering algorithms 
+that is designed to overcome three problems: (P1) 
+choosingand validating the correct number of tissue 
+types in the image; (P2) insuring that algorithmic labels 
+correspond to meaningful physical labels of the tissue 
+classes in the image; and (P3) a tendency of the c-means 
+algorithms to stop at solutions that equalize cluster 
+populations. All clustering algorithms suffer from (P 1) 
+and (P2); and (P3) is a well-known drawback of both 
+hard c-means (HCM) C2) and Fuzzy c-means (FCM)/31 
+The way (P1) and (P2) are overcome in this paper is to 
+assume that labeled data is available for every class. 
+Hence, the algorithmic problems of determining the 
+number of classes and their labels are side-stepped by 
+the use of (at least some) labeled data from each class. 
+The algorithm we propose is particularly well suited 
+to image segmentation because a human can (and 
+usually does anyway) examine the image and select 
+a few clearly defined pixels from classes, which can 
+:~ Author to whom correspondence should be addressed. 
+859 
+subsequently be used to guide the modification we 
+describe towards a realistic labeling of the remaining 
+pixels. A small set of labeled pixels provides a cluster- 
+ing algorithm with a form of partial supervision. Our 
+approach is developed in the context of segmentation 
+of MRIs, but it can be used for data from any process, 
+as long as a few data from each class can be labeled. 
+2. CLUSTERING 
+Object data are represented as X = {Xl, x 2 ..... x,}, 
+(n) feature vectors in feature space ~P. The jth object 
+(some physical entity such as a person, airplane, seis- 
+mic record, image pixel, etc.) has xj as its numerical 
+representation; x~k is the kth characteristic (or feature) 
+associated with object j. Perhaps the most basic idea in 
+pattern recognition is the class label. There are three 
+types of labels extant in the literature: crisp (or "hard" 
+or nonfuzzy), fuzzy and probabilistic. Let c denote the 
+number of classes, 1 ~< c ~ n, and define three sets of 
+label vectors in Nc as follows: 
+Nsc . = {ye~Ciyi~[0, 1]Vi} 
+= (unconstrained) fuzzy; (la) 
+Sic = {y~S/cul~=lni = 1} 
+= (constrained) fuzzy/pro b. ; (1 b) 
+N c = {yeNIclYi~{O, 1}Vi} 
+= crisp (or hard). (lc) 
+
+860 A.M. BENSAID et al. 
+Nc is the canonical (unit vector) basis of Euclidean 
+c-space; NIt, a piece of a hyperplane, is its convex hull; 
+and NIc . is the unit hypercube in Nc Figure 1 depicts 
+these sets for c=3. The ith vertex of N~,ei= 
+(0,0,..., 1 ,...,0) T, is the crisp label for class i, 
+ith plane 
+1 ~< i ~< c. The vector y = (0.1, 0.6, 0.3) T is a typical con- 
+strained label vector; its entries lie between 0 and 1, and 
+sum to 1. The interpretation of y depends on its origin. 
+If y is generated by, say, the fuzzy c-means clustering 
+method, we call y a fuzzy label. If y originates from 
+a method such as maximum likelihood estimation in 
+mixture decomposition, y would be a probabilistic 
+label. The cube N/c . = [0, 1] 3 is termed unconstrained 
+label vector space; vectors such as z =(0.7,0.2,0.7) r 
+have each entry between 0 and 1, but are otherwise 
+unrestricted. Labels in Nj.c, are produced, for example, 
+by feed-forward neural networks that have unipolar 
+sigmoidal transfer functions at each of c output nodes. 
+Clustering in unlabeled data set X is the assignment 
+of (hard or fuzzy or probabilistic) label vectors to the 
+{xk} and hence, to the objects generating them. If the 
+labels are hard, we hope they identify c "natural sub- 
+groups" in X. Clustering is also called unsupervised 
+learning, the word learnin9 referring here to learning 
+the correct labels (and possibly vector prototypes or 
+quantifiers) for "good" subgroups in the data. c-parti- 
+tions of X are sets of(cn) values {Ulk } satisfying some or 
+all of the conditions: 
+0<uik< 1 Vi, k; (2a) 
+O< ~ Ulk<n Vi=l,2,...,c; (2b) 
+k=l 
+~ Ulk = l Vk = l,2 ..... n. (2c) 
+i-1 
+Using equations (2) with the values (Uik } arrayed as 
+a (cxn) matrix U = [uj, we define: 
+Myc,. = { U ~ ~c" I Uik satisfies equations (2a) 
+and (2b) Vi, k}; (3a) 
+Mic . = { Ue~/c,, I Ulk satisfies equation 
+(2c) Vi, k}; (3b) 
+Mc,= {UEM/¢,IUik =0 or 1 Vi, k}. (3c) 
+Equations (3a), (3b) and (3c) define, respectively, the 
+sets of unconstrained fuzzy, constrained fuzzy or prob- 
+abilistic, and crisp c-partitions of X. Column k of 
+U (denoted here as U(k), in M/c..(M/c ., M¢.) is the label 
+vector from Ny¢.(Nyc, N~) for object vector x k. The 
+reason these matrices are called partitions follows 
+from the interpretation of Ulk as the membership of Xk 
+in the ith partitioning subset (cluster) of X. Examples 
+of matrices from each of these sets are: 
+and 
+UI= 1 1 
+U 2 = 0.15 O.10/sMyc. 
+0.60 0.75 d 
+0.65 o.1] U3= 0.65 0.75 eMYc""' 
+U 1 corresponds to the crisp clusters {xz} and {x 2, x3}. 
+U2 shows constrained clusters; U2,32 = 0.60 indicates 
+that x 2 is in class 3 to the degree 0.60; or, in the 
+probabilistic context, that x 2 is (completely) in class 
+3 with probability 0.60. Myc, . offers degrees of fuzzy 
+membership that are not constrained to sum to 
+1 across all clusters, such as those in U 3. Fuzzy cluster- 
+Z = 
+0.1] 
+O. 
+(o~ 
+e : 
+1 
+[0,1 ]a 
+"t3- ~,~,~v~ t 
+Fig. 1. Hard, fuzzy and probabilistic label vectors (for c = 3 classes). 
+
+Partially supervised clustering 861 
+ing began with Ruspini; (4) Bezdek and Pal (s) contains 
+many seminal papers on this topic. Algorithms that 
+produce unconstrained fuzzy partitions of X are rela- 
+tively new; see Krishnapuram et al. (6) for a recent 
+approach. 
+A classifier is any function D : ~P --* Nyc,. The value 
+of D at any ze~ p is y = D(z), the label vector for z in 
+N/c,. D is a crisp classifier if D(z) = (some) e~ in N¢ for 
+every ze~P; otherwise, the classifier is fuzzy or prob- 
+abilistic. 
+Since definite class assignments are usually the ulti- 
+mate goal of classification and clustering, outputs of 
+algorithms that produce label vectors in Ny~. or Ns~ 
+are usually transformed into crisp labels. Almost all 
+non-crisp classifiers are converted to crisp ones using 
+the maximum coordinate conversion function 
+H: Nfc u ~ No: 
+H(y) = el¢=~ II Y - ell -< II Y - es II ~y, >- yj, 
+j=l,2,...,c, jv~i;yeNf~. (4) 
+If y = D(z), H simply finds the crisp label vector ei in iV< 
+closest to y [which, by equation (4), corresponds to the 
+maximum coordinate of y] and assigns this label to z. 
+The rationale for using H depends on the algorithm that 
+produces the label vector y. For example, the justifica- 
+tion for using equation (4) for outputs from the k- 
+nearest neighbor rule is simple majority voting. If y is 
+obtained from mixture decomposition, using H is Bayes 
+rule; label z by its class of maximum a posteriori prob- 
+ability. Also, if the labels are fuzzy, this step is called 
+defuzzification of U by the maximum membership rule. 
+We shall call each of these methods realized by 
+H hardening of U. Clustering algorithms produce parti- 
+tions, which are sets of label vectors. For fuzzy parti- 
+tions, the usual method of hardening is the application 
+of equation (4) to each column Utk ) of U. 
+2.1. Maximum membership (MM) conversion 
+The crisp maximum membership partition U~ in 
+Mfc corresponding to any UeMyc, . is: 
+UMM.(k) : H(U(k)) = ei<=>Uik ~ Ujk, 
+j=l,2 ..... c, j:~i. (5) 
+Choosing the maximum membership as the best pointer 
+to a crisp label is a natural and plausible way to harden 
+U, but is not the only way. 
+3. THE HARD AND FUZZY c-MEANS ALGORITHMS 
+The most widely used objective function for crisp 
+clustering in X is the classical within groups sum of 
+squared errors objective function, defined as: 
+Ji(U,V:X)= ~ ~ UikNXk--Vill 2, (6) 
+k=l i=l 
+where V = (va, v2 ..... Vc) is a vector of(unknown) cluster 
+centers (weights or prototypes), v~ 'p for 1 <i<c, 
+U~M<, and I] * II is the Euclidean norm. Optimal parti- 
+tions U* of X are taken from pairs (U*, V*) that are 
+"local minimizers" of J~. Approximate optimization of 
+J~ by the hard c-means (HCM) algorithm is based on 
+iteration through the following necessary conditions for 
+its local extrema: 
+Hard c-means ( H C M) theorem. °) (U, V) may minimize 
+J~ only if: 
+Uik= { 1; llxk-v~l[ < [lxk-v~lL' j= l otherwise ..... 
+l <i <c; l <k <n; (7a) 
+v i --, l<i<c. (Tb) 
+Ties in equation (7a) are resolved arbitrarily. In the 
+context of MRI segmentation, HCM produces crisp 
+partitions, so each pixel receives a unique tissue class 
+assignment from this method. The well-known general- 
+ization of equation (6) to the infinite family called the 
+fuzzy c-means functionals is: 
+n c 
+J~(u,v:x)= ~ r, (u,k)mllxk-v'll], (8) k 1i=1 
+where 
+m~[1, ~) is a weighting exponent on each fuzzy 
+membership; (9a) 
+U~My¢, is a constrained fuzzy c-partition of X; (9b) 
+V = (¥1, V2,''', Vc), are c vector prototypes in ~P; (9c) 
+A = is any positive definite (p x p) matrix; (9d) 
+II Xk - ¥i II 2., = (x~ - vi)rA(Xk -- vi). (9e) 
+Approximate optimization of J,, by the fuzzy c-means 
+(FCM) algorithm is based on iteration through the 
+following necessary conditions for its local extrema: 
+Fuzzy c-means (FCM) Theorem. (3~ Assume m >_ 1 and 
+IIxk--vill~>0, l<_i<c; l<k<n. (U,V) may mini- 
+mize Jm only if: 
+u [ ' 
+ik ~ ~ ~ -- 
+Lj:,t, it J 
+l<i<c; l<k<_n; (10a) 
+n m x Ek =1 (Ulk) k v i= ---, l<i_<c. (10b) 
+Z-.ak = 1 \ ikI 
+See reference (3) for a discussion of the case when one or 
+more ]1Xk -- vl I] 2 = 0. A brief specification of these two 
+procedures follows. 
+Hard/fuzzy c-means ( H C M / F C M) algorithms (3) 
+cM1. Given unlabeled data X = {xl, x 2 ..... x,} = ~P 
+cM2. Choose parameters T, JI Ila, m _> 1 and e > 0. 
+cM3. Initialize U o EM f¢, randomly. 
+cM4. Compute {Vi,o} with equations (7b) or (10b), for 
+l<i<_c. 
+cM5. For t = 1, 2,..., T. 
+
+862 A.M. BENSAID et al. 
+(a) Compute {Uik,,} with equations (7a) or (10a) for 
+l<k<n; 
+(b) compute Et = II Ut-- Ut- 11[ 
+= N/~= l~k = l(Uik,t- Uik,t- 1) 2; 
+(c) if E t _< e stop, else compute {vi,t} with equations 
+(7b) or (10b); next t. 
+4. THE SEMI-SUPERVISED HARD AND FUZZY 
+c-MEANS ALGORITHMS 
+A salient point about any clustering algorithm, in- 
+cluding HCM/FCM, is that when X is composed entire- 
+ly of unlabeled data, the method is completely 
+unsupervised. Once the integer c is selected (which is not 
+a trivial consideration), partitions of X that are gener- 
+ated by any clustering algorithm have the following 
+form: 
+FUll "" Ulk "" Ylnl 
+I Lu~ ... uck ... uc._l 
+= [U(1) • .. U(k)... U(n)]. (11) 
+All n label vectors are unknown at initialization; there- 
+fore, U o = Ustar t is a random matrix in Mfc .. At the end 
+of clustering, each row of the terminal partition 
+Uy = Ustoo corresponds to a physical class, but the 
+algorithm has no way to know which row is which 
+class--it simply knows the rows as 1, 2 ..... c. If the data 
+are truly unlabeled, this problem can only be resolved 
+by expert human intervention. All clustering algo- 
+rithms, then, are at the mercy of these two problems 
+(among others): 
+(P1) choosing c during initialization, and 
+(P2) assigning physical labels to the classes at termi- 
+nation. 
+At the other extreme, if we begin with known crisp labels 
+for all n of the XkS , then U o = Us,,r , is crisp, known and 
+fixed, and the construction of a classifier based on 
+X becomes supervised learning. In this case, two of the 
+major headaches of clustering-- viz. (P 1) and (P2)-- are 
+avoided by the use of labeled data from each class. 
+However, supervision also requires expert intervention 
+to obtain the labeled data and, moreover, it may be 
+impossible to really label every vector in the data. For 
+example, the data from a 256 x 256 MR image consist 
+of 65 536 pixel vectors in ~ 3. One reason for segmenting 
+an image such as this automatically is to avoid the 
+tedious, costly and practically impossible task of having 
+a human assign a tissue class to each of these pixels. 
+The scheme we propose falls between these two 
+extremes. We will avoid (P1) and (P2) by using some 
+labeled data from each class and will continue to have 
+the majority of the data in unlabeled form. This can be 
+done by introducing a very few (hopefully) high quality 
+labeled data from each class into X, thereby creating 
+a partially labeled data set. This amounts to combining 
+the ideas of supervised and unsupervised learning. 
+Techniques of this kind in the context of c-means 
+clustering were first discussed by Pedrycz, (v) who intro- 
+duced two modifications to the FCM algorithm. First, 
+a new summation term, corresponding to training pat- 
+terns, was added to Jm [equation (8)]• Second, A [equa- 
+tion (9d)] became the covariance matrix of the training 
+data rather than the identity matrix used here. The 
+matrix A controls the shape of the clusters and since it 
+uses training patterns only, it is crucial that the training 
+set capture the shapes of clusters. We wish to apply the 
+ssFCM algorithm to segmentation of magnetic reson- 
+ance images, where the choice of training data that 
+accurately describes cluster shape is difficult even for 
+experts. On a single trial, it is not always possible for 
+experts to choose acceptable traihing data for some fully 
+supervised algorithms. (8) Hence, our approach is fo- 
+cussed on the kind of problem for which cluster shape 
+may not be known and/or the training data may be 
+imperfect. 
+We denote the partially labeled data, which provide 
+the property of partial supervision to the algorithm, as: 
+1 1 2 2 c c u u fX 1 ..... Xn,,X 1 ..... Xn2 , .... X 1 ..... xJx 1 ..... x "{ 
+X ( 
+[. labeled 1 labeled 2 • labeled c unlabeled) 
+= XdwX ", (12) 
+where superscripts show the class label and n i is the 
+number of data having label vector % for i = 1, 2,..., c. 
+In this clash of notations, u indicates both the designa- 
+tion unlabeled when it is a superscript, as well as for the 
+name of a membership function or value otherwise; and 
+d indicates design (training) data. In the conventional 
+approach to classifier design, X d is used to train D (find 
+its parameters); and then D is used to label X u. This is 
+the approach we use with the k-nearest neighbor (k-nn) 
+classifier described later. 
+If nd='~=lni=lXal and n.=lX"[, then n=lXl= 
+nd + nu. Partitions of X induced by equation (12) have 
+the form: 
+[[ c U~I) (nl) (1) (n2) " U(1) " 
+U= 
+el e2 ec 
+unlabeled JJ' 
+or 
+Ii "'" 1 0 ... 0 0 U= 0 1 ... 1 0 
+0 0 ..- 0 1 
+Ull inu 
+u ... U u U.21 2. n~ . 
+u u 
+LUcl •.. Ucn ~ 
+(13b) 
+It will be cumbersome to continue using the notation in 
+equation (13), so we may represent this matrix as the 
+
+• 0 < a 
+pug 'I < m 'vii [I '.L ',v, sJolotm3aed osooqD ZIAIDdSS 
+'elep 
+gu!u!gal oql £q pox t pug u~ou~l s! a leql OlON ""u + Pu 
+= IXI =u pug 'I"xI ="u 'lexI =Pu '{~I) uo!lenbo m 
+sg ,X~eX = X elgp poloqeI £|Ig!lJgd UOA!D "IlAIDdss 
+gua[l~.aO~lV (]4[£)dgs) gul)aul-o dzznf pa~#a.~adns-#ma S 
+"tuql,.uOffle podo 
+-IOAOp oql ~u!z!lettuoj ,(q uo!ssnos!p s.rql oz.ugmtuns OA~ 
+"~/[I e JoJ ~u = ~,u o~iel Ol s.~ qoeoxdd~3 IeUOge~ lsotu oql 
+'o~poi,~ou~ I qans jo oouosqe oql u1 "oldtuexo Su!u!e:U e 
+qago jo oOUglaodtu~, ao £1!Ignb oql lnoqe olqe $1~ pX 
+-[.IeAlg oq l@!m 113ql o~po[~ou:, I l.lodxo £Ue ql!,~ ao.I~13 
+ol uoqelndtuoa oql JoI!gl Ol sn ,,aOlle slqg!o~ osaq.L 
+"I ugql JolgoJ~ oq ~m leql ,{~3ssooou 1! s~ xou 'sao~olu! 
+lsnf ol ~a~ lo.ulsoa ol uoseoa ieo!letuaqletu ou 'JOAO~Oq 
+'S! oxoq.L "(olq) uo.~lgnbo ql!,'a polndtuoooa o.m saoluoo 
+aolsnlo aql otu!l qago px ~ lu!od elep poloqe I jo so~doo 
+~w~ sosn K[OA!lOO~o (a17I) uo!lenbo '~/ lie Joj I < aogolu! 
+u13 st '~ JI "sxoqtunu it30a OA.q!sod jo ao1ooA 13 ,(Idtu!s 
+s! (%u ..... za~ '%a) = *a 'uo.uelnttuo J p3aouo~ lsotu oql uI 
+(o17I) ".L ..... g'I = * ea ~ s ~ [ 
+Ug~ p ! p 
+\nXd n") .uX + p--=, p-, ..- pu~,/ 
+:s,~olIOJ 
+se (P1~I) uo!lt3nbo u! x("~a ..... z~'bu) = ~a slq~D~ 6m 
+-anpmlu! ,{q auop sl s!q.L "su~dJalunoa palaqelun a!aql 
+ueql £I!Aeoq oaom poloqg I oa~ leql soldtues ,~oj oql ~u~ 
+-lq~!ota ,(q sueotu-a jo uog~3a~J!potu oJotu ouo oanpmlu! 
+OA~ 'so~gm! ~IIAI u! suo!lelndod anss.q ignboun jo loojjo 
+olq!ssod oql aamnoo ol o S ""u >> Pu j.~ sls.rsaod (~d) 'posn 
+"=f ~f JO son[cA oa~3 (P)-(~17I) suo!lenba uoqA~ (6'~) ao 
+aalImUS u.~ llnsaa suo!lelndod aalsnla Ienbo-,(Ialetu!xoad 
+-de lgql s! (£d) tuoaj .m~ns I~Dd/INDH uoseaa aq.L 
+• suo!lelndod aolsnla 
+oz!lenbo ol £al sleuo.~launj on.~loo.fqo soalgnbs lsea I (£d) 
+:I~DA/IaiDH qlI~ o~etu! ~IIAI ue gU!lUOtUgos 
+uaq,~ tuolqoad snovos pJ!ql e s! ,{ouopum s!qz "[0gg "d 
+(g) oouaJojox] aolsnio qoeo u! saaqtuotu 3o aaqtunu 
+aql ,,oOUelgq, , lgql suo!mlos pug ol ,(l!suodoad J!aql 
+Joj u~omt IIOA~ OXe SJmJO poJenbs jo stuns az!tu.m!tu 
+leql ~'f pue ~; se qons suo!launj OA!lOa.fqo "slox!d jo 
+spugsnoql £dnaoo uea aolletu £ea~ seoaoqta 'slox!d paJp 
+-unq [eJaAoS jo ls!suoo ueo (£Iloaaaoo luotu~as ol SSelO 
+lu1~laodtu! u-e) aotunl Hems e 'oldmgxo aod "lUOaOjj!p 
+~[ISeA aq ueo SSelO onss!l qoea ol ffu!puodso.uoa offetu! 
+~IIAI ue m saolooA IOx.~d JO sJoqmnu oql 'aoAoaJolA[ 
+• soldtues poloqelun 
+~u!u!emoJ oql Xq potuloq,~aaAO oq uea '(ptTI) uo!lenbo 
+£q polndmoo sg 'saoluao Jolsnlo aql jo soletu.~lso luonb 
+-osqns uo oouantJu ! JIOql pug mep oql jo %k0"I moqe 
+osLIdtttoo g113p ~UIU.II321 Oql 'OSeO s.~ql uI "998179 ="u 
+pue '00L = eu 'poloqg I oJe ss~3Io anss!Uslax.rd 00I J! os 
+'L = o '£es 'a~gt m ~II~ [ea.~d£1 e aod "a~etu! ue qons tuoaj 
+SSela/SlaX!d 00I 0g ,03s 'jo slasqns iaqe[ pue loolas 01 
+uomtuoo s! 1I "sDx!d 9£g g9 aa~ o:~oql '9gg om..s jo o~1~m.~ 
+oagnbs e u! 'oIdmgxo aoA "("u >> Pu) "u ol poaedtuoo Wtus 
+ol!nb s! Vu leql oo.qoead u.~ oseo oql uotjo s! 1! 'aOAO~OH 
+",X los 
+glep aoj sloqe ! ~u!u.mtuoJ oql jo soletu!lso £1!Ignb q~!q 
+o:,Ietu ol 1! olqeuo ol saldtuexo poog qgnouo pug sloqg I 
+looaaoa ,qlea!s£qd a ql!m tuql!aOgle oql d!nbo ol s! qo!q~a 
+'1oo3=1o poa!sop aql OAeq pooq!Ia~! I lie u.~ plnom p/'/ m 
+sIoqe I ~u!u.~g.q oql 'polaqeI oJo~ XjO jlgq 'oldtm3xo aoj 'JI 
+• elep ~u!u.mal @nouo ffU!Aeq uo sa~u!q (p) (e17 D SUO!I 
+-enbo jo £1!I.qn oqI ":~oos o,,a sluotuoAoJdtut oql oanldea 
+l~OmlV (p)-0317i) suo.qgnbo u.~ pa.rpoqtuo seop! oqk 
+(Pl~I) ;L ..... g'i=, '.a~#~! 
+l'~! I=~/ r~t! I=~ 
+~/ i'~/# I = ~/ ~/ *'K 1 I = ~/ -- \.x=(.n) ..X +,x=(,~) ,.X) '"~ 
+:elntuao J olepdn 
+aql Ol sp~a I o.~qI 'ss'ed lsJgI aql .mlJ~ {r:A} oql alndtuooaJ 
+ol pasn a[luanbosqns aae D jo sutunioo u lie 's.t leqI 
+'{SA} oql JO solepdn luonbasqns aoj (qoI) uo.~l-enbo ol 
+~u.tu.tnloa £q 'oagds o.Inlgoj U[ Oll3a~.Ittl moql la I o~ '(q17I) 
+uo!lenbo g~A UelS poo~ ~ OltlO suoDglno[go oql uolloff 
+OAeq {°':A} SXOlUOa aolsnla ig!l!u! oql oauo ',qlgU!d 
+/ . ~11'-"~ ~.xl/) = "" -L(I )lz\ i 
+:Iu!lelnalea Kq '"D u ! sutun 
+-io3 "u oql JlUO olepdn ~Iluonbosqns o~ '£lluonbasuoD 
+• laaaaoo potunsaad oae sloqe I oil 'slu!od Pu lsa t oql aoj 
+'leql s! glgp poloqgI gU!Aeq JO lu!od aql 'aOAO~OH "0/7 
+jo sutunloo u iie olepdn ol 'punoj lsn.f {°'%} oql ~u.~sn tf/ 
+olelnoleo lxou ,{I!aeu!pao plno,~ IAIDA 'saoluao ssed-lsao 
+osoql ql!ta podd!nbo (goD uo!lgnbo ol ~u!uanla~I 
+(o'~, ~ ~ =,t,-. Z 
+, mt p/~t ru~_x __ O,#A 
+(q17I) "a>.~I ~ ¢0'~ ~=~7 pXm', p~s pu,-x 
+:~a poloqe I saolooA oql jo u~otu oldtues 
+oql se °'~A ffu!mdtuoo £q ouop s! s!q,L 'sosselo OA!lOadsoa 
+a!aql ol ffUOlaq ol utaou~ mep oql fiq filUO poouanlj 
+-m o.m ,(oql 1~ql osuas oql u! ,,popoos-iio,%, oae leql 
+sJaluoo aolsnlaJO los Ie!l!u.~ ue u! sllnsoa s!q& "p//u! sutun 
+-lOa oql KlUO ~msn sJoluao aolsnlo jo los lsJ~J oql olnd 
+-tuoa ol snoo~mm3Apg s! 1! os 'elep poloqe I ,qlaa.uoo ol 
+puodsa.uoo ol u,~ou:~ a.~g sutunloo eu ls.qj sl! seoaoq~a '(o) 
+{eg) suo!l~3nbo u! slu!gJlsuoo aql ol loo.fqns ,{imopugJ 
+poz.q~9~.u ! o~g °2"1 jo sutunlOO nU lS~ I oql '[O/2 Ip/2] = O/2 
+JOJ 'JOAO,~OH "°[/ jo sutunloa u II g SaSh qo!qta 
+'(q0I) uo!lgnbo ~msn {°'~A} saoluoO Jolsnlo olndtuoo 
+ol oq plno~a IAIDd m dols lxau oql 'pou!tuJolop st 
+(~IAIO) u! °fl oouo '£I!aeu!pJo "[-{fllv[l] = ff'l tuaoj OAeq 
+I|! ~ IAIDJ ao IAIDH aaql.to tuoaj X!aletU (IguLI) IeUp.Uxol 
+oql pug [°/2lvf~ ] = °/2 tuaoj oql sgq uo!lgaol.~ sueatu-a 
+Joj x.tJllgttl [g.B.tu.t oql os 'paxlj s.t pf~ 'Ionbos oql uI 
+"dsuo oq e~ u! SJOlaOA utunloa oql leql 
+~aessooou 1! s.~ aou 'ienba aq lou poou s'u aql 'ieaouo~ u I 
+(el, t) " .n I p~ =n 
+:x.ul~m ~Do|q 
+~98 ~u!Jolsnlo pos!Aaodns £iiv!laed 
+
+'saolsnlo poa!sop oql spug IAIDAss (q) 'saolsnlo IAIDA Jood £lleO!d£l (e) "oz!s Ienboun jo sJolsnlo OA~I "E '~!A 
+/ "\. 
+\ 
+• o "\ 
+o ~ 
+• x 
+o 
+o [~ 
+I o i o 
+i o It i i • 
+i 
+i 
+\ 
+i, 
+i! ,, o It J i • 
+.I i .. j • 
+r • t 
+II o • 
+o • o 
+~ o 
+h o 
+h~ 
+• ~, o , ii 
+toe,too ~olmp i~u!u~e i = 
+~aolueo m~p p~u,ue L = 
+saoluoo Jolsnlo IeUg pue uo!l!lJed oql SA~OqS (qE) oJng.tA 
+• (ieo!l!ao s~ lou oae sJmsnio ~olhe I Joj suJollgd ~u~umJ~ 
+ol U0A.t8 slq~.tOax oql) saolsn[o JolIetus ol Bu!puodsoJ~oo 
+elrp $u.m!ml oql ol slq$!oax ,,q$!q,, 8U!A.t$ £q pOAo!qoe 
+S! s!ql '.sJolsnlo Jo~Je I spjgA~OI 8u!leJg!m tuoaj pOlUOA 
+-oJd oq ueo sJolsnp aOllems jo sJoluoo 'lAIDASS uI 
+"(Ed) molqoJd snql '..tolsnlo JOlIetUs oql ol i-(g) uo!l 
+-enbo £q] pou~!sse lz~ 'oJojoJoql 'pug % ol JOSOlO otuoo 
+-oq Jolsnlo .m~/g I oql ol ~UOlOq £ilenloe leql sluotuolo 
+otaos 'llnsoa g s V "(~)E '~!A u! uoos oq ugo uouomouoqd 
+s!ql ~Jolsnlo Jo~!q (oogds oJnl~oJ u!) luoog.fpg u~ spJ~mol 
+(Jolsnlo JOll~mS oq~ jo p!oJluoo oql) uo!leoo I [~Jnlgu 
+sl! tuoJj £eA~ slJ.up Jolsnlo Iletus £ue jo (St) Joluao 
+oql 'sJolsnlo OA!lozdsoJ a.toql jo .mluoo oql ol slu!od 
+tuoJj soouels.tp poJenbs jo tuns oql zz.tm.m!tu ol JopJo u I 
+"sJoluzo Jolsnlo Igutj oql jo uo.tleoo[ oql jo :tinszJ e s! s!q,L 
+'(~d) jo uo!lels~j!uem e 's:mlsnlo JZlietus ol tuoql u$!sse 
+pue sJolsnlo ao~.n~ I tuoJj suaolled £eaxr O~lel ol £ouopuol 
+s,INDA soleJlsnII.t (~)~ oJn~!A "wJou u~op!pnTl oql puu 
+[000"0 = ~ '~ = tu 'E = o ~msn ~lup oql jo ~u[uo.q!l.lgd 
+s,IAIDA slo!dop (~)E oJn~!A "slu!od ooJql su!gltxoo dnoJ~ 
+JOllemS oql pug slu.tod 017 jo dn opera st dnoa~ Jo~Je[ 
+oql ~sdnoJ~qns ieJmeu OA~I JO ouo oluI ~u!IIe J SJOIOOA 
+((I-E) IeUO!SUOm.Tp-oA~l E~ jo sls!suoo los elep s!q,L "V 
+x.tpuodd V u! pols.q pug E '~!cI u.t UA~OqS los ~lep e Bmsn 
+(E) oouoJojoJ u! (IAIDH Joj) pol~JlsnlI ! s~m (Ed) tuolqOJd 
+• oldtu'exo I¢3!aotunu ~ OAt~ 0A~ 'suo!zlelndod oZ.tlenbo 
+ol ~f jo £ouopuol oq~ solg~.tl!tu IAIDAss taoq oos oz 
+~I']dlAIVXX ~'IdlAIIS V '~; 
+-o:toq possnos!p JoqlJnj oq lou II!A~ 1.t 'IAiDHSS lsol 
+lou p!p OA~ oou!s '(o) pu~ (or, I) JoJ (q)-(r0I) JO p¢olsu.t (q) 
+pu~ (eL I) suo!l~nbo Su!sn pue 'I = m Supl~l £q pou!~lqo 
+IAIDASS JO oseo I~!oods oql s! ~DHSS 'pJoaoa oql Joj ':t0AO 
+-axo H "INDHSS ol IAIDH 1o uo!~z~.I~:touo~ oql 'o'! 'I = m 
+Joj IA/Ddss jo os~o I~pods oql jo luomdolohop oql ~UOle 
+£.ueo :lou PIP OA~ :lu!od aoq~ou V 'INDA £q poll~A.l:lOtU 
+mql.uo~lg ~u.uolsnlo A~OU e s! INDdSS 'p~olsu I "l!JO uo!lv 
+-z!ieaouo~ on J1 e lou mq 'IAIDA jo am.Wlaa 13 s! I~3dss 
+'st lgqI '~£ jo uo.tlez.tm.m!m oql aoj £Jessooou lou 
+s! (oH) pur (~¢I) suo!lenbo U0OA~loq INDAss u! uo.tlgJol.t 
+oql osneooq 'IAIDA ol d!qsuo!leloJ looJ!p ~ Jeoq lou soop 
+1! 'IAiDAss mqluo~Ie s.tql II13o OA~ oi!qA~ '.IOAOA~O H "IAIDA 
+ol soonpoJ IAiDdss uoql '0 = ~t Jo (u = "u 'o'!) 0 = Pu JI 
+'1 lxoN 
+(~I) ~L ..... Z'I=~ '.~.~Y'[ 
+\ n ~x n ! nU~._X ~ p tu', p ! pu~.,X/ 
+omdmo3 os[o 'dols a ~ ~Sr J! (o) 
+(P~I) 
+(~ -~'~n -- r~:n~ ~ =~7 t =~7/x ~ ,~ . , . .... / = II -.7/- .71 II = 
+olndtuoo (q) 
+(at, I) ~L ..... E'I=I '."u~/~I '.o~.~I 
+olndmoD (~) 
+LL ..... E 'I = 1 JoA 'gIAIDAss 
+,,,(°'"~n)' %~X , __ 0'.I A 
+(q~rI) 'o>.~I ~ to'~: ~t=~,7 pXm~ prl] r'u,_.N. 
+olndtuo D "¢IAIDdSS 
+'u~//N~°~ ql./A~ '[°/ll~fI ] = o/-10Z!l~!l!ui .~IAIDAss 
+• l ~ ~a GIVSN~/fl "IAI "V 1798 
+
+Partially supervised clustering 865 
+obtained by ssFCM, run with the same parameters as 
+FCM and with wj = 6 Vj as the weights for all training 
+patterns; four training patterns from the larger class and 
+one from the smaller class were used. Table 1 shows the 
+number of patterns from the larger class assigned to the 
+smaller class, with uniform weighting of training pat- 
+terns from 1 to 10; ssFCM makes no errors for weights 
+4 and above. FCM makes 14 errors, as shown in Fig. 
+2(a); HCM makes 13 errors, as reported in reference (2). 
+In Table 2, we show the results from an example in 
+which the training set consists of just one pattern from 
+one class, the smaller class. Again, with a weight 5 and 
+above ssFCM makes no classification errors. 
+In order to provide some insight into how ssFCM 
+differs from other fully supervised algorithms, a feed- 
+forward back-propagation neural network tl°) was tes- 
+ted on the same data set. The same five patterns were 
+used for training with one from the small class and four 
+from the larger class. The patterns from the larger class 
+were those nearest the centroid of the data making up 
+that class. For a 2 input 1 hidden unit 1 output (2-1-1) 
+network the average error over 20 trials with different 
+random initial weights was 3.5 misclassifications. In 
+most cases the network simply converged to a solution 
+with one training pattern misclassified, where all pat- 
+terns were classified as belonging to the larger class. 
+With a 2-2-1 network over 20 trials with different 
+random initial weights, the average error was nine 
+misclassifications. With three hidden units, a 2-3-1 
+architecture, the average error was six misclassifications 
+over 20 trials. These results show that ssFCM can work 
+effectively with a very small number of training patterns 
+where other fully supervised learning algorithms may 
+not prove effective. 
+Table 1. Nearest prototype error rates for ssFCM, Example 1. 
+Train patterns from both classes 
+wi Number of patterns from larger cluster 
+(for all j) assigned to smaller cluster by UMM 
+1 10 
+2 3 
+3 1 
+4 0 
+: 0 
+1/3 0 
+Table 2. Nearest prototype error rates for ssFCM, from 
+Example 1 and train set consisting of just 1 example of the 
+small class and 0 of the larger class 
+wj Number of patterns from larger cluster 
+(for all j) assigned to smaller cluster by U~,u 
+1 12 
+2 6 
+3 3 
+4 1 
+5 0 
+: 0 
+lb 0 
+5.1. Some 9uidelines on settin9 weights 
+Let us examine the effect of our modification in 
+equation 14(e) on the resulting cluster centers (vls), that 
+cause problem (P3). If we give strong weight to the 
+training patterns from the smaller cluster, the center for 
+that cluster will be drawn towards the centroid of the 
+training patterns. As this weight approaches infinity, 
+the cluster center (vl) for the ith clusters will approach 
+the centroid of the training patterns. If the training data 
+and their associated weights make the cluster centers for 
+two neighboring clusters (in feature space) sufficiently 
+separate, the resulting number of nonfixed (test) feature 
+vectors in the two clusters can be quite different. Each 
+feature vector is assigned to the nearest-prototype as 
+dictated by equations (14c) and (5), so if the cluster 
+centers are well separated by the weighted training data, 
+the number of feature vectors in each class can vary 
+widely without adversely affecting the resulting cluster 
+centers [determined by equation (14e)]. Hence, given 
+a good choice of training data, the locations of the 
+prototypes can be influenced enough to overcome prob- 
+lem (P3). 
+How are the weights to be chosen in equation (14e)? 
+There are several possibilities and certainly more scen- 
+arios for training data than those explored here. Only 
+the types of training data for which ssFCM appears 
+most useful are discussed. 
+(1) The training data may be relatively plentiful, but 
+their labels are not very certain. 
+(2) The number of training data may be small and 
+their reliability unknown. 
+(3) There may be only a small amount of reliable 
+training data relative to the available data. 
+In the first case, all weights should be chosen so that 
+they are relatively small. If there are classes known or 
+expected to be difficult to separate, then more weight 
+can be given to the training data that describe them. In 
+fact, if some patterns within the training data are con- 
+sidered good examples of the class these may be given 
+more weight than the others. 
+The second case calls for a choice of weights as in the 
+first case. The only exception would be that these 
+weights should be just large enough to have some 
+influence on the cluster centers. However, they should 
+not dominate the placement of the final cluster centers 
+and, hence, the final partition. Again, it can be useful to 
+weight the "good" training vectors from a hard-to- 
+separate class enough that they have a distinct influence 
+on the location of the cluster center. 
+In the third case, the objective is to overcome (P3) and 
+have some influence on all of the final clusters. This 
+means that training data for hard to separate small 
+clusters should be given enough weight so that the cen- 
+troid of the cluster is strongly influenced by the train- 
+ing data. It also means that the weights for the training 
+data need to be high enough that they have some in- 
+fluence in relation to the projected size of the class to 
+which they belong. 
+
+866 A.M. BENSAID et al. 
+Y 
+3_ 
+--1 " 
+Fig. 3. An example of poorly chosen training data for ssFCM. 
+X 
+In every case the choice of training data needs to be 
+"near" the centroid of the class from which it is chosen 
+or the weights can have unexpected effects. For 
+example, Fig. 3 shows a two-class problem. If the two 
+circled points are chosen for training and the training 
+weights are chosen to be 1, all points are correctly 
+classified. They are classified as belonging to a cluster 
+centered to the left of x = 0 or right of x - 0 when their 
+x value is < 0 or > 0 respectively. However, the chosen 
+training points are not so close to the respective cen- 
+troids of the clusters. With Wl = w2 = 10 (the weights for 
+the training patterns from the two classes equal 10), the 
+point at (0.4, 0) is misclassified. This example illustrates 
+that even relatively low weights given to training pat- 
+terns that are not near the class centroid can cause 
+errors in the final ssFCM partitions that would not 
+otherwise occur. However, this is the type of problem 
+that all supervised classification systems suffer from 
+when the training data is not "good" by the definition 
+required by the particular algorithm. 
+6. SEGMENTATION OF MR IMAGES 
+In this section we discuss the application of FCM, 
+ssFCM and the k nearest neighbor (k-nn) algorithm ~11) 
+to the segmentation of Magnetic Resonance Images. 
+The results with the k-nn rule are provided, because in 
+extensive studies (8) with k = 7, as used in the work 
+reported here, this method has proved to provide the 
+best segmentations of a number of supervised tech- 
+niques. The general idea of segmenting MR images of 
+the human brain has been discussed extensively else- 
+where, (') so we review here only the construction of the 
+feature data. Input data to the classifier or clustering 
+scheme will typically be some subset of pixel intensities 
+of sensed quantities, or more generally, a vector of 
+features constructed from them, at each spatial location 
+in the image. Figure 4 illustrates the general procedure 
+for p-dimensional data. 
+The experiments in this section used p = three-di- 
+mensional data sets constructed in this way from 10 
+Fig. 4. Aggregation of multispectral image data into pixel vectors. 
+
+Partially supervised clustering 867 
+Table 3. Tissue types and their artificial colors 
+Tissue no. (i) Tissue type Color n i for Fig. 4 
+1 Air Blue 62 
+2 CSF Yellow 19 
+3 White Matter Red 43 
+4 Gray Matter Orange 32 
+5 Tumor Gray 41 
+6 Necrosis Purple 35 
+7 Fat Pink 35 
+8 Bone Brown 39 
+different pathological patients. The representative im- 
+age shown and all others were transverse images of 
+5 mm thickness obtained with standard spin echo tech- 
+niques. Let Tlij, T2ij and Plj denote the spin lattice 
+relaxation (pulse repetition time TR = 600ms, echo 
+time TE = 20ms), transverse relaxation and proton 
+density (TR = 3000 ms, TE = 20 and 80 ms, respective- 
+ly) of pixel (i,j) in an MRI slice of overall dimensions 
+(q × r). We aggregate these into the pixel vector xi~ = 
+(Tlij, T2ij, Pij) in ~3; and put X = (x 11, xi~ ..... xqr }. Our 
+images were 256 × 256, resulting in sets of n = 65 536 
+pixel vectors in ~3. The 10 images generated 10 such 
+data sets, X1,X2,...,Xlo. There were c = 8 tissues of 
+interest. Their names and colors are shown in the first 
+two columns of Table 3. 
+The five views in Fig. 5 show outputs of several 
+approaches to segmentation that are typical of images 
+taken from all 10 of these patients. In each image, the 
+classifications have been hardened by assigning each 
+pixel to the class in which it has maximum membership 
+using equation (5). Table 4 shows the computing proto- 
+cols for each algorithm that is responsible for one of the 
+five views in Fig. 5. All three algorithms used the 
+Euclidean norm as the measure of distance. The number 
+of training pixel vectors per class for ssFCM and the 
+k-nn rule are shown in the last column of Table 3. The 
+same training data were used for views 5(C), 5(D) and 
+5(E). Training data were selected interactively with 
+a mouse technique, so the number of pixels per class 
+varies because some tissue regions were much easier to 
+select from than others. The mouse technique is to use 
+a mouse to outline pixel regions from a given class in the 
+raw T1-T2- or PD-weighted image. The pixels outlined 
+are (under program control) labeled as a specific user 
+defined class and stored for use in ssFCM training 
+sessions. 
+Comments on Figs 5(a) and (b) 
+Figure 5(a) shows the result of FCM with c = 8. This 
+segmentation erroneously merges necrosis, the disc- 
+shaped dark strip in the top, middle of the T1 image 
+which is surrounded by white, into the CSF class (yel- 
+low). This has been a typical result of FCM on the 
+images used in our experiments; with c = 8, FCM con- 
+sistently misses one or more pathological tissues: tumor, 
+edema (not applicable in Fig. 5) or necrosis, and instead 
+finds several clusters (often at the boundary of the brain) 
+deemed diagnostically insignificant by radiologists. 
+This is NOT a manifestation of problem (P1), because 
+we have supplied FCM with the (operator chosen) 
+"correct" number of clusters, c = 8, It is more likely due 
+to (P3), the problem of least-squares-based algorithms 
+under greatly unequal populations in the data. In some 
+cases, increasing the number of clusters to c = 10 results 
+in recognizing one or more of the important clusters 
+missed with c = 8. However, this increase can result in 
+splitting clusters that were correctly recognized with 
+c = 8 and/or in segmenting extra-cranial regions even 
+more finely, while still missing the tumor, edema and/or 
+necrosis tissue classes; Fig. 5(b) is a representative FCM 
+segmentation with c = 10. Furthermore, the regions 
+identified by FCM often had the wrong physical labels 
+(problem P2), so the tissue classes seen in Figs 5(a) and 
+(b), with c = 8 and c = 10, respectively, were colored 
+manually after segmentation so that the eight tissue 
+types itemized in Table 3 can be seen and compared 
+visually with the other three segmentations. Figures 5(a) 
+and (b) show how serious problems (P1)-(P3)can be. 
+The segmentation in Fig. 5(a) underestimates gray 
+matter in favor of white matter. Also, necrosis is placed 
+in the CSF class. Tumor is recognized, but the overall 
+segmentation can be improved. In Fig. 5(b) gray matter 
+is split into two classes, and necrosis remains in the CSF 
+class. Also, the extra-cranial region is segmented a little 
+finer by the addition of another class. Here, there was no 
+improvement by overclustering. 
+Comments on Figs 5(c)-(d) 
+Figures 5(c) and (d) are segmentations of the same 
+data made by ssFCM using the pixel vectors implied by 
+column three of Table 3 for partial supervision. Since 
+an operator selects and labels subsets of each of the 
+eight tissue types shown in Table 3, ssFCM has (i) the 
+correct (in the view of the operator selecting the training 
+data) number of tissue types, and (ii) correct labels 
+(colors) for the examples in each class. In other words, 
+problems (P1) and (P2) are avoided by having labels for 
+data from each operator-chosen class. Views in Figs 5(c) 
+and (d) differ only in the weights used in equation (14e). 
+In Fig. 5(c), wj = 6 Vj and in Fig. 5(d) this changes to 
+wj = 30 Vj. 
+The radiology researchers who evaluated Fig. 5 chose 
+5(c) as superior to 5(d), because it better differentiates 
+tissues at a finer level. The differentiation between gray 
+matter and tumor is best here. Necrosis is correctly 
+recognized. The image in Fig. 5(d) also provides a good 
+segmentation, but it is not as accurate in its separation 
+of tissues. 
+These results suggest that the training data may not 
+be perfectly accurate. A little weight provides a better 
+segmentation than a greater weight. If this is indeed the 
+case, we would expect that the segmentation by k-nn 
+would not be too good, as it depends solely on the 
+training data. 
+
+868 A.M. BENSAID et al. 
+Fig. 5. Five segmentations of a tumor patient. The raw images are shown in the top row. 
+Table 4. Computational protocols for Figs 5(a) (b), (c), (d) and (e) 
+Figure Algorithm Type k c m e w 
+5(a) FCM Unsup. na 8 2 0.01 na 
+5(b) FCM Unsup. na 10 2 0.01 na 
+5(c) ssFCM Supv, na 8 2 0.01 wj = 6 Vj 
+5(d) ssFCM Supv. na 8 2 0.01 wj = 30 Vj 
+5(e) k-nn rule Supv. 7 8 na na na 
+
+Partially supervised clustering 869 
+Comments on Fig 5(e) 
+The segmentation in Fig. 5(e) is carried out with the 
+k-nearest neighbor rule. We have processed many im- 
+ages with this algorithm in the last two years, and 
+extensive experimentation with k indicates that k = 7 
+provides the best results. 
+The k-nn segmentation does differentiate tumor and 
+necrosis. However, it does not differentiate between 
+tumor and gray matter as well as ssFCM, k-nn grossly 
+overestimates the amount of gray matter; the extra 
+pixels identified as gray matter are actually CSF for the 
+most part. Overall it does not provide a very good 
+segmentation. This indicates that the training set, care- 
+fully chosen by an expert, was not actually very good 
+(for k-nn). It is very difficult to correctly choose pixels 
+that clearly belong to each class, as is apparently the 
+case here. 
+6.1. Further results from MR imaging 
+A series of experiments to measure tumor volume 
+from MR brain images using ssFCM, k-nearest neigh- 
+bors (kNN), (2) and a seed growing approach (12) has 
+been carried out. The study tS) was to determine how 
+sensitive the methods were to the choice of training data 
+chosen by observers (technicians with some medical 
+physics training). It is difficult to choose training data 
+from the raw images such that the measured tumor 
+volume is consistent over multiple trials. Four patient 
+cases were used in the study with repeat scans available 
+for two patients (three for patient 1 and five for patient 
+2). The results reported are over the ten tumor volumes 
+obtained from the four patient cases. The tumors in- 
+volved were either meningioma or glioblastoma multi- 
+forme. All patients were undergoing therapy during the 
+course of repeat scans. 
+The results of the experiments are summarized in 
+Table 5, in terms of the tumor volume variability 
+resulting from the choice of the training data for 
+each trial. A value w = 100 was used in ssFCM for 
+all classes in this experiment. The differences in volume 
+for multiple training sets chosen by one observer are 
+given in the first row of Table 5 for two observers. 
+ssFCM and the seed-growing method had the lowest 
+variability intrabserver. The ssFCM algorithm had 
+the lowest variability intra-observer as shown by the 
+second column in Table 5. This experiment indicates 
+that ssFCM is less sensitive to the choice of training 
+data. 
+6.2. Initialization versus training: their influence on 
+the ssFCM algorithm 
+As a partially supervised algorithm, ssFCM falls into 
+a class of algorithms that is intermediate between the 
+fully supervised and the fully unsupervised classes of 
+learning algorithms. Partitions created by iterative clus- 
+tering algorithms are sensitive to initialization. Specifi- 
+cally, the local minimum of Jm to which FCM will 
+converge depends on the initial guess. In the MR1 
+domain, segmentations can be quite different for differ- 
+ent initializations. ~13) In equation (14b) ssFCM is ini- 
+tialized with the training data. If the user of the algo- 
+rithm is unsure of the "goodness" of the training data, 
+we may revise (14b) to take form (14e): 
+/~nd W [U d ~mxd 4-~ ~'~nu (Ulk,t)u mXk \ 
+u m ' vi'° \ W"~ w tu n ~m + V'"u l(ulk,t) ] \ Z"k= 1 kl" ik,t j -- "~-'k= 
+for i= 1,2 ..... C;Wk>O, (15) 
+where the U~k.t are assigned subject to the constraints in 
+equation (2). They may be taken from the end results of 
+a previous clustering, created randomly or chosen in 
+some other fashion. The initialization is now not gov- 
+erned solely by the training data. 
+One aspect of equation (14b) is that with good 
+training data it provides an initialization of the cluster 
+centers that will be relatively near the actual centroids 
+of the clusters in feature space. Given this kind of 
+initialization, FCM (we have found in practice) is more 
+likely to converge to a final partition that is acceptable 
+to the user. We have shown that in the MR1 domain, 
+FCM is very sensitive to initialization, both in terms of 
+the time it takes to converge and the quality of the final 
+partition.(X 3) 
+A question of interest is: can bad training data, 
+which will provide a relatively poor initialization in 
+equation (14b), be overcome? This is possible and was 
+shown in Section 6, where the (partially supervised 
+and) supervised methods produced poorer segmenta- 
+tion as more weight was given to the training data. 
+Indeed, ssFCM with training weights wj = 6 Vj [Fig. 
+5(c)] produced the best results; the segmentation was 
+not as good when the weights were increased to 
+wj = 30 Vj [Fig. 5(d)]. Finally, quality deteriorated in 
+Fig. 5(e) (with k-nn), where the segmentation was based 
+fully on the training data. This deterioration is prob- 
+ably due to bad training data since k-nn's segmentation 
+of M RIs is usually quite good/1) This suggests that bad 
+training data were overcome by ssFCM using lower 
+Table 5. Inter- and intra-observer brain tumor variability among three supervised 
+segmentation methods 
+Variability for 
+ssFCM(%) Seed growing (%) kNN 
+Intra-observer 6 6 9 
+Inter,observer 4 17 5 
+
+870 A.M. BENSAID et al. 
+training weights. Of course, if there is a lot of poor 
+training data, or if the training data are given high 
+weights in equation (14e), they will strongly influence 
+the cluster centers; this is likely to result in a poor final 
+partition of the data. 
+Another question involves whether a poor initializ- 
+ation when using equation (15) can be overcome, 
+resulting in a final partition that may be judged as 
+good. To provide some guidance on this question, 
+ssFCM was run with an initial V created from the 
+pixels of interest [represented in a U ~ matrix, as in 
+equation (14a)] selected from an MR image that was: 
+• of a different normal subject than the one that we 
+ran ssFCM on; 
+• obtained by a different MRI acquisition protocol 
+(fast-spin-echo) than the protocol (spin-echo) used to 
+acquire the data of the normal subject ssFCM was run 
+on. A fast-spin-echo data set has pixel intensities which 
+are generally more than a factor of 2 times larger than 
+those acquired using a spin-echo technique. 
+The initialization is guaranteed to be poor, when 
+chosen as above. After initialization, new training 
+data was carefully chosen from the image to which 
+ssFCM was applied. This training data was used 
+by ssFCM in all further calculations replacing the 
+U d matrix used for initialization. The segmentation 
+that k-nn provided using this data was considered 
+very good. Hence, the training data may be consi- 
+dered good. The result of this experiment with training 
+weights as low as wi= 1 gi is that ssFCM gave a 
+correct segmentation and labeling, performed in 
+22 min 30s on a SPARC2. With w i = 6 Vi, all clusters 
+of interest are recognized and labeled and the resulting 
+segmented image is closer to that obtained using 
+k-nn; this segmentation takes 15min 30s. So with 
+reliably good training data, ssFCM results in a faster 
+and more accurate segmentation when more weight 
+is given to the training data. We conclude that it 
+is possible for good training data to overcome a bad 
+initialization. 
+stronger influence on the resulting partition as higher 
+weights are assigned to the training data for specific 
+classes. A small amount of training data can be used 
+to strongly influence the clustering process when it is 
+considered accurately labeled. Alternatively, the method 
+allows training data that may not be considered perfect 
+to influence the final clusters to a desired degree. Note, 
+it is not necessary to have training data from all classes 
+in the ssFCM algorithm although it is assumed in this 
+paper. Expert bias is injected into the clustering pro- 
+cess in the choice of labeled training data and, more 
+importantly, in the choice of the weight for the set of 
+training patterns for each class. 
+The ssFCM algorithm has a distinct advantage over 
+fully supervised algorithms when the training data is 
+not known to be totally reliable. The final partition will 
+only be influenced by the training data to a small 
+degree, determined by low weights given to the training 
+data (i.e. small w's). Hence, poor training data will not 
+necessarily ruin the final partition. Also, ssFCM may 
+be effectively applied with less training data than other 
+supervised methods. 
+The results of experiments on MR images and our 
+small artificial data set are very promising. They show 
+that the use of ssFCM avoids problems P1 and P2 and 
+can overcome problem P3 from unsupervised cluster- 
+ing. The algorithm also is effective in providing good 
+segmentations of MR images with similar results (as in 
+Fig. 5) in other experiments that have been run on 
+multiple slices of the same brain (to produce 3-D 
+segmentations). The algorithm is the least sensitive 
+algorithm to the choice of training data in our tumor 
+volume measurement experiments. With an effective 
+choice of parameters, ssFCM provides a good alterna- 
+tive classification algorithm that has the desirable 
+characteristics of both fully supervised and unsuper- 
+vised algorithms. 
+Acknowledgements--This research was partially supported 
+by a grant from.the Whitaker Foundation and the National 
+Cancer Institute under gran~ CA59 425-01. 
+7. CONCLUSIONS 
+The ssFCM method allows the interjection of train- 
+ing data into an unsupervised clustering scheme. This 
+overcomes the problems of determining the correct 
+number of clusters and insuring that the algorithm 
+provides correct physical labels, when (at least some) 
+training data from every class is available. A judicious 
+choice of weights for the training data provides cluster- 
+ing algorithms that use a sum of squared errors objec- 
+tive function a way to circumvent their tendency to 
+produce partitions in which each class is of approxi- 
+mately equal size. 
+The location of the cluster prototypes or centers is 
+influenced by the fixed training data. As the training 
+data is given more weight, terminal cluster centers are 
+more rigidly attracted to the centroids of the training 
+data. Hence, the training data have an increasingly 
+REFERENCES 
+1. J. C. Bezdek, L. Hall and L. Clarke, Review of MR image 
+segmentation techniques using pattern recognition, Med. 
+Phys. 20(4), 1033-1048 (1993). 
+2. R. Duda and P. Hart, Pattern Ciassifieation and Scene 
+Analysis. Wiley Interscience, New York (1973). 
+3. J. C. Bezdek, Pattern Recognition with Fuzzy Objective 
+Function Algorithms. Plenum Press, New York (1981). 
+4. E. H. Ruspini, A New Approach to Clustering, Inform. 
+Control. 15, 22-32 (1969). 
+5. J. C. Bezdek and S. K. Pal, Fuzzy Models for Pattern 
+Recognition. IEEE Press, Piscataway, New Jersey (1992). 
+6. Krishnapuram, R. and Keller, J. A possibilistic approach 
+to clustering, IEEE Trans. Fuzzy Syst. 1(2), 98-110 
+(1993). 
+7. W. Pedrycz, Algorithms of fuzzy clustering with partial 
+supervision, Pattern Recoonition Lett. 3, 13-20 (1985). 
+8. M. Vaidyanathan, R. P. Velthuizen, P. Venugopal, 
+L. P. Clarke and L. O. Hall. Tumor Volume using 
+Supervised and Semi-Supervised MRI Segmentation 
+
+Partially supervised clustering 871 
+Methods, Artificial Neural Networks in Engineering 
+Conference, ANNIE (1994). 
+9. J. C. Bezdek, Cluster validity with fuzzy sets, J. Cybernet. 
+3(3), 58 73 (1974). 
+10. S. E. Fahlman, Faster-learning ~,ariations on back- 
+propagation: an empirical study, Proc. 1988 Connection- 
+ist Models Summer School. Morgan Kaufmann, San 
+Mateo, California (1988). 
+11. P. Devijver and J. Kittler, Pattern Recognition: A Statisti- 
+cal Approach. Prentice-Hall, Englewood Cliffs, New Jer- 
+sey (1982). 
+12. L. P. Clarke, R. P. Velthuizen, S. Phuphanich, J. D. 
+Schellenberg, J. A. Arrington and M. Silbiger, MRI: 
+Stability of three supervised segmentation techniques, 
+Magn. Reson. Imaging 11, 95-105 (1993). 
+13. L. O. Hall, A. Bensaid, R. Velthuizen, L. Clarke, M. 
+Silbiger and J. Bezdek, A comparison of neural network 
+and fuzzy clustering techniques in segmenting magnetic 
+resonance images of the brain, IEEE Trans. Neural Net- 
+works 3(5), 672-682 (1992). 
+APPENDIX A: DATA FOR EXAMPLE l 
+In (x, y) coordinate format. 
+Class 1 
+(24, 51), (25, 59), (27, 38), (28, 46), (29, 62), (30, 30), (33, 54), (34, 
+42), (34, 37), (35, 48), (36, 64), (39, 57), (39, 29), (40, 42), (40, 46), 
+(41, 63), (41, 51), (42, 35), (39, 68), (43, 58), (45, 46), (47, 68), (48, 
+55), (48, 39), (48, 29), (49, 60), (50, 52), (52, 45), (53, 38), (53, 31), 
+(55, 64), (56, 55), (58, 59), (58, 44), (60, 41), (60, 50), (61, 36), (63, 
+62), (64, 53), (65, 45). 
+Class 2 
+(89, 50), (90, 48), (94, 49). 
+About the Author--LAWRENCE O. HALL is an Associate Professor of Computer Science and Engineering 
+at University of South Florida. He received his Ph.D. in computer science from the Florida State University 
+in 1986 and a B.S. in applied mathematics from the Florida Institute of Technology in 1980. His current 
+research in Artificial Intelligence is in hybrid connectionist, symbolic learning models, medical image 
+understanding through integrated pattern recognition and AI, parallel expert systems, the use of Fuzzy sets 
+and logic in imprecise domains and learning imprecise concepts such as tall or fast. He is an Associate Editor 
+for IEEE Transactions on Systems, Man and Cybernetics, and IEEE Transactions on Fuzzy Systems. He is 
+the President of the North American Fuzzy Information Processing Society. Dr Hall has written over 100 
+research papers and co-authored one book. 
+About the Author AMINE M. BENSAID received the B.S. degree in information systems in 1990, the M.S. 
+in computer engineering in 1992 and the Ph.D. in computer science and engineering in 1994, from the 
+University of South Florida. Amine is currently an Assistant Professor of Computer Science at AI Akhawayn 
+University, Ifrane, Morocco. His research interests include pattern recognition, image segmentation, fuzzy 
+logic, neural networks and genetic algorithms. He is a member of IEEE, Tau Beta Pi and Phi Kappa Phi. 
+About the Author JIM BEZDEK received his Ph.D. from Cornell University in 1973. His interests include 
+pattern recognition, fishing, computational neural networks, skiing, image processing, blues music, medical 
+computing and motorcycles. He is founding editor of the IEEE Trans. Fuzzy Systems and a fellow of the 
+IEEE. 
+About the Author--LAURENCE P. CLARKE, Ph.D., is Professor of Radiology and Physics, College of 
+Medicine, and Senior Member in Residence at the H. Lee Moffitt Cancer Center and Research Institute and 
+Director of the Moffitt Digital Medical Imaging Program at the University of South Florida. Dr Clarke is 
+a Fellow of the American Association of Physicists in Medicine and Society of Magnetic Resonance Imaging 
+and member of the IEEE EMB and SNM Society. Research interests include computer assisted diagnosis 
+(CAD) in medical imaging for all imaging modalities. Dr Clarke can be reached at the Department of 
+Radiology, College of Medicine, University of South Florida, Tampa, FL 33612-4799, U.S.A.; fax (813) 
+975-7831; email: clarke@splinter.rad.usf.edu. 

@@ -1,0 +1,22 @@
+{
+  "k": 5,
+  "beta": 0.1,
+  "alpha": 0.0,
+  "seed": 0,
+  "device": "cuda",
+  "n_samples": 6031,
+  "n_pairs": 54473,
+  "n_blocks": 22,
+  "max_block_size": 1820,
+  "n_free_samples": 0,
+  "iters": 160,
+  "final_obj": 3454.0396512698,
+  "cluster_sizes": [
+    1821,
+    126,
+    665,
+    2106,
+    1313
+  ],
+  "elapsed_sec": 107.9
+}

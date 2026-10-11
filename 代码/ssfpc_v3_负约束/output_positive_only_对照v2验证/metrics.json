@@ -1,0 +1,64 @@
+{
+  "run_dir": "代码\\ssfpc_v3_负约束\\output",
+  "k": 5,
+  "beta": 0.1,
+  "seed": 0,
+  "iters": 93,
+  "final_obj": 4870.12107904778,
+  "cluster_sizes": [
+    963,
+    602,
+    1607,
+    1612,
+    1247
+  ],
+  "elapsed_sec": 237.6,
+  "fuzzy_internal": {
+    "PC": 0.2595888376235962,
+    "PE": 1.4426342248916626,
+    "XB": 35992254006438.625
+  },
+  "hard_internal": {
+    "silhouette": 0.20040971386084572,
+    "CH": 5032.694655244112,
+    "DB": 2.1985690361506336
+  },
+  "constraint_metrics": {
+    "constrained_same_cluster_rate": 0.32168565238660984,
+    "random_baseline_rate": 0.22065223119998398,
+    "same_cluster_lift": 1.457885336745388,
+    "constraint_residual_mean_s_du2": 0.0562663387409961
+  },
+  "external_vs_roberts": {
+    "3a": {
+      "ARI": 0.0123,
+      "NMI": 0.0239,
+      "n_labeled": 6031
+    },
+    "3h": {
+      "ARI": 0.0104,
+      "NMI": 0.0273,
+      "n_labeled": 3950
+    },
+    "3u": {
+      "ARI": 0.0177,
+      "NMI": 0.0317,
+      "n_labeled": 2081
+    },
+    "ca": {
+      "ARI": 0.0122,
+      "NMI": 0.0324,
+      "n_labeled": 1786
+    },
+    "ch": {
+      "ARI": 0.013,
+      "NMI": 0.037,
+      "n_labeled": 1260
+    },
+    "cu": {
+      "ARI": 0.0154,
+      "NMI": 0.0484,
+      "n_labeled": 526
+    }
+  }
+}

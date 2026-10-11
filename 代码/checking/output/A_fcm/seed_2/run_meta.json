@@ -1,0 +1,26 @@
+{
+  "version": "v2 正约束特例",
+  "k": 5,
+  "beta": 0.0,
+  "beta_convention": "论文式(5)口径 (v1 的 2 倍关系已修正)",
+  "alpha": 0.0,
+  "seed": 2,
+  "device": "cuda",
+  "n_samples": 6031,
+  "n_pairs": 42927,
+  "n_blocks": 0,
+  "max_block_size": 0,
+  "n_free_samples": 6031,
+  "pd_check": [],
+  "iters": 209,
+  "final_obj": 2392.140253735007,
+  "converged": true,
+  "cluster_sizes": [
+    561,
+    1257,
+    2040,
+    2071,
+    102
+  ],
+  "elapsed_sec": 0.0
+}

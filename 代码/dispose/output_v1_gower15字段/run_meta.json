@@ -1,0 +1,61 @@
+{
+  "input": "C:\\Users\\BugCat\\Desktop\\科研\\面向智能电网终端用户的“社会信息过滤”电力零售套餐推荐系统\\data\\index files\\demographic_lookup_3_groups.parquet",
+  "n_samples": 6031,
+  "fields": {
+    "ordinal": [
+      "ASSRTD_HHOLD_INCOME_GROUP_CD",
+      "ASSRTD_GAS_USAGE_GROUP_CD"
+    ],
+    "nominal": [
+      "ASSRTD_DWELLING_TYPE_CD",
+      "ASSRTD_CLIMATE_ZONE_CD"
+    ],
+    "binary": [
+      "HAS_AIRCON",
+      "HAS_POOLPUMP",
+      "HAS_SOLAR",
+      "HAS_GAS",
+      "HAS_GAS_HEATING",
+      "HAS_GAS_HOT_WATER",
+      "HAS_GAS_COOKING",
+      "HAS_GAS_OTHER_APPLIANCE",
+      "HAS_GENERATION",
+      "IS_RENTING",
+      "IS_HOME_DURING_DAYTIME"
+    ]
+  },
+  "asymmetric_binary": false,
+  "s_threshold": 0.0,
+  "top_k": 10,
+  "methods": {
+    "gower": {
+      "n_samples": 6031,
+      "n_pairs": 54473,
+      "s_min": 0.5333333015441895,
+      "s_max": 1.0,
+      "s_mean": 0.9878703951835632,
+      "n_components_total": 22,
+      "n_nontrivial_blocks": 22,
+      "block_size_max": 1820,
+      "block_size_median": 142.0,
+      "n_constrained_samples": 6031,
+      "frac_constrained": 1.0,
+      "n_isolated": 0
+    },
+    "cosine": {
+      "n_samples": 6031,
+      "n_pairs": 54975,
+      "s_min": 0.466666579246521,
+      "s_max": 0.9999998807907104,
+      "s_mean": 0.9834129810333252,
+      "n_components_total": 16,
+      "n_nontrivial_blocks": 16,
+      "block_size_max": 4007,
+      "block_size_median": 126.0,
+      "n_constrained_samples": 6031,
+      "frac_constrained": 1.0,
+      "n_isolated": 0
+    }
+  },
+  "elapsed_sec": 3.7
+}

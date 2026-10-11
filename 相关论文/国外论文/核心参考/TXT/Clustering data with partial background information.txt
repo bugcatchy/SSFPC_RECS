@@ -1,0 +1,1097 @@
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138 https://doi.org/10.1007/s13042-018-0790-0
+ORIGINAL ARTICLE
+
+Clustering data with partial background information
+Chien‑Liang Liu1 · Wen‑Hoar Hsaio2 · Tao‑Hsing Chang3 · Hsuan‑Hsun Li4
+Received: 25 December 2016 / Accepted: 20 January 2018 / Published online: 5 February 2018 © Springer-Verlag GmbH Germany, part of Springer Nature 2018
+Abstract Clustering with partial supervision background information or semi-supervised clustering, learning from a combination of both labeled and unlabeled data, has received a lot of attention over the last decade. The supervisory information is usually used as the constraints to bias clustering towards a good region of search space. This paper proposes a semi-supervised algorithm, called constrained non-negative matrix factorization (Constrained-NMF), with a few labeled examples as constraints to improve performance. The proposed algorithm is a matrix factorization algorithm, in which initialization of matrices is required at the beginning. Although the benefits of good initialization are well-known, randomized seeding of basis matrix and coefficient matrix is still the standard approach for many non-negative matrix factorization (NMF) algorithms. This work devises an algorithm called entropy-based weighted semi-supervised fuzzy c-means (EWSS-FCM) algorithm to initialize the seeds. The experimental results indicate that the proposed Constrained-NMF can benefit from the initialization obtained from EWSS-FCM, which emphasizes the role of labeled examples and automatically weights them during the course of clustering. This work considers labeled examples in the objective functions to devise the two algorithms, in which the labeled information is propagated to unlabeled examples iteratively. We further analyze the proposed Constrained-NMF and give convergence justifications. The experiments are conducted on five real data sets, and experimental results indicate that the proposed algorithm generally outperforms the other alternatives.
+Keywords  Clustering · Fuzzy clustering · Semi-supervised learning · Non-negative matrix factorization (NMF)
+
+* Wen‑Hoar Hsaio bass28.cs96g@g2.nctu.edu.tw
+Chien‑Liang Liu clliu@mail.nctu.edu.tw
+Tao‑Hsing Chang changth@gm.kuas.edu.tw
+Hsuan‑Hsun Li daven77329@gmail.com
+1 Department of Industrial Engineering and Management, National Chiao Tung University, No. 1001, University Rd., Hsinchu City 300, Taiwan (R.O.C.)
+2 Information Management Center, National Chung-Shan Institute of Science and Technology, No. 481, 6th Neighborhood, Sec. Jia’an, Zhongzheng Rd., Longtan Dist., Taoyuan City 325, Taiwan (R.O.C.)
+3 Department of Computer Science and Information Engineering, National Kaohsiung University of Applied Sciences, No. 415, Jiangong Rd., Sanmin Dist., Kaohsiung City 807, Taiwan, Taiwan (R.O.C.)
+4 Department of Computer Science, National Chiao Tung University, No. 1001, University Rd., Hsinchu City 300, Taiwan (R.O.C.)
+
+1 Introduction
+Clustering with partial supervision background information or semi-supervised clustering, learning from a combination of both labeled and unlabeled data, has received a lot of attention over the last decade [18, 54, 68]. One of the reasons is that semi-supervised clustering can use a few labeled examples along with a large amount of unlabeled data to learn a robust model. Moreover, semi-supervised clustering provides a means for the experimenters to incorporate prior knowledge into the objective function, so that the original problem can be encoded as a constrained optimization problem. Apparently, supervised learning is one of the most commonly used and successful types of machine learning, but supervised learning algorithms require sufficient labeled examples to infer a classification function. Data labeling is a time-consuming process and it is often expensive to acquire sufficient labeled examples in real world applications. In contrast, unlabeled data is relatively easy to collect, and many algorithms as well as experimental results have
+Vol.:(011233 456789)
+
+1124
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+demonstrated that unlabeled data can significantly improve learning accuracy in certain practical problems [13, 45].
+Semi-supervised learning methods can be further classified into semi-supervised classification and semi-supervised clustering. Semi-supervised classification employs labeled data along with unlabeled data to construct a more accurate classifier; while semi-supervised clustering uses a small amount of labeled data to bias the clustering of unlabeled data. Various semi-supervised algorithms have been proposed, including co-training [13, 53], semi-supervised Naive Bayes [31, 45], transductive support vector machines (TSVM) [32], graph-based approaches [12, 25], and clustering-based approaches [4, 5, 51, 52, 66]. More detailed literature survey about semi-supervised learning algorithms can refer to the survey conducted by Zhu [67].
+Semi-supervised learning must use enormous unlabeled examples to improve performance, and unlabeled examples have to share the same distribution as labeled ones, otherwise using unlabeled examples may harm classification performance. Cozman and Cohen [20] pointed out that unlabeled data can degrade the performance of a classifier when there are discrepancies between modeling assumptions used to build the classifier and the actual model that generates the data. Consequently, semi-supervised learning algorithms generally follow smoothness and cluster assumptions to model the structure of the underlying distribution of data [65].
+Clustering is one of the most commonly used data mining techniques. The goal of clustering is to automatically assign objects into groups so that objects from the same cluster are more similar to each other than objects from different clusters. Additionally, clustering is an unsupervised learning method, so it does not require labeled data to train a model. Jain [30] has summarized existing well-known clustering methods, and discussed the major challenges and key issues in designing clustering algorithms. Practically, it is inappropriate to crisply assign an object into a unique group or category. For example, a digital image of vehicle, landscape and aircraft belongs to several categories with some possibilities. In text processing, a news article may comprise multiple topics, such as politics, economy and sports. Since the fuzzy theory was proposed by Zadeh [62], it has shown that fuzzy sets and possibility theory provide a homogeneous framework for the representation of both imprecise or uncertain information with a flexible interpretation [14]. In the last decade, the methodologies for combining fuzzy theory and machine learning algorithms have attracted a lot of attention [28, 55, 57].
+Lee and Seung have previously shown that non-negativity is a useful constraint for matrix factorization and devised a matrix factorization algorithm called non-negative matrix factorization (NMF) to learn a parts-based representation of the data [38, 39]. The problem can be formulated as factorizing a non-negative matrix into two non-negative matrices, basis matrix and coefficient matrix  . Recent
+
+studies have exploited the connections between NMF and some clustering algorithms, providing theoretical foundation for using NMF to cluster data. For example, it has been shown that NMF is equivalent to a relaxed form of K-means clustering [23], in which matrix contains centroid information and matrix contains cluster membership indicators. Furthermore, the entries in the coefficient matrix are non-negative, explaining why clustering information revealed from can be further viewed as a soft assignment of clustering, where each data object can belong to two or more clusters with different membership degrees. Additionally, matrix factorization can be viewed as discovering latent information from the data collection, and it has been applied to many application domains. The applications include, but are not limited to, text clustering [9, 52], collaborative filtering [37, 50, 61], and bioinformatics [22, 35].
+The NMF is an unsupervised learning, and Lee and Seung [39] proposed two cost functions for NMF, which are based on Euclidean distance and Kullback–Leibler divergence, respectively. This work uses Kullback–Leibler divergence as the cost function, and considers labeled examples in the cost function to devise an algorithm called Constrained-NMF. Although the benefits of good initialization are well-known, randomized seeding of and is still the standard approach for many NMF algorithms. Besides determining initial configuration randomly, many research studies apply K-means algorithm to initialize the seeds owing to the simplicity and efficiency of K-means. For example, Wang et al. [52] used K-means to initialize their proposed algorithm called penalized matrix factorization (PMF). This work considers the role of labeled examples in the semi-supervised learning algorithm and the flexibility of soft assignment in the clustering algorithm to devise an algorithm called entropy-based weighted semi-supervised fuzzy c-means (EWSS-FCM) to initialize the proposed Constrained-NMF. The experimental results indicate that the proposed Constrained-NMF can benefit from the initialization obtained from EWSS-FCM, which emphasizes the role of labeled examples and automatically weights them during the course of clustering.
+This work focuses on semi-supervised clustering, and the main contributions of this paper are listed as follows. First, this work devises a semi-supervised learning algorithm. In algorithm design, we consider partial background information as constraint to formulate the proposed objective function as a constrained optimization problem. Besides, this work analyzes the proposed Constrained-NMF, and gives convergence justifications. Second, we propose an algorithm called EWSS-FCM to initialize Constrained-NMF. The experimental results indicate that using EWSS-FCM as initialization method can improve performance of ConstrainedNMF. Finally, we use several semi-supervised learning algorithms to compare with the proposed Constrained-NMF on
+
+1 3
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+1125
+
+five real data sets. The experimental results indicate that the proposed Constrained-NMF generally outperforms the other alternatives.
+The rest of this paper is organized as follows. Section 2 presents related surveys of semi-supervised learning. Section 3 then introduces EWSS-FCM algorithm and Constrained-NMF algorithm. Next, Sect. 4 summarizes and discusses the experimental results. Conclusions are finally drawn in Sect. 5.
+2 Related work
+Semi-supervised learning often uses one of the following assumptions to model the structure of the underlying distribution of data [65]. First, nearby points are likely to have the same label, namely, the classification function should be smooth with respect to the intrinsic structure collectively revealed by known labeled and unlabeled data. Many studies view the smoothness as an constrained optimization problem and regularize the problem at hand [21, 33, 34]. Second, points on the same structure are likely to have the same label. As a result, the classification functions are naturally defined only on the sub-manifold in question rather than the total ambient space [7, 19, 69]. This argument is often called the cluster assumption.
+Many semi-supervised learning methods are extended from existing learning algorithm by using optimization with constraints technique to view labeled examples as constraints. Then, considering new constraints in the objective function of existing algorithm becomes a new optimization problem. For instance, many clustering algorithms aim at the minimization of the cost function, which involves distortion measure between the objects and the cluster representatives. Thus, semi-supervised clustering can formulate labeled examples as regularization terms of optimization problems. This technique has been widely used by many researchers [15, 31, 44, 52, 56]. For instance, Bouchachia and Pedrycz [15] developed a semi-supervised clustering algorithm, which extends the objective function of Fuzzy C-Means (FCM) [11] to encode labeled data as an additional regularization term. Miyamoto et al. [44] used the same technique in fuzzy semi-supervised clustering. Wang et al. [52] considered must-link and cannot-link as prior knowledge and used a penalty term to encode prior knowledge to develop a penalized matrix factorization (PMF) algorithm, which is a semi-supervised learning method extended from matrix factorization. Wang and Davidson [56] proposed a flexible and generalized framework for constrained spectral clustering, which can be formulated as a constrained optimization problem by adding a constraint to the original objective function of spectral clustering. Ji et al. [31] proposed a semi-supervised clustering model that incorporates
+
+prior knowledge about documents’ membership for document cluster analysis. The prior knowledge is provided in the form of indicating several pairs of documents which the user wishes to be grouped into the same cluster. They employed normalized cut [47] as cost function and introduced a penalty term with a penalty coefficient matrix to incorporate the user’s prior knowledge on the data set. Then the document clustering task is accomplished by finding the cluster set that globally optimizes the constrained cost function.
+Moreover, graph-based approach is another popular method in semi-supervised learning. The labeled and unlabeled examples are defined on a graph where nodes represent the labeled and unlabeled examples, and edges reflect the similarities of pairs of nodes. The general idea is to design cost functions on labeled examples, such that the predictions on the labeled nodes are close to the given labels. Meanwhile, graph-based methods assume label smoothness over the graph, which can be encoded as an additional regularization term. For instance, Blum and Chawla [12] viewed the semi-supervised learning as a graph minimum cut problem, in which infinite weights are given to labeled examples to ensure the predictions on labeled ones are correct. Zhou et al. [65] considered local and global consistency by using the normalized Laplacian. Many graph-based methods are mentioned and discussed in the literature survey conducted by Zhu [67].
+Although unsupervised learning approaches do not need labeled data in the course of clustering process, proper seeding biases clustering towards a good region of the search space [4]. Wagstaff et al. [51] devised a semi-supervised variant of K-means called COP-KMeans to use constraints in order to represent background knowledge. Two constraints are must-link (i.e. two instances must be together in the same cluster) and cannot-link (i.e. two instances must be in different clusters). These constraints are used during clustering to generate a partition that satisfies all given constraints. Basu et al. [4] introduced two semi-supervised variants of K-means clustering that use initial labeled data for seeding. These two algorithms are Seeded-KMeans and ConstrainedKMeans. In Seeded-KMeans, the seeds are only used to initialize the K-means algorithm, and they are not used in the clustering algorithm. In Constrained-KMeans, the seeds are used to initialize centers and keep the grouping of labeled data unchanged throughout the clustering process.
+Fuzzy C-Means (FCM) [11] is a typical clustering algorithm, which benefits from fuzzy logic [63] to allow data to belong to two or more clusters with different degrees of membership. Each object has a fuzzy membership to indicate the degree of belonging to each cluster. The soft assignment mechanism is more flexible than hard assignment clustering algorithm such as K-means, since hard assignment may lead to some problems for those objects that are located in the boundaries among cluster centers. The FCM is one of the most popular methods used in pattern recognition.
+
+1 3
+
+1126
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+Table 1  Notation Notation
+N M K
+
+Meaning
+The number of data objects The number of features The number of clusters The data matrix, = [ 1, 2, … , N ] The mean matrix, = [ 1, 2, … , K ] The membership matrix, = [ 1, 2, … , N ]
+
+As the success and popularity of the FCM algorithm, many fuzzy clustering [3, 17, 27] and semi-supervised fuzzy clustering methods [2, 6, 8, 26, 41, 43, 46, 49, 60] have been devised and applied to image or document clustering problems. Klose and Kruse [36] have reviewed many semi-supervised learning approaches extended from FCM algorithm, and proposed an evolutionary algorithm that incorporates labeled and unlabeled examples into its objective function to construct fuzzy rule base.
+Besides the methods mentioned above, another interesting strategy is to emphasize the role of labeled data to devise semi-supervised learning algorithms. For instance, Labzour et al. [49] proposed a semi-supervised point-prototype clustering algorithm called ssPPC, which over-partitions the unlabeled data and aligns the resulting clusters with labeled data. Then, the unlabeled examples are labeled based on their memberships to the clusters. Bensaid et al. [8] devised an algorithm called semi-supervised FCM (ssFCM), which is an extension of FCM. The idea of ssFCM algorithm is to trust the labeled data by using weighting mechanism, in which the clusters of labeled data are fixed as given during the clustering process. Practically, ssFCM requires experts to determine the weights of labeled data [8]. As mentioned above, this work proposes an algorithm called EWSSFCM to initialize the proposed Constrained-NMF. Inspired by ssFCM, the proposed EWSS-FCM uses given labeled examples and applies the weighting mechanism to emphasize their roles. The main difference between the proposed EWSS-FCM and ssFCM is that the weights of labeled examples are automatically determined from the structure of data instead of determining by experts as used in ssFCM. The experimental results indicate that the proposed EWSS-FCM generally outperforms ssFCM.
+3 EWSS‑FCM and constrained‑NMF
+This section lists the notations that are used in the following sections, and introduces the proposed EWSS-FCM and Constrained-NMF algorithms.
+
+3.1 Notation
+The notations that will be used in the following sections are listed in Table 1. Each data object i is represented as a feature vector with length M. The data collection is represented by = [ 1, 2, … , N] , indicating that the number of data objects is N and i ∈ ℝM . This work focuses on semi-supervised learning, so a small amount of labeled examples is available in the data collection. We use l to denote labeled data and use u to represent unlabeled data. Thus, the whole data set can be divided into two partitions, namely, = l ∪ u . The goal is to partition the data collection into K clusters, each of which has a mean vector k(1 ≤ k ≤ K) ∈ ℝM . Similarly, we use a matrix to denote all of the mean vectors, namely, = [ 1, 2, … , K] . Additionally, each data object has a membership vector to indicate its membership degree belonging to the K clusters. A matrix = [ 1, 2, … , N] is used to represent membership degrees of all data, in which i ∈ [0, 1]K.
+
+3.2 EWSS‑FCM
+
+The FCM is a typical clustering algorithm, which allows each data object to belong to two or more clusters with different degrees of membership. Equation (1) shows the objective function of FCM, where m is any real number greater than 1, uki represents the degree of data object i belonging
+∑K to kth cluster and k=1 uki = 1 , and k represents the center of kth cluster. The FCM clustering is carried out through an iterative optimization of the objective function with the update of membership degree uki and the cluster centers k:
+
+∑N ∑K
+
+JFCM( , ) =
+
+(uki)m ∥ i − k ∥2
+
+(1)
+
+i=1 k=1
+
+The FCM is an unsupervised learning method, so it does not require labeled data during the course of clustering. Practically, a small amount of labeled examples may be available, inspiring us to use the available labeled examples to improve performance. This work uses available labeled examples for two purposes. First, these labeled examples can determine the initial guess of the centers. Practically, clustering algorithms such as K-means and FCM are sensitive to the initial guess. Thus, the seeds can provide a better guess for the algorithm to cluster the data. Second, these labeled examples should bias the clustering towards a better searching space during the course of clustering.
+The previous work closely related to our proposed approach is ssFCM [8], which utilizes given labeled data and weights them in the step of updating new centers. One of the problems of ssFCM is that it generally requires experts to determine the weight of labeled data for each class or
+
+1 3
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+1127
+
+center. Bensaid et al. [8] suggested that the value of weight for labeled data can be determined with uniform value, namely, taking an identical value for each labeled data to each class or center when prior knowledge about labeled data is unavailable.
+To cope with the problem of ssFCM, this paper devises an algorithm called EWSS-FCM to automatically determine the weights of labeled examples in terms of the structure of data and applies them to the step of updating new centers. Compared with the ssFCM, the weighting mechanism is applied to all of the data objects rather than fixing the clusters of labeled ones.
+The proposed EWSS-FCM comprises the following steps. First, the EWSS-FCM applies FCM to cluster all data objects, and uses the clustering results to calculate the entropy of each data object. Entropy is commonly used in measuring uncertainty and represents the amount of information as measured in bits [58]. Note that the range of entropy is from 0 to log2 K , where K is the number of possible values for a discrete random variable and can be considered as the number of clusters in this paper. This work proposes to use entropy to represent the confidence of each data object belonging to its corresponding prototype. For each data object, the lower the entropy, the higher the confidence is recognized. Furthermore, we emphasize those data objects having high entropy and dilute ones having low entropy during the course of clustering. Second, based on the entropy of data, we define information measurement Ii for data object
+i , which can be considered as the basis with non-linearity of importance for each data object in the course of clustering. Equation (2) shows the formula of Ii , where G is denoted as a non-linearity coefficient, H is an entropy function and fE is a sigmoid function as listed in Eqs. (3) and (4), respectively. It is apparent that the range of Ii is between 0 and 1. Equation (4) is a sigmoid function, which has a symmetry point at (G / 2, 0.5), and goes up smoothly and nonlinearly within the input range from 0 to G. Finally, we define the weight wi for data object i as shown in Eq. (5). The weight of unlabeled data is its information measurement Ii , since no prior knowledge is available. Conversely, the weight of labeled data is over-weighted by a parameter R along with its Ii to emphasize the importance of labeled data. The nonlinearity coefficient G and over-weighting parameter R could be determined in terms of cross-validation technique. This work sets G = 10 and R as the number of clusters in the following experiments.
+Ii =fE G ⋅ Hlog2 K (2) ( i)
+
+∑K
+
+H( i) = −
+
+log
+
+(3)
+
+k=1
+
+fE(x) =
+
+1
+G
+
+1 + e− x− 2 (4)
+
+Ii, if i ∈ u
+
+wi =
+
+(5)
+
+Ii ⋅ R, otherwise
+
+Algorithm 1 shows the EWSS-FCM algorithm, in which the inputs include term-document matrix  , the number of clusters K and the seeds S = {S1, … , SK} . The algorithm uses FCM to exploit the structure of data as shown in Line 2. Line 3 shows that we use Eq. (5) to obtain weights of data points based on the results of FCM. Next, Lines 6–13 use labeled examples to initialize membership degrees of all data points. Then, the proposed algorithm uses Eqs. (6) and (7) to update and iteratively until convergence as shown in Lines 15–18. Note that the value of is determined by and vice versa. Finally, we can obtain the soft clustering results.
+
+Algorithm 1: EWSS-FCM Algorithm
+Input: A M × N term-document matrix D, the number of topics K and the seeds S = {S1, . . . , SK }. Without loss of generality, Sk represents the document seeds for topic k (k = 1, . . . , K).
+Output: A K × N membership matrix U, and a M × K mean matrix C.
+1 begin 2 (U, C) = FCM(D, K) 3 Use Equation (2) to calculate Ii, for 1 ≤ i ≤ N 4 Use Equation (5) to calculate wi, for 1 ≤ i ≤ N
+
+5 Initialize U(0) = 0
+
+6 for i = 1 To N do
+
+7
+
+for k = 1 To K do
+
+8
+
+if di ∈ Sk then
+
+9 uki (0) = 1 10 uk i (0) = 0, for 1 ≤ k ≤ K, and k = k.
+
+11
+
+end
+
+12
+
+end
+
+13 end
+
+14 Set t = 0
+
+15 repeat
+
+16
+
+Calculate mean matrix
+
+C(t) = [c1, c2, . . . , cK ] with U(t), in which
+
+ck =
+
+i=1 N wi·uki (t)m ·di
+N (t)m , where 1 ≤ k ≤ K.
+
+i=1 uki
+
+17
+
+Update U(t+1), in which
+
+uki =
+
+1
+
+2 , where di ∈ Du
+
+K
+
+di−ck m−1
+
+z=1 di−cz
+
+and 1 ≤ k ≤ K t = t + 1
+
+18 until convergence
+
+19 return U, C
+
+20 end
+
+1 3
+
+1128
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+Fig. 1  Numerical example listed in [8]
+
+Table 2  Average numbers of misclassified examples with ssFCM and EWSS-FCM on two test cases
+
+ssFCM
+
+EWSS-FCM
+
+Test case I
+
+2.0
+
+1.7
+
+Test case II
+
+2.4
+
+2.0
+
+∑ wi ⋅ ukim ⋅ i
+
+∈
+
+=∑
+
+(6)
+
+k wi ⋅ ukim
+
+∈
+
+uki =
+
+2 1 , where i ∈ u
+
+∑K ∥ i − k ∥ m−1
+
+(7)
+
+z=1 ∥ i − z ∥
+
+To verify the improvement of EWSS-FCM over ssFCM, we use the numerical example listed in [8] to conduct experiments. Figure 1 shows the numerical example, which comprises 43 points falling into two natural groups, where the larger one involves 40 points with blue color and the smaller one comprises three points with red color. Based on the numerical examples mentioned above, we conduct two experiments named Test Case I and Test Case II as used in [8]. In Test Case I, we randomly select five data points as labeled examples, in which four data points are selected from the larger class and the remaining one is from the smaller class. As for the Test Case II, only one data point is randomly selected from the smaller class as labeled data point. Next, we apply the proposed EWSS-FCM and the ssFCM to these two cases, where EWSS-FCM sets R as two and ssFCM uses the uniform weights of values four and five for the Test Case I and Test Case II as described in [8], respectively. The experiments are repeated ten times with random seeds and the average numbers of misclassified examples for the two methods are presented in Table 2.
+Besides Test Case I and Test Case II, we deliberately select one bad seed for each cluster to conduct the same experiments again. Figure 2a, b show the clustering results of ssFCM and EWSS-FCM, where ssFCM mis-classifies eight points, while EWSS-FCM only mis-classifies three points. The experimental results indicate that our proposed
+
+(a)
+
+(b)
+
+Fig. 2  Clustering results for ssFCM and EWSS-FCM on numerical example. a Clustering result of ssFCM. b Clustering result of EWSS-FCM
+
+1 3
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+1129
+
+(a)
+
+(b)
+
+Fig. 3  C-NMF convergence curves on two data sets. a Convergence curve on Classic3 data set. b Convergence curve on 20 newsgroups talk subject data set
+
+approach outperforms ssFCM. As compared with the ssFCM algorithm, the proposed method considers the structure of data and weights data points with different values in the semi-supervised learning process, explaining why the proposed method functions properly in the experiments.
+
+3.3 Constrained‑NMF
+
+Lee and Seung [39] devised two cost functions for NMF algorithm. This work uses the Kullback–Leibler divergence as the cost function, which is presented in Eq. (8). Apparently the JKL is lower bounded by 0, and vanishes when
+=  . The NMF has been considered as a relaxed form of K-means clustering [23], in which matrix contains centroid information and matrix contains cluster membership indicators. Compared with previous research [23], this work connects NMF with fuzzy clustering since the entries in the coefficient matrix are non-negative, indicating that information revealed from can be further viewed as a soft assignment of clustering, where each data object can belong to two or more clusters with different membership degrees rather than indicator values. In other words, the NMF algorithm can be considered as a soft clustering algorithm. Similar to the other clustering algorithms, NMF requires to determine an initial value for (t) and (t) , where t is an iteration index. We use the membership degree matrix and center matrix obtained from EWSS-FCM to initialize (t) and (t) , respectively. Many clustering algorithms conventionally use K-means to perform the initialization, so this work compares the two approaches in the experiments.
+
+argmin JKL( ∥ )
+≥0, ≥0
+
+= ji ∑ log ji − ji + ( )ji (8)
+
+1≤i≤N,1≤j≤M
+
+( )ji
+
+The NMF is an unsupervised learning method, but the proposed constrained-NMF algorithm simultaneously considers unlabeled and labeled examples in the cost function as shown in Eq. (9). Next, the optimization can become Eq. (10) in which labeled examples and unlabeled examples are considered separately. The key idea is to view the clusters of labeled examples as the prior knowledge of the learning algorithm and they are the optimal soft assignments of clustering for labeled examples in Eq. (10).
+It is apparent that two block variables are involved in the cost function and solving Eq. (10) is intrinsically a non-convex problem, but is convex in only one block variable while fixing the other block variable. As a result, this work uses block coordinate descent to optimize the objective function listed in Eq. (10). The key idea behind the block coordinate descent method is to handle problems with multiple blocks of variables, and update one of them once. Moreover, convergence of block coordinate descent has been proved while the cost function is continuously differentiable and the minimum of this cost function is uniquely attained [10]. Consequently, applying block coordinate descent to Eq. (10), the minimum of this cost function is uniquely attained when fixing one block variable such that the convergence of the proposed Constrained-NMF algorithm can be achieved. Xu and Yin [59] also demonstrated that block coordinate descent method can lead to superior performance in both speed and solution quality.
+Consequently, the soft clustering assignments of unlabeled examples are obtained by coordinate block descent technique, and the Constrained-NMF is expected to achieve a good clustering result among many local minima. Algorithm 2 shows the Constrained-NMF algorithm. In the algorithm, the
+
+1 3
+
+1130
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+initializations of and are achieved by using the clustering results of EWSS-FCM. The initialization step is listed in Lines 2–4 of the algorithm. Then, following the update rules to update and as listed in Lines 6–16. Figure 3a, b show the convergence curve of Constrained-NMF on Classic31 and talk subject of 20 Newsgroups2 data sets, respectively. The experimental results indicate that the values of cost function can decrease rapidly during the first three iterations.
+
+JKL( ∥ )
+
+�
+
+�
+
+�
+
+u
+
+= ui log i u − ui + ( u)i
+
+∈Du
+
+( )i
+
+i
+
+⏟⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏟⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏟
+
+cost function for unlabeled examples
+
+(9)
+
+⎡�
+
+l
+
+⎤
+
++⎢
+
+l log j − l + ( l) ⎥
+
+⎢
+
+j ( l)
+
+j
+
+j⎥
+
+⎣ j∈Dl
+
+j
+
+⎦
+
+⏟⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏟⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏞⏟
+
+cost function for labeled examples
+
+argmin JKL( ) ≥0, u≥0, l≥0 �� � = argmin
+
+≥0, u≥0, l≥0
+
+i ∈Du
+
+ui log (
+
+u
+i− u)i
+
+ui + (
+
+� u)i
+
+⎡�
+
++⎢
+
+⎢ ⎣
+
+j ∈Dl
+
+= argmin
+
+lj log ( �� �
+
+≥0, u≥0
+
+i ∈Du
+
+l
+
+⎤⎞
+
+j − l + ( l) ⎥⎟
+
+l)
+
+j
+
+j⎥⎟
+
+j
+
+⎦⎠
+
+ui log (
+
+u
+i− u)i
+
+ui + (
+
+�� u)i
+
+⎛⎡ �
+
+l
+
+⎤⎞
+
++ argmin ⎜⎢
+
+l log j − l + ( l)j⎥⎟
+
+≥0, l≥0 ⎜⎢ ∈Dl j ( l)j j ⎥⎟
+
+⎝⎣ j
+
+⎦⎠
+
+(10)
+
+Algorithm 2: Constrained-NMF Algorithm
+
+Input: A M × N term-document matrix D, the
+
+number of topics K and the seeds
+
+S = {S1, . . . , SK}. Without loss of
+
+generality, Sk represents the document
+
+seeds for topic k (k = 1, . . . , K).
+
+Output: A K × N cluster membership indicators
+
+matrix H, and a M × K cluster centroids
+
+matrix W.
+
+1 begin
+
+2 (U, C) = EWSS-FCM(D, K, S)
+
+3 Initialize H with U
+
+4 Initialize W with C
+
+5 repeat
+
+6 Hki ← Hki l W j WjkDji/(WH)jk lk , for i = 1, . . . , N and k = 1, . . . , K
+
+7 Hki ← Hk j Hiji , for i = 1, . . . , N and
+
+k = 1, . . . , K
+
+8
+
+for i = 1 To N do
+
+9
+
+for k = 1 To K do
+
+10
+
+if di ∈ Sk then
+
+11
+
+Hki = 1
+
+12
+
+Hk i = 0, for 1 ≤ k ≤ K, and
+
+k = k.
+
+13
+
+end
+
+14
+
+end
+
+15
+
+end
+
+16 Wjk ← Wjk l H i HkiDji /(WH)ji kl , for j = 1, . . . , M and k = 1, . . . , K
+
+17 until convergence
+
+18 return H, W
+
+19 end
+
+4 Experiments
+This section describes the experimental settings, experimental results and discussion. The experimental settings include data corpora used in the experiments, evaluation metric and comparison algorithms.
+4.1 Data corpora
+
+This work uses five real data sets in the experiments. The 20 Newsgroups, Classic3 and Reuters-21578 are popular corpora, which are commonly used in text analysis experiments. Besides, this work uses the academic paper information collected from CiteULike3 to evaluate system performance. Furthermore, COREL database, collected from
+
+1  ftp://ftp.cs.corne​ll.edu/pub/smart​/. 2  http://qwone​.com/jason​/20New​sgrou​ps/.
+1 3
+
+3  http://www.citeu​like.org/.
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+1131
+
+Table 3  The ten largest classes in the Reuters-21578 collection
+
+Class
+
+Number of docu- Class ments
+
+Number of documents
+
+Earn Acquisitions Money-fx Grain Crude
+
+3753 2131 601 528 510
+
+Trade
+
+449
+
+Interest
+
+389
+
+Ship
+
+276
+
+Wheat
+
+264
+
+Corn
+
+207
+
+Table 4  The CiteULike corpus Graphics
+
+Number of papers
+Number of terms in abstractions
+Number of tags
+
+741 65,372
+2013
+
+Databases
+1289 115,346 3126
+
+Programming languages
+1364 110,184
+4983
+
+dct-research,4 is used to assess the proposed algorithm on image data set.
+• The 20 Newsgroups data set is a collection of approximately 20,000 newsgroup documents, partitioned (nearly) evenly across 20 different newsgroups. Some of the newsgroups are very closely related to each other, while others are highly unrelated. It has become a popular data set for experiments in text applications of machine learning techniques, such as text classification and text clustering.
+• Classic3 is one well known benchmark data set used in text mining and it can be obtained from ftp://ftp.cs.corne​ ll.edu/pub/smart​/. This data set comprises three different document collections: CISI (1460 information retrieval abstracts), CRAN (1400 aeronautical systems abstracts), and MED (1033 medical abstracts).
+• Reuters-21578 is one of the most widely used text collections for text classification research. The data was originally collected and labeled by Carnegie Group, Inc. and Reuters, Ltd. in the course of developing the CONSTRUE text categorization system. The ten largest classes in the Reuters-21578 collection are used in the experiments, as it has been used by many researchers in recent years. Table 3 presents the number of documents in the ten largest classes.
+• CiteULike is a social bookmarking web site and is aimed to promote and to develop the sharing of scientific references amongst researchers. Scientists can annotate their interested academic papers with tags and share the information with the other people. However, CiteULike does not provide paper category information, which is necessary for this work to evaluate performance. This work assigns papers to communities according to their venues, using the classification system adopted by Microsoft’s academic search service,5 which provides the ranking of publications in different fields. For instance, Graphics
+4  https​://sites​.googl​e.com/site/dctre​searc​h/Home/conte​nt-based​ -image​-retri​eval. 5  http://acade​mic.resea​rch.micro​soft.com.
+
+field includes TOG (ACM Transactions on Graphics), and CGA (IEEE Computer Graphics and Applications). A paper published in the TOG would be classified as “Graphics” field. Above paper classification mechanism is also used by Shi et al. [48]. Obviously, some publications may belong to more than one fields, explaining why this work only focuses on the fields that are highly unrelated. This work focused on computer science domain and collected 3394 articles from three fields. The paper’s full text is unavailable in CiteULike, so the paper’s abstract and tags annotated by users are considered as paper content. This corpus can be downloaded from http://islab.​ cis.nctu.edu.tw/downlo​ ad/. Table 4 summaries the information of the data set. • COREL database was created by Dacheng Tao, who manually divided 10,800 images collected from the Corel Photo Gallery into 80 concept groups. We construct two image data sets, CarBus and CardsCar, from three of those concept groups. The CarBus data set comprises 100 images collected from Car group and 100 images from Bus group, respectively. The CardsCar data set comprises 100 images from Cards group and 100 images from Car group, respectively.
+Preprocessing steps are applied to text data sets. The stop words are removed from these data sets, since stop words fail to provide sufficient information for classification or clustering tasks. Punctuation marks are removed and all English letters are converted to lower cases. Finally, stemming process is applied to the words. Each document is represented by a normalized TF–IDF (term frequency–inverse document frequency) vector. Meanwhile, we apply sparse coding method [40] to the image data sets to extract features.
+4.2 Evaluation measurements
+We compare the generated clusters by using the F1 cluster evaluation measure [42] and Jaccard Index [29]. The F1 cluster evaluation measure considers both precision and recall, where precision and recall here are computed over pairs of data instances of which the two label assignments either agree or disagree. The Jaccard Index, also known as the Jaccard similarity coefficient, is a measurement used for comparing
+
+1 3
+
+1132
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+the similarity and diversity of sample sets, and it can be used to evaluate the performance of clustering algorithms [1, 64].
+• True Positives (TP) 	  The clustering algorithm placed the two data instances
+in a pair into the same cluster, and data corpus has them in the same class. • False Positives (FP) 	  The clustering algorithm placed the two data instances in a pair into the same cluster, but data corpus has them in differing classes. • True Negatives (TN) 	  The clustering algorithm placed the two data instances in a pair into differing clusters, and data corpus has them in differing classes. • False Negatives (FN) 	  The clustering algorithm placed the two data instances in a pair into differing clusters, but data corpus has them in the same class.
+Similar to traditional information retrieval definition, Eq. (11) shows the formulas of precision, recall and F1 evaluation. Besides F1 , Eq. (12) shows the formula of Jaccard index, which is abbreviated as JI in the experiments.
+Precision = TP TP + FP
+Recall = TP (11) TP + FN
+F1 = 2 × Precision × Recall Precision + Recall
+JI = TP (12) TP + FP + FN
+4.3 Comparison methods
+• EWSS-FCM 	  The proposed EWSS-FCM is a semi-supervised learn-
+ing method, explaining why it is used in the experiments for comparison. Although this work uses EWSS-FCM to initialize Constrained-NMF, the experimental results with EWSS-FCM can act as the performance basis of Constrained-NMF. • Penalized matrix factorization (PMF) 	  The PMF [52] uses a penalty term to encode the prior knowledge. In the algorithm, the prior knowledge includes must-link constraints  and cannot-link constraints  . The constraints are denoted by a matrix Θ as shown in Eq. (13). The experiments follow the parameter setting used in [52] to set ij as 1 and 𝜃̃ij as 2.
+
+⎧ 𝜃̃ij, ( i, j) ∈ 
+
+⎪
+
+Θij = ⎨ −𝜃ij, ( i, j) ∈ 
+
+(13)
+
+⎪ 0, otherwise
+
+⎩
+
+• Constrained-KMeans
+	  Basu et al. [4] proposed two semi-supervised variants of KMeans clustering that use initial labeled data for seeding. Their experimental results showed that Constrained-KMeans outperforms Seeded-KMeans and COP-KMeans, explaining why it is used in the experiments for comparison.
+• Constrained spectral clustering (abbreviated as CSC)
+	  Wang and Davidson [56] proposed a flexible and generalized framework for constrained spectral clustering, which encodes the degree of belief (weight) in must-link and cannot-link constraints. In this experiment, discrete values are used to represent the constraints rather than degree of belief. In other words, user supervision is encoded with an N × N constraint matrix Q, which only uses binary constraints:
+
+⎧ +1, ⎪ Qij = Qji = ⎨ −1, ⎪ 0, ⎩
+
+if ML (i, j) if CL (i, j) no supervision
+
+available
+
+In addition to affinity matrix and constraint matrix, an additional variable is necessary in constrained spectral clustering. The can be used to convert the optimization problem into a generalized eigenvalue problem. Wang and Davidson discussed how to set in [56]. A collection of N data instances is modeled by an undirected, weighted graph (, , ) , where each data instance corresponds to a vertex in  ;  is the edge and  is the associated affinity matrix. Meanwhile, Q̄ is normalized constraint matrix. The in this experiment is:
+= 0.5 × max vol (),
+where max is the largest eigenvalue of Q̄ . • Constrained normalized cut (abbreviated as CNC)
+	  Ji et al. [31] proposed a semi-supervised clustering model that incorporates prior knowledge about documents’ membership for document cluster analysis. Meanwhile, user can control the degree of enforcement of the prior knowledge by using a set of parameters. In this experiment, the control parameter is 20, which is the same as the value used in [31].
+
+1 3
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+1133
+
+Table 5  Experimental results on Classic3 (mean ± 2 × std) Constrained-NMF EWSS-FCM
+
+1%
+
+F1
+
+JI
+
+2%
+
+F1
+
+JI
+
+3%
+
+F1
+
+JI
+
+4%
+
+F1
+
+JI
+
+5%
+
+F1
+
+JI
+
+. ±. . ±. . ±. . ±. . ±. . ±. . ±. . ±. . ±. . ±.
+
+0.8636 ± 0.0349 0.7815 ± 0.0551 0.9314 ± 0.0283 0.8719 ± 0.0494 0.9436 ± 0.0160 0.8933 ± 0.0286 0.9421 ± 0.0169 0.8906 ± 0.0301 0.9412 ± 0.0108 0.8889 ± 0.0193
+
+ConstrainedKMeans
+0.8459 ± 0.0865 0.7349 ± 0.1256 0.8977 ± 0.0437 0.8150 ± 0.0731 0.9404 ± 0.0176 0.8876 ± 0.0314 0.9510 ± 0.0165 0.9067 ± 0.0297 0.9514 ± 0.0166 0.9075 ± 0.0303
+
+CSC
+0.5076 ± 0.0001 0.3401 ± 0.0001 0.5075 ± 0.0001 0.3401 ± 0.0001 0.5511 ± 0.1948 0.3859 ± 0.2048 0.5530 ± 0.2033 0.3883 ± 0.2154 0.5075 ± 0.0001 0.3401 ± 0.0001
+
+CNC
+0.9000 ± 0.0042 0.8182 ± 0.0070 0.9041 ± 0.0044 0.8250 ± 0.0074 0.7541 ± 0.2714 0.6213 ± 0.3678 0.9069 ± 0.0046 0.8297 ± 0.0077 0.8072 ± 0.2809 0.6947 ± 0.3826
+
+PMF
+0.9643 ± 0.0049 0.9310 ± 0.0091 0.8707 ± 0.4059 0.8086 ± 0.5237 0.9646 ± 0.0055 0.9315 ± 0.0103 0.9661 ± 0.0044 0.9345 ± 0.0082 0.9638 ± 0.0114 0.9302 ± 0.0212
+
+Table 6  Experimental results on CiteULike (mean ± 2 × std)
+
+Constrained-NMF EWSS-FCM
+
+Constrained-KMeans
+
+1% F1 . ± .
+
+JI
+
+. ±.
+
+2% F1 . ± .
+
+JI
+
+. ±.
+
+3% F1 . ± .
+
+JI
+
+. ±.
+
+4% F1 . ± .
+
+JI
+
+. ±.
+
+5% F1 0.6999 ± 0.0209
+
+JI 0.5384 ± 0.0247
+
+0.5265 ± 0.0612 0.3578 ± 0.0563 0.5957 ± 0.0698 0.4249 ± 0.0712 0.6289 ± 0.0407 0.4589 ± 0.0437 0.6592 ± 0.0540 0.4921 ± 0.0611
+. ±. . ±.
+
+0.5521 ± 0.0388 0.3815 ± 0.0371 0.5863 ± 0.0435 0.4150 ± 0.0436 0.6700 ± 0.0309 0.5040 ± 0.0349 0.6733 ± 0.0443 0.5079 ± 0.0494 0.7070 ± 0.0603 0.5474 ± 0.0711
+
+CSC
+0.5233 ± 0.0075 0.3544 ± 0.0069 0.5219 ± 0.0002 0.3531 ± 0.0002 0.5220 ± 0.0002 0.3532 ± 0.0001 0.5308 ± 0.0394 0.3615 ± 0.0372 0.5219 ± 0.0002 0.3531 ± 0.0002
+
+CNC
+0.4794 ± 0.0006 0.3153 ± 0.0006 0.4808 ± 0.0021 0.3165 ± 0.0018 0.4800 ± 0.0043 0.3158 ± 0.0037 0.4797 ± 0.0031 0.3156 ± 0.0027 0.4797 ± 0.0037 0.3155 ± 0.0032
+
+PMF
+0.5092 ± 0.0181 0.3416 ± 0.0164 0.5165 ± 0.0135 0.3482 ± 0.0122 0.5106 ± 0.0233 0.3429 ± 0.0210 0.5039 ± 0.0057 0.3368 ± 0.0051 0.5025 ± 0.0026 0.3356 ± 0.0023
+
+4.4 Semi‑supervised learning experiments
+The experiments are conducted on five data sets, including four text data sets and one image data set. To further evaluate the proposed method, we compare the proposed method with several semi-supervised learning methods. The experiments focus on semi-supervised learning performance, explaining why a few labeled examples is used in the experiments. This work randomly selected examples as the labeled ones and the rest of examples are unlabeled examples. Moreover, different percentages of labeled examples are used in the experiments to further evaluate the impact of the number of labeled examples on system performance. Each evaluation runs ten times, and we use the average and standard deviation of the results to present the experimental results, in which mean plus or minus two standard deviations is presented in the tables.
+The first data set is Classic3 data set, including three categories. Classic3 can be viewed as a “clean” data set in the sense that its sources deal with disparate subjects, and the ideal clustering has balanced cluster sizes. As a result, the purpose of the experiments on Classic3 focuses on whether
+
+the semi-supervised learning methods can perform well on a data set with known number of fairly well-separated groups. Table 5 summaries the experimental results.
+The second data set is CiteULike, including three categories. The content of each document includes paper abstract and the tags annotated by researchers. The abstract is similar to the summary of a paper; while tags can be thought of as the keywords of a paper. Thus, abstract and tags can be viewed as condensed information of a paper. The purpose of this experiment focuses on whether these methods can perform well on the data set in which only condensed information is available. Table 6 summaries the experimental results.
+The third data set is 20 Newsgroups data set. This work uses two combinations of newsgroups to conduct experiments. The first one uses four newsgroups which are within the same subject, indicating that the boundaries among the newsgroups are not clear. The second one uses the newsgroups collected from different subjects, so this combination is easier to be clustered as compared with the first one. The purpose of the experiments focuses on whether these methods can function properly when the
+
+1 3
+
+1134
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+Table 7  Experimental results on talk newsgroups (mean ± 2 × std)
+
+Constrained-NMF EWSS-FCM
+
+Constrained-KMeans
+
+1% F1 . ± .
+
+JI
+
+. ±.
+
+2% F1 . ± .
+
+JI
+
+. ±.
+
+3% F1 . ± .
+
+JI
+
+. ±.
+
+4% F1 . ± .
+
+JI
+
+. ±.
+
+5% F1 . ± .
+
+JI
+
+. ±.
+
+0.4695 ± 0.0487 0.3071 ± 0.0415 0.5250 ± 0.0191 0.3560 ± 0.0175 0.5837 ± 0.0334 0.4123 ± 0.0334 0.6012 ± 0.0363 0.4300 ± 0.0369 0.6219 ± 0.0089 0.4513 ± 0.0094
+
+0.4216 ± 0.0529 0.2674 ± 0.0419 0.5264 ± 0.0360 0.3574 ± 0.0328 0.5437 ± 0.0816 0.3742 ± 0.0779 0.5800 ± 0.0206 0.4085 ± 0.0203 0.5994 ± 0.0399 0.4282 ± 0.0409
+
+CSC
+0.3693 ± 0.0394 0.2266 ± 0.0295 0.3463 ± 0.0419 0.2095 ± 0.0308 0.3666 ± 0.0711 0.2249 ± 0.0531 0.3777 ± 0.0211 0.2329 ± 0.0160 0.3646 ± 0.0386 0.2230 ± 0.0287
+
+CNC
+0.4025 ± 0.0312 0.2520 ± 0.0242 0.4034 ± 0.0263 0.2528 ± 0.0205 0.4100 ± 0.0204 0.2579 ± 0.0160 0.4133 ± 0.0210 0.2605 ± 0.0166 0.4076 ± 0.0254 0.2561 ± 0.0200
+
+PMF
+0.3839 ± 0.0319 0.2376 ± 0.0243 0.4279 ± 0.1000 0.2733 ± 0.0826 0.4805 ± 0.0655 0.3167 ± 0.0558 0.4856 ± 0.0177 0.3207 ± 0.0154 0.5154 ± 0.0391 0.3474 ± 0.0356
+
+Table 8  Experimental results on “comp.graphics”, “rec.autos”, “sci.crypt” and “talk.politics.guns” Newsgroups (mean ± 2 × std)
+
+Constrained-NMF EWSS-FCM
+
+Constrained-KMeans CSC
+
+CNC
+
+PMF
+
+1% F1 . ± .
+
+JI
+
+. ±.
+
+2% F1 . ± .
+
+JI
+
+. ±.
+
+3% F1 . ± .
+
+JI
+
+. ±.
+
+4% F1 . ± .
+
+JI
+
+. ±.
+
+5% F1 . ± .
+
+JI
+
+. ±.
+
+0.6639 ± 0.0652 0.4976 ± 0.0733 0.7445 ± 0.0325 0.5931 ± 0.0410 0.7733 ± 0.0138 0.6304 ± 0.0184 0.8055 ± 0.0108 0.6744 ± 0.0151 0.8073 ± 0.0233 0.6770 ± 0.0327
+
+0.6163 ± 0.0632 0.4460 ± 0.0665 0.7064 ± 0.0550 0.5466 ± 0.0659 0.7592 ± 0.0428 0.6123 ± 0.0552 0.7807 ± 0.0716 0.6414 ± 0.0963 0.8116 ± 0.0392 0.6832 ± 0.0550
+
+0.3787 ± 0.0512 0.2338 ± 0.0387 0.3801 ± 0.0259 0.2347 ± 0.0197 0.3793 ± 0.0514 0.2343 ± 0.0389 0.3718 ± 0.0443 0.2285 ± 0.0334 0.3897 ± 0.0377 0.2421 ± 0.0288
+
+0.7005 ± 0.1110 0.5411 ± 0.1245 0.7284 ± 0.0049 0.5728 ± 0.0061 0.7252 ± 0.0079 0.5689 ± 0.0098 0.7038 ± 0.1215 0.5455 ± 0.1363 0.7377 ± 0.0109 0.5844 ± 0.0137
+
+0.6198 ± 0.1073 0.4509 ± 0.1183 0.7220 ± 0.0126 0.5650 ± 0.0155 0.7406 ± 0.0171 0.5882 ± 0.0216 0.7486 ± 0.0100 0.5983 ± 0.0128 0.6841 ± 0.3194 0.5355 ± 0.3219
+
+Table 9  Experimental results on Reuters-21578 (mean ± 2 × std)
+
+Constrained-NMF EWSS-FCM
+
+Constrained-KMeans
+
+1% F1 0.6481 ± 0.1083
+
+JI 0.4813 ± 0.1169
+
+2% F1 . ± .
+
+JI
+
+. ±.
+
+3% F1 . ± .
+
+JI
+
+. ±.
+
+4% F1 . ± .
+
+JI
+
+. ±.
+
+5% F1 . ± .
+
+JI
+
+. ±.
+
+. ±. . ±. 0.6973 ± 0.0637 0.5360 ± 0.0760 0.6795 ± 0.0579 0.5152 ± 0.0654 0.6915 ± 0.0548 0.5290 ± 0.0640 0.6992 ± 0.0168 0.5376 ± 0.0198
+
+0.5169 ± 0.0821 0.3493 ± 0.0741 0.6114 ± 0.0752 0.4412 ± 0.0776 0.6597 ± 0.0433 0.4926 ± 0.0481 0.6574 ± 0.0316 0.4898 ± 0.0352 0.6724 ± 0.0182 0.5065 ± 0.0206
+
+CSC
+0.2094 ± 0.0207 0.1170 ± 0.0129 0.2030 ± 0.0128 0.1130 ± 0.0079 0.2087 ± 0.0318 0.1166 ± 0.0199 0.2029 ± 0.0283 0.1129 ± 0.0177 0.2234 ± 0.0614 0.1260 ± 0.0395
+
+CNC
+0.3754 ± 0.0236 0.2311 ± 0.0178 0.3835 ± 0.0534 0.2375 ± 0.0412 0.3754 ± 0.0292 0.2312 ± 0.0218 0.3679 ± 0.0253 0.2255 ± 0.0191 0.3770 ± 0.0423 0.2324 ± 0.0324
+
+PMF
+0.3969 ± 0.1262 0.2492 ± 0.0990 0.4431 ± 0.1503 0.2870 ± 0.1252 0.3988 ± 0.1231 0.2506 ± 0.0972 0.4303 ± 0.0473 0.2743 ± 0.0380 0.4139 ± 0.1086 0.2621 ± 0.0857
+
+boundaries among clusters are not clear. Tables 7 and 8 present the experimental results on the two combinations of newsgroups.
+The fourth data set is Reuters-21578, including the ten largest classes in the collection. It is a multi-class and imbalanced data set as shown in Table 3. As a result, the purpose of this experiment focuses on whether the methods can
+
+perform well on the data set with imbalanced cluster sizes. Experimental results are listed in Table 9.
+Besides text data sets, we further conduct experiments on CarBus and CardsCar data sets. The purpose of these experiments focus on whether the methods can perform well on the image data set. Experimental results are listed in Tables 10 and 11, respectively.
+
+1 3
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+1135
+
+Table 10  Experimental results on CarBus of corpora COREL (mean ± 2 × std)
+
+Constrained-NMF EWSS-FCM
+
+Constrained-KMeans
+
+1% F1 . ± .
+
+JI
+
+. ±.
+
+2% F1 . ± .
+
+JI
+
+. ±.
+
+3% F1 . ± .
+
+JI
+
+. ±.
+
+4% F1 . ± .
+
+JI
+
+. ±.
+
+5% F1 . ± .
+
+JI
+
+. ±.
+
+0.4988 ± 0.0065 0.3323 ± 0.0058 0.5048 ± 0.0177 0.3376 ± 0.0159 0.5123 ± 0.0280 0.3445 ± 0.0254 0.5363 ± 0.0633 0.3670 ± 0.0604 0.5203 ± 0.0359 0.3518 ± 0.0329
+
+0.5049 ± 0.0165 0.3377 ± 0.0148 0.5179 ± 0.0396 0.3497 ± 0.0369 0.5347 ± 0.0760 0.3657 ± 0.0727 0.5531 ± 0.0824 0.3833 ± 0.0803 0.5452 ± 0.0433 0.3750 ± 0.0411
+
+CSC
+0.5038 ± 0.0165 0.3367 ± 0.0148 0.5096 ± 0.0322 0.3421 ± 0.0292 0.5064 ± 0.0221 0.3391 ± 0.0199 0.5297 ± 0.0514 0.3606 ± 0.0482 0.5224 ± 0.0290 0.3537 ± 0.0267
+
+CNC
+0.5468 ± 0.0368 0.3764 ± 0.0343 0.5591 ± 0.0756 0.3889 ± 0.0735 0.5584 ± 0.0784 0.3883 ± 0.0757 0.5622 ± 0.0694 0.3917 ± 0.0674 0.5760 ± 0.0977 0.4060 ± 0.0950
+
+PMF
+0.5144 ± 0.0480 0.3466 ± 0.0440 0.5180 ± 0.0581 0.3500 ± 0.0540 0.5053 ± 0.0359 0.3383 ± 0.0327 0.5028 ± 0.0380 0.3360 ± 0.0351 0.5041 ± 0.0213 0.3370 ± 0.0191
+
+Table 11  Experimental results on CardsCar of corpora COREL (mean ± 2 × std)
+
+Constrained-NMF EWSS-FCM
+
+Constrained-KMeans
+
+1% F1 . ± .
+
+JI
+
+. ±.
+
+2% F1 . ± .
+
+JI
+
+. ±.
+
+3% F1 . ± .
+
+JI
+
+. ±.
+
+4% F1 . ± .
+
+JI
+
+. ±.
+
+5% F1 0.6238 ± 0.0808
+
+JI 0.4544 ± 0.0831
+
+0.5131 ± 0.0386 0.3453 ± 0.0358 0.5193 ± 0.0347 0.3509 ± 0.0321 0.5268 ± 0.0362 0.3578 ± 0.0335 0.5449 ± 0.0480 0.3748 ± 0.0455 0.5524 ± 0.0413 0.3819 ± 0.0395
+
+0.5091 ± 0.0141 0.3415 ± 0.0127 0.5514 ± 0.0712 0.3814 ± 0.0688 0.5453 ± 0.0704 0.3756 ± 0.0691 0.5612 ± 0.0925 0.3914 ± 0.0908 0.5496 ± 0.0590 0.3794 ± 0.0555
+
+CSC
+0.5079 ± 0.0225 0.3404 ± 0.0203 0.5265 ± 0.0285 0.3574 ± 0.0264 0.5440 ± 0.0394 0.3739 ± 0.0372 0.5573 ± 0.0270 0.3864 ± 0.0259 0.5648 ± 0.0401 0.3937 ± 0.0388
+
+CNC
+0.6101 ± 0.0545 0.4395 ± 0.0572 0.5952 ± 0.0327 0.4239 ± 0.0339 0.6285 ± 0.0814 0.4594 ± 0.0876 0.6298 ± 0.0847 0.4609 ± 0.0920
+. ±. . ±.
+
+PMF
+0.6087 ± 0.0232 0.4376 ± 0.0242 0.6044 ± 0.0065 0.4331 ± 0.0066 0.6080 ± 0.0121 0.4368 ± 0.0125 0.6058 ± 0.0199 0.4346 ± 0.0207 0.6044 ± 0.0113 0.4331 ± 0.0116
+
+4.5 Discussion
+This work conducts experiments on five data sets, and the experimental results indicate that the proposed method generally outperforms the other methods. Even though the class boundaries are not clear, the proposed method performs well. Besides text data sets, the experimental results indicate that the proposed method also performs well on image data set. Consequently, the proposed method can use available labeled examples to improve performance. We further analyze and discuss the experiments in this section.
+Furthermore, we conduct experiments to compare the proposed EWSS-FCM with K-means and FCM. Figure 4 summaries the experimental results, where EWSS-FCM uses only 1% of target examples as labeled ones. We use the average of ten experiments as the performance result. The experimental results indicate that EWSS-FCM can significantly outperform K-means and FCM, even though only a few labeled examples are available. As a result, EWSS-FCM with a few labeled examples can improve performance as compared with K-means and FCM. The semi-supervised learning experiments also indicate that EWSS-FCM can function properly on some data sets.
+
+Fig. 4  Clustering comparisons on Classic3 dataset with K-Means, FCM and EWSS-FCM
+The K-means is often used as a preprocessing step for other algorithms to find a starting configuration. For instance, Bregler and Omohundro [16] use the K-means to determine an initial set of “prototype center” for Gaussian mixture models (GMM) from the data points. Wang et al. [52] used K-means to initialize parameters of matrix in PMF algorithm. This work uses EWSS-FCM to determine the initial parameters of Constrained-NMF. We further
+1 3
+
+1136
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+(a)
+
+(b)
+
+Fig. 5  Clustering comparisons on 20 newsgroups dataset with NMF,
+K-means+NFM and Constrained-NMF, which is abbreviated as C-NMF in the figures. a Clustering performance on “comp.graphics”,
+
+“rec.autos”, “sci.crypt” and “talk.politics.guns” newsgroups). b Clustering performance on newsgroups within talk subject
+
+conduct experiments to compare the proposed method with NMF using different initialization approaches. The first one uses random seeding; while the second one uses K-means. Figure 5a, b present the experimental results on 20 Newsgroups data set. The experimental results indicate that Constrained-NMF outperforms the other two methods. Initializations by random seeding and K-means achieve almost identical performance in the experiments.
+Among the comparison methods, PMF is a semi-supervised learning method extended from matrix factorization. Several differences exist between PMF and Constrained-NMF. First, PMF is derived from K-means, so it uses the squared Euclidean distance as the cost function; while the proposed method uses the Kullback–Leibler divergence. Second, PMF uses K-means to initialize the parameters; while the proposed method uses EWSS-FCM. Third, PMF uses a penalty term to encode prior knowledge; while the proposed method uses the prior knowledge during the course of clustering. The experimental results indicate that the proposed method outperforms PMF. One of the reasons is that using Kullback–Leibler divergence as the cost function is more appropriate than Euclidean distance in document analysis problem, in which a document collection generally contains thousands of terms. Euclidean distance is inappropriate for high-dimensional data sets, since not all the measured variables are important for understanding the underlying phenomena of interest [24]. Additionally, the experimental results also indicate that following clustering assumption with labeled examples in the objective function is an effective way to propagate labeled information to unlabeled examples.
+In summary, the main reasons why the proposed Constrained-NMF outperforms other alternatives in the experiments are listed as follows:
+
+• The benefits of good initialization are obvious and well known. This work devises EWSS-FCM algorithm to initialize the seeds of Constrained-NMF, giving a good start point to function properly during the clustering process.
+• This work considers labeled examples in the cost function, and reformulates the cost function by separately considering the labeled ones and unlabeled ones. Apparently, the clusters of labeled examples can be viewed as the prior knowledge of the learning algorithm and considered as the optimal soft assignments of clustering for labeled examples in the course of optimization. Through the propagation of the optimal soft assignments of clustering to unlabeled examples iteratively, we can obtain more reasonable clustering results.
+• The proposed method uses Kullback–Leibler divergence as the cost function, which is more appropriate than Euclidean distance in document analysis problem. As a result, the proposed method functions properly in the experiments.
+5 Conclusion
+This work devises a semi-supervised learning algorithm called Constrained-NMF with a few labeled examples and a large amount of unlabeled data for data clustering. The initialization of Constrained-NMF is achieved by using the proposed EWSS-FCM. Using EWSS-FCM to perform initialization can provide a good guess for the initial configuration of the proposed Constrained-NMF. In algorithm design, both algorithms consider available labeled examples in the course of clustering, and use the update rules to propagate labeled information to unlabeled examples iteratively. We further analyze the proposed algorithm, and give justifications for
+
+1 3
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+1137
+
+the convergence of Constrained-NMF. Both algorithms are expected to find good solutions among local minima. The experiments on five real data sets, including four text data sets and one image data sets, indicate that the proposed method generally outperforms the other alternatives.
+Acknowledgements  This work was supported in part by Ministry of Science and Technology, Taiwan, under Grant Nos. MOST 106-2221E-009-100 and MOST 105-2218-E-009-034.
+References
+1. Agarwal P, Alam MA, Biswas R (2011) Issues, challenges and tools of clustering algorithms. CoRR. abs/1110.2610
+2. Ashfaq RAR, Wang X, Huang JZ, Abbas H, He Y (2017) Fuzziness based semi-supervised learning approach for intrusion detection system. Inf Sci 378:484–497
+3. Baili N, Frigui H (2011) Relational fuzzy clustering with multiple kernels. In: Proceedings of the 2011 IEEE 11th international conference on data mining workshops, Washington, DC, IEEE Computer Society, pp 488–495
+4. Basu S, Banerjee A, Mooney RJ (2002) Semi-supervised clustering by seeding. In: Proceedings of the nineteenth international conference on machine learning, San Francisco, pp 27–34. Morgan Kaufmann Publishers Inc
+5. Basu S, Bilenko M, Mooney RJ (2004) A probabilistic framework for semi-supervised clustering. In: Proceedings of the tenth ACM SIGKDD international conference on knowledge discovery and data mining, New York, pp 59–68. ACM
+6. Beliakov G, James S, Li G (2011) Learning Choquet-integralbased metrics for semisupervised clustering. Trans Fuz Sys 19(3):562–574
+7. Belkin M, Niyogi P (2004) Semi-supervised learning on Riemannian manifolds. Mach Learn 56(1–3):209–239
+8. Bensaid AM, Hall LO, Bezdek JC, Clarke LP (1996) Partially supervised clustering for image segmentation. Pattern Recognit 29(5):859–871
+9. Berry MW, Browne M (2005) Email surveillance using nonnegative matrix factorization. Comput Math Org Theory 11(3):249–264
+10. Bertsekas DP (1999) Nonlinear programming, 2nd edn. Athena Scientific, Belmont
+11. Bezdek JC (1981) Pattern recognition with fuzzy objective function algorithms. Kluwer Academic Publishers, Norwell
+12. Blum A, Chawla S (2001) Learning from labeled and unlabeled data using graph mincuts. In: Proceedings of the eighteenth international conference on machine learning, San Francisco, pp 19–26. Morgan Kaufmann Publishers Inc
+13. Blum A, Mitchell T (1998) Combining labeled and unlabeled data with co-training. In: Proceedings of the eleventh annual conference on computational learning theory, New York, pp 92–100. ACM
+14. Bosc P, Prade H (1996) An introduction to the fuzzy set and possibility theory-based treatment of flexible queries and uncertain or imprecise databases. In: Uncertainty management in information systems, pp 285–324
+15. Bouchachia A, Pedrycz W (2006) Data clustering with partial supervision. Data Min Knowl Discov 12:47–78
+16. Bregler C, Omohundro SM (1993) Surface learning with applications to lipreading. In: Advances in neural information processing systems 6, 7th NIPS conference, Denver, Colorado, USA, pp 43–50
+
+17. Cao H, Deng H-W, Wang Y-P (2012) Segmentation of m-fish images for improved classification of chromosomes with an adaptive fuzzy c-means clustering algorithm. IEEE Trans Fuz Sys 20(1):1–8
+18. Carlson A, Betteridge J, Wang RC, Hruschka ER Jr., Mitchell TM (2010) Coupled semi-supervised learning for information extraction. In: Proceedings of the third ACM international conference on web search and data mining, New York, pp 101–110. ACM
+19. Chapelle O, Weston J, Schlkopf B (2002) Cluster kernels for semi-supervised learning. In: Advances in neural information processing systems 15, Neural information processing systems, NIPS 2002, 9–14 December 2002, Vancouver, British Columbia, Canada, pp 585–592
+20. Cozman FG, Cohen I (2002) Unlabeled data can degrade classification performance of generative classifiers. In: Proceedings of the fifteenth international Florida artificial intelligence research society conference, pp 327–331
+21. Culp M, Michailidis G (2008) Graph-based semisupervised learning. IEEE Trans Pattern Anal Mach Intell 30(1):174–179
+22. Devarajan K (2008) Nonnegative matrix factorization: an analytical and interpretive tool in computational biology. PLoS Comput Biol 4(7). https​://doi.org/10.1371/journ​al.pcbi.10000​ 29
+23. Ding C, He X, Simon HD (2005) On the equivalence of nonnegative matrix factorization and spectral clustering. In: Proceedings of the 2005 SIAM international conference on data mining, pp 606–610
+24. Fodor I (2002) A survey of dimension reduction techniques 25. Goldberg AB, Zhu X (2006) Seeing stars when there aren’t
+many stars: graph-based semi-supervised learning for sentiment categorization. In: Proceedings of the first workshop on graph based methods for natural language processing, Stroudsburg, pp 45–52. Association for Computational Linguistics 26. Hamasuna Y, Endo Y, Miyamoto S (2010) Semi-supervised fuzzy c-means clustering using clusterwise tolerance based pairwise constraints. In: Proceedings of the 2010 IEEE international conference on granular computing, Washington, DC, pp 188–193. IEEE Computer Society 27. Huang H-C, Chuang Y-Y, Chen C-S (2012) Multiple kernel fuzzy clustering. IEEE Trans Fuz Syst 20(1):120–134 28. Hüllermeier E (2005) Fuzzy methods in machine learning and data mining: status and prospects. Fuzzy Sets Syst 156(3):387–406 29. Jaccard P (1912) The distribution of the flora in the alpine zone. New Phytol 11(2):37–50 30. Jain AK (2010) Data clustering: 50 years beyond k-means. Pattern Recognit Lett 31(8):651–666 31. Ji X, Xu W (2006) Document clustering with prior knowledge. In: Proceedings of the 29th annual international ACM SIGIR conference on research and development in information retrieval, New York, pp 405–412. ACM 32. Joachims T (1999) Making large-scale support vector machine learning practical. MIT Press, Cambridge, pp 169–184 33. Joachims T (1999) Transductive inference for text classification using support vector machines. In: Proceedings of the sixteenth international conference on machine learning, San Francisco, pp 200–209. Morgan Kaufmann Publishers Inc 34. Joachims T (2003) Transductive learning via spectral graph partitioning. In: Machine learning, Proceedings of the twentieth international conference (ICML 2003), 21–24 August 2003, Washington, DC, USA, pp 290–297 35. Kim H, Park H (2007) Sparse non-negative matrix factorizations via alternating non-negativity-constrained least squares for microarray data analysis. Bioinformatics 23(12):1495–1502
+
+1 3
+
+1138
+
+International Journal of Machine Learning and Cybernetics (2019) 10:1123–1138
+
+36. Klose A, Kruse R (2005) Semi-supervised learning in knowledge discovery. Fuzzy Sets Syst 149(1):209–233
+37. Koren Y, Bell R, Volinsky C (2009) Matrix factorization techniques for recommender systems. Computer 42(8):30–37
+38. Lee DD, Seung HS (1999) Learning the parts of objects by nonnegative matrix factorization. Nature 401:788–791
+39. Lee DD, Seung HS (2000) Algorithms for non-negative matrix factorization. In: Advances in neural information processing systems 13, Papers from neural information processing systems (NIPS) 2000, Denver, CO, USA, pp 556–562
+40. Lee H, Battle A, Raina R, Ng AY (2006) Efficient sparse coding algorithms. In: Advances in neural information processing systems 19, Proceedings of the twentieth annual conference on neural information processing systems, Vancouver, British Columbia, Canada, pp 801–808
+41. Liu C, Chang T, Li H (2013) Clustering documents with labeled and unlabeled documents using fuzzy semi-kmeans. Fuzzy Sets Syst 221:48–64
+42. Manning CD, Raghavan P, Schtze H (2008) Introduction to information retrieval. Cambridge University Press, New York
+43. Maraziotis IA (2012) A semi-supervised fuzzy clustering algorithm applied to gene expression data. Pattern Recognit 45(1):637–648
+44. Miyamoto S, Yamazaki M, Hashimoto W (2009) Fuzzy semisupervised clustering with target clusters using different additional terms. In: The 2009 IEEE international conference on granular computing, GrC 2009, Lushan Mountain, pp 444–449. IEEE
+45. Nigam K, McCallum AK, Thrun S, Mitchell T (2000) Text classification from labeled and unlabeled documents using EM. Mach Learn 39:103–134
+46. Pedrycz W, Waletzky J (1997) Fuzzy clustering with partial supervision. IEEE Trans Syst Man Cybern Part B Cybern 27(5):787–795
+47. Shi J, Malik J (2000) Normalized cuts and image segmentation. IEEE Trans Pattern Anal Mach Intell 22(8):888–905
+48. Shi X, Tseng B, Adamic L (2009) Information diffusion in computer science citation networks. In: Proceedings of the third international conference on weblogs and social media. arXiv​ :0905.2636
+49. Labzour JBT, Bensaid A (1998) Improved semi-supervised pointprototype clustering algorithms. In: IEEE international conference on fuzzy systems proceedings, vol 2, pp 1383–1387
+50. Takács G, Pilászy I, Németh B, Tikk D (2008) Matrix factorization and neighbor based algorithms for the netflix prize problem. In: Proceedings of the 2008 ACM conference on recommender systems, New York, pp 267–274. ACM
+51. Wagstaff K, Cardie C, Rogers S, Schrödl S (2001) Constrained K-means clustering with background knowledge. In: Proceedings of the eighteenth international conference on machine learning, San Francisco, pp 577–584. Morgan Kaufmann Publishers Inc
+52. Wang F, Li T, Zhang C (2008) Semi-supervised clustering via matrix factorization. In: Proceedings of the SIAM international conference on data mining, Atlanta, pp 1–12. SIAM
+53. Wang J, Yang J, Yu K, Lv F, Huang T, Gong Y (2010) Localityconstrained linear coding for image classification. In: IEEE conference on computer vision and pattern classification
+
+54. Wang W, Zhou Z-H (June 2010) A new analysis of co-training. In: Fürnkranz J, Joachims T (eds) Proceedings of the 27th international conference on machine learning, Haifa, pp 1135–1142. Omnipress
+55. Wang X, Ashfaq RAR, Fu A (2015) Fuzziness based sample categorization for classifier performance improvement. J Intell Fuzzy Syst 29(3):1185–1196
+56. Wang X, Davidson I (2010) Flexible constrained spectral clustering. In: Proceedings of the 16th ACM SIGKDD international conference on knowledge discovery and data mining, New York, pp 563–572. ACM
+57. Wang X, Xing H, Li Y, Hua Q, Dong C, Pedrycz W (2015) A study on relationship between generalization abilities and fuzziness of base classifiers in ensemble learning. IEEE Trans Fuzzy Syst 23(5):1638–1654
+58. Xiang G, Kreinovich V (2010) Extending maximum entropy techniques to entropy constraints. In: Fuzzy information processing society (NAFIPS), 2010 Annual meeting of the North American, pp 1–7
+59. Xu Y, Yin W (2013) A block coordinate descent method for regularized multiconvex optimization with applications to nonnegative tensor factorization and completion. SIAM J Imaging Sci 6(3):1758–1789
+60. Yin X, Shu T, Huang Q (2012) Semi-supervised fuzzy clustering with metric learning and entropy regularization. Knowl Based Syst 35:304–311
+61. Yu K, Zhu S, Lafferty J, Gong Y (2009) Fast nonparametric matrix factorization for large-scale collaborative filtering. In: Proceedings of the 32nd international ACM SIGIR conference on research and development in information retrieval, New York, pp 211–218. ACM
+62. Zadeh LA (1965) Fuzzy sets. Inf Control 8(3):338–353 63. Zadeh LA (1973) Outline of a new approach to the analysis of
+complex systems and decision processes. IEEE Trans Syst Man Cybern SMC 3:28–44 64. Zhao H, Qi Z (2010) Hierarchical agglomerative clustering with ordering constraints. In: WKDD, IEEE Computer Society, pp 195–199 65. Zhou D, Bousquet O, Lal TN, Weston J, Schölkopf B (2004) Learning with local and global consistency. In: Proceedings of advances in neural information processing systems, pp 321–328 66. Zhou K, Gui-Rong X, Yang Q, Yu Y (2010) Learning with positive and unlabeled examples using topic-sensitive PLSA. IEEE Trans Knowl Data Eng 22:46–58 67. Zhu X (2005) Semi-supervised learning literature survey. Technical report 1530, Computer Sciences, University of WisconsinMadison, Madison 68. Zhu X (2010) Semi-supervised learning. In: Encyclopedia of machine learning, pp 892–897 69. Zhu X, Ghahramani Z, Lafferty JD (2003) Semi-supervised learning using Gaussian fields and harmonic functions. In: Proceedings of the twentieth international conference on machine learning, pp 912–919
+
+1 3
+
+

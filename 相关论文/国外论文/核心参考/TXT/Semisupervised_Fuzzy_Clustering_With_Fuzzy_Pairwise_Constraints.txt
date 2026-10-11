@@ -1,0 +1,1240 @@
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+
+3797
+
+Semisupervised Fuzzy Clustering With Fuzzy Pairwise Constraints
+Zhen Wang , Shan-Shan Wang, Lan Bai , Wen-Si Wang , Member, IEEE, and Yuan-Hai Shao
+
+Abstract—In semisupervised fuzzy clustering, this article extends the traditional pairwise constraint (i.e., must-link or cannotlink) to fuzzy pairwise constraint. The fuzzy pairwise constraint allows a supervisor to provide the grade of similarity or dissimilarity between the implicit fuzzy vectors of a pair of samples. This constraint can represent more complicated relationship between the pair of samples and avoid eliminating the fuzzy characteristics. Then, we propose a semisupervised fuzzy clustering with fuzzy pairwise constraints (SSFPC). The nonconvex optimization problem in our SSFPC is solved by a modiﬁed expectation-maximization algorithm, involving to solve several indeﬁnite quadratic programming problems (IQPPs). Further, a diagonal block coordinate decent (DBCD) algorithm is proposed for these IQPPs, whose stationary points are guaranteed, and the global solutions can be obtained under certain conditions. To suit for different applications, the SSFPC is extended into various metric spaces, e.g., the reproducing kernel Hilbert space. Experimental results on several benchmark datasets and a facial expression database demonstrate the outperformance of our SSFPC compared with some state-of-the-art clustering models
+Index Terms—Fuzzy clustering, fuzzy pairwise constraint, indeﬁnite quadratic programming, pairwise constraint, semisupervised clustering.
+I. INTRODUCTION
+C LUSTERING [1], assigning the given samples into several clusters, has been employed in many real world applications [2]–[5]. Different from traditional clustering that a sample can belong to only one cluster, fuzzy clustering [6]–[8] allows
+Manuscript received 21 April 2021; revised 31 August 2021; accepted 17 November 2021. Date of publication 23 November 2021; date of current version 1 September 2022. This work was supported in part by the National Natural Science Foundation of China under Grant 61966024, Grant 61866010, Grant 62106112, and Grant 11871183), in part by the Natural Science Foundation of Inner Mongolia Autonomous Region under Grant 2019BS01009 and Grant 2019MS06008, and in part by the Fundamental Research Funds for the Central Universities, JLU. (Corresponding author: Yuan-Hai Shao.)
+Zhen Wang is with the School of Mathematical Sciences, Inner Mongolia University, Hohhot 010021, China, and also with the Key Laboratory of Symbolic Computation and Knowledge Engineering of Ministry of Education, Jilin University, Changchun 130012, China (e-mail: wangzhen1882@126.com).
+Shan-Shan Wang and Lan Bai are with the School of Mathematical Sciences, Inner Mongolia University, Hohhot 010021, China (e-mail: wangshanshan202103@163.com; imubailan@163.com).
+Wen-Si Wang is with the Engineering Research Center of Intelligent Perception and Autonomous Control (Ministry of Education), Faculty of Information Technology, Beijing University of Technology, Beijing 100124, China (e-mail: wensi.wang@bjut.edu.cn).
+Yuan-Hai Shao is with the School of Management, Hainan University, Haikou 570228, China (e-mail: shaoyuanhai21@163.com).
+Color versions of one or more ﬁgures in this article are available at https://doi.org/10.1109/TFUZZ.2021.3129848.
+Digital Object Identiﬁer 10.1109/TFUZZ.2021.3129848
+
+it to belong to more clusters with fuzzy memberships. In some applications, e.g., facial expression recognition [9], [10], fuzzy clustering is more suitable to present the ground truth than traditional clustering [11]–[15]. To guide the assignment in clustering, external information was imported given by supervisors. A simple external information is the pairwise constraints [16], [17], which assign several pairs of samples in either a cluster or two different clusters, called must-link or cannot-link, respectively. In the literature, there have been many clustering and fuzzy clustering models guided by pairwise constraints [18]–[22].
+However, the above alternative choice in pairwise constraint conceals the complicated relationship between the pair of samples in fuzzy clustering. In fact, the must-link constraint requires the largest memberships of the fuzzy vectors to be in the same cluster, and the cannot-link constraint requires the largest memberships of the fuzzy vectors to be in different clusters, where the fuzzy vectors are formed by fuzzy memberships. For supervisors, it is usually difﬁcult to make sure whether they are must-link or cannot-link when the fuzzy vectors have two or more dominant memberships. Furthermore, for the sample under such a pairwise constraint, its fuzzy memberships assemble in a deﬁnite cluster, losing its fuzzy characteristics. Fig. 1 illustrates this restriction of pairwise constraint encountered in facial expression fuzzy clustering. Given a pair of images, a supervisor needs to decide whether they are must-link or cannot-link, while a personal image often contains more facial expressions that an adult can understand. As shown in Fig. 1, the 7th image expresses happy with a bit surprise, while the 85th image also shows happy but with a bit sad. Thus, the supervisor may ﬁnd it hard to decide the constraint between the 7th and 85th images. Even though the supervisor gives a decision (e.g., must-link) by her expertise, the pairwise constraint would obliterate the fuzzy characteristics, resulting in a pure cluster. Similar phenomenon may appear on the cannot-link decision. In fact, if a supervisor decides a pair of samples to be must-link or cannot-link, she/he offers two viewpoints: The ﬁrst one implies that each of the two samples belongs to a cluster without any hesitation, and the second one manifests that the two samples are in the same cluster or in different clusters. Therefore, the pairwise constraints does not quite match with fuzzy clustering.
+The pairwise constraints have been softened to allow supervisors to give the conﬁdence level for their decisions, e.g., probabilistic pairwise constraints in model-based clustering [24], hierarchical clustering [25], [26], and clustering applications [27]–[29]. However, these probabilistic constraints still fuse the hypothesis of must-link and cannot-link, and thus, they cannot
+
+1063-6706 © 2021 IEEE. Personal use is permitted, but republication/redistribution requires IEEE permission. See https://www.ieee.org/publications/rights/index.html for more information.
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+3798
+
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+
+Fig. 1. Illustration of the traditional pairwise constraint and the proposed fuzzy pairwise constraint in facial expression fuzzy clustering. The images are derived from the JAFFE database [23], and this database also provides a labeled fuzzy expressions (i.e., the ground truth). Its details can be found in Section IV.
+reveal the complicated relationship between the pair of samples in fuzzy clustering.
+In this article, completely ruled must-link and cannot-link out, we propose a new instance-level pairwise constraint in fuzzy clustering, called fuzzy pairwise constraint. For a pair of samples, it is concerned with the similarity or dissimilarity between their implicit fuzzy vectors. As shown in Fig. 1, the supervisor gives his decision breezily, and the fuzzy characteristics of fuzzy vectors are retained, which is an example of fuzzy pairwise constraint. To fuse our fuzzy pairwise constraints in fuzzy clustering, a semisupervised fuzzy clustering with fuzzy pairwise constraints (SSFPC) is proposed subsequently. Mathematically, the nonconvex optimization problem in our model is solved by a modiﬁed expectation-maximization (MEM) algorithm, involving to solve indeﬁnite quadratic programming problems (IQPPs). It is well known that the general IQPP are still intrinsically hard problems [30], [31]. Noticing the speciﬁc properties of our IQPP, a diagonal block coordinate decent (DBCD) algorithm is constructed, where a stationary point is guaranteed, and its global solution can be obtained under certain conditions. To promote the performance of our SSFPC, it is extended to various metric spaces to suit for different data types and distributions [32]–[35]. As an example, the kernel SSFPC is proposed via kernel tricks [36].
+The main contributions of this article include the following. 1) To match fuzzy clustering, a new fuzzy pairwise constraint
+is formulated, and a semisupervised fuzzy clustering with fuzzy pairwise constraints (SSFPC) is proposed. 2) The optimization problem in our SSFPC is solved by a modiﬁed expectation–maximization (EM) algorithm.
+
+To solve nonconvex subproblems involved, an efﬁcient
+diagonal block coordinate decent algorithm is designed.
+3) Our model is extended to various metric spaces.
+4) Experimental results on the benchmark datasets and facial
+expression database conﬁrm its competitive performance.
+This article is organized as follows. Section II brieﬂy reviews
+the pairwise constraints and the related fuzzy clustering. In
+Section III, the fuzzy pairwise constraint is deﬁned ﬁrst, and
+then, we elaborate the SSFPC, including its formation, the MEM
+algorithm to SSFPC, the DBCD algorithm to IQPP, and the
+extension of SSFPC in sequence. Experiments are arranged in
+Section IV and ﬁnally, Section V concludes this article. In this article, remind the clustering problem with m
+samples in the n-dimensional real space denoted by X = (x1, x2, . . . , xm) ∈ Rn×m. In nonfuzzy clustering, it aims at assigning the samples into k clusters with their corresponding labels Y = (y1, y2, . . . , ym) ∈ {1, 2, . . . , k}m. In fuzzy clustering, it aims at assigning each sample into all the k clusters with k fuzzy memberships. These fuzzy memberships can be organized by m fuzzy vectors {ui ∈ Rk|i = 1, . . . , m}. The ith (i = 1, . . . , m) fuzzy vector ui = (ui(1), . . . , ui(k)) indicates the membership degrees of sample xi to the k clusters. Generally, the fuzzy vectors are normalized as {ui ∈ [0, 1]k| j=1 k ui(j) = 1, i = 1, . . . , m}. Apparently, the fuzzy memberships can be converted to labels via various metrics, e.g.,
+
+yi = arg max ui(j).
+
+(1)
+
+j=1,...,k
+
+II. BACKGROUND
+Semisupervised fuzzy clustering consists of fuzzy clustering and semisupervised information. Under certain semisupervised information, fuzzy clustering is guided toward the expectation of supervisors, where the popular semisupervised information is the pairwise constraints. In the following, we introduce the classical fuzzy c-means (FCM) [8] and its extensions under the pairwise constraints. Then, the extensions of pairwise constraints and their roles in clustering are reviewed brieﬂy.
+
+A. FCM With Pairwise Constraints
+
+The unsupervised FCM [6] requires that the samples are close to the cluster prototypes {cj ∈ Rn|j = 1, . . . , k} by the extent of their fuzzy memberships, resulting in a nonconvex
+optimization problem as
+
+mk
+
+min
+
+ui(j)γ ||xi − cj||2
+
+(2)
+
+{ui},{cj } i=1 j=1
+
+where γ > 0 is a fuzzy parameter to control the level of fuzzy memberships, and || · || denotes the L2 norm. The above problem is usually solved by the EM algorithm [37].
+In the past few decades, semisupervised fuzzy clustering was
+proposed by extending the FCM with pairwise constraints [15],
+[16], [19]–[22], [38]–[40]. The pairwise constraints form a mustlink set M and a cannot-link set C, where a pair of samples in M or C indicate that they are in the same cluster or different clusters, respectively. For a pair of samples (e.g., xp and xq), if they
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: SEMISUPERVISED FUZZY CLUSTERING WITH FUZZY PAIRWISE CONSTRAINTS
+
+3799
+
+are from pairwise constraints, they should be sheer samples. In
+
+other words, their fuzzy vectors up and uq should tend to be the vectors that consist of 1 and 0. Furthermore, if they are from M,
+
+the only one of these vectors should be at the same index. Based
+
+on the restrictions of up and uq, the above two targets (i.e., sheer
+
+samples and the same index) can be realized simultaneously by
+
+maximizing their inner product or minimizing their nondiagonal
+
+product [16]. On the contrary, if a pair of samples is from C, one
+
+can minimize their corresponding inner product or maximize
+
+their nondiagonal product. Mathematically, by deﬁning the outer
+
+product of the fuzzy vectors as
+
+⎛
+
+⎞
+
+up(1)uq(1) · · · up(1)uq(k)
+
+up
+
+×
+
+uq
+
+=
+
+⎜⎝ .. .
+
+...
+
+.. .
+
+⎟ ⎠ (3)
+
+up(k)uq(1) · · · up(k)uq(k)
+
+the inner product and nondiagonal product are the trace of (3) and the sum of elements in (3) without its diagonal, respectively.
+The representative semisupervised fuzzy clustering with pairwise constraints (PCCA) [16] minimizes the nondiagonal product on M and inner product on C as
+
+min
+{ui},{cj }
+
+mk
+ui(j)2||xi − cj||2 + β
+i=1 j=1
+
+k (p,q)∈M j=1
+
+k
+
+k
+
+up(j)uq(l) +
+
+up (j )uq (j )
+
+l=1,l=j
+
+(p,q)∈C j=1
+
+k
+
+s.t.
+
+ui(j) = 1 ∀i = 1, . . . , m
+
+j=1
+
+ui(j) ≥ 0 ∀i = 1, . . . , m ∀j = 1, . . . , k
+
+(4)
+
+where β > 0 is a tradeoff parameter. While only the inner product is optimized both on M and C in [15].
+In PCCA, a fuzzy clustering regularization was also introduced in (4) to select the cluster number by selecting the regularization parameter. Since there were several parameters that need to be regulated in PCCA, Grira et al. in [22] proposed an active parameter selection formation and the cluster number could be obtained automatically. Further, more semisupervised fuzzy clustering methods were proposed and applied to the real world applications. For instance, Grira et al. in [38] applied FCM with pairwise constraints to image categorization, the authors in [39] extended it into nonlinear clustering via kernel tricks, and the authors in [19] proposed a weighted distance on partial dissimilarity matrices to handle various (dis)similarity matrices and applied on the relational data. Compared with the additive framework in [19], the authors in [21] proposed a multiplicative framework as its weighting scheme. Beside utilizing the outer product (3) on the pairwise constraints, other distances between two fuzzy vectors may also be hired. The authors in [20] discussed the differences between outer product and L2 distance, and a fuzzy coclustering with pairwise constraints were proposed. In addition, the clustering problem with pairwise constraints may be handled by other techniques, e.g., the authors in [17] hired graph theory into semisupervised clustering and
+
+converted it to a graph cutting problem, and the authors in [18] extended the density peak clustering on pairwise constraints.
+The optimization problems in [15], [16], [19], [21], [22], [38], and [39] were solved by some greedy methods in the EM frame because of the nonconvex subproblems in the maximization step. Thus, to avoid the nonconvex subproblems, several researchers hired the pairwise constraints in a prestep beyond the optimization problem, e.g., introducing the entropy regularization [41] or dissimilarity measurement [42] to keep it consistent with the pairwise constraints.
+B. Hard/Soft Pairwise Constraints
+Generally speaking, the pairwise constraints, also called hard pairwise constraints, require that the clustering result should comply with the constrains from M and C [29]. In practical terms, the pairwise constraints supplied by supervisors may be slightly inaccurate and often contradict from different supervisors [2], [3]. Therefore, hard pairwise constraints were always slacked in fuzzy clustering [16], [19], [20], [42].
+Accordingly, soft pairwise constraints were proposed by setting the conﬁdence level of hard pairwise constraints with probability. The authors in [24] proposed probabilistic must-link constraints and ignored cannot-link constraints. The probability p of a must-link pair is given by the supervisor according to her/his expertise. It indicates that the two samples are with the same label with probability p, and with different labels with probability 1 − p. In [26]–[28], the probabilistic pairwise constraints were extended both on must-link and cannot-link, where their conﬁdence levels are in [0,1], 1 indicates the deﬁnite decision, and 0 denotes unknown.
+By observing the faces in Fig. 1, the pair of images contains more facial expressions, where some of them are the same and the others are different. Their fuzzy ground truth [23], describes the quantity of fuzzy characteristics. Neither hard nor soft pairwise constraints can reﬂect these fuzzy characteristics clearly, because these constraints result in must-link or cannot-link alternatively. To preserve the fuzzy characteristics, the fuzziﬁcation of must-link and cannot-link is a straightforward way, and we will elaborate it in Section III. It is worth to notice that this fuzziﬁcation is different from probability. In fact, given a probabilistic pairwise constraint, the real result is deﬁnite in must-link or cannot-link though it is unknown, whereas the must-link or cannot-link is an extreme case of fuzziﬁcation. In addition, there have not been any particular methods on fuzzy clustering with fuzzy or probabilistic pairwise constraints, to the best of our knowledge.
+III. SSFPC
+A. Fuzzy Pairwise Constraint
+Given a pair of samples, supervisors should decide whether they are similar or dissimilar according to their cluster tendency ﬁrst, and then consider the similarity or dissimilarity degree. As shown in Fig. 1, the supervisor decides the similarity degree to be 0.7 between the unknown facial expressions of the 7th and 85th images, on account of the two persons’ smiles similar with
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+3800
+
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+
+a little different expressions. Mathematically, our fuzzy pairwise constraint refers to consider two implicit fuzzy vectors.
+Deﬁnition III.1: Given a pair of samples {xp, xq ∈ X}, its fuzzy pairwise constraint is deﬁned as spq ∈ [−1, 1] to measure the similarity or dissimilarity degree between their implicit fuzzy vectors up and uq, where (0,1] is used for similarity degree, [−1, 0) is used for dissimilarity degree, and 0 denotes unknown.
+Generally, the two implicit fuzzy vectors are apt to similar if one of them has large values on some components and meanwhile the other has as many large values as possible on the corresponding components. Conversely, they are apt to dissimilar if one has large values on some components and the other has as many small values as possible on the corresponding components. The similarity or dissimilarity degree measures the difference between the pairs of components in the fuzzy vectors. In addition, considering the discrepancy between the pair of the largest components results in the hard pairwise constraint, which is a degeneration of our fuzzy pairwise constraint.
+
+B. Formation of SSFPC
+
+Given a fuzzy pairwise constraint set S = {spq} with its index set NS = {(p, q)}, our SSFPC is formulated as
+
+min
+{ui},{cj }
+
+mk
+(ui(j)γ − α)||xi − cj||2
+i=1 j=1
+
++β
+
+C(up, uq)
+
+(p,q)∈NS
+
+k
+
+s.t.
+
+ui(j) = 1 ∀i = 1, . . . , m
+
+j=1
+
+ui(j) ≥ 0 ∀i = 1, . . . , m, ∀j = 1, . . . , k (5)
+
+where 0 ≤ α < 1 is a threshold parameter, β > 0 is a tradeoff parameter, γ > 0 is a fuzzy parameter, and the cost function C on each fuzzy pairwise constraint is deﬁned as
+
+1 C(up, uq) = 2 spq||up − uq||2 if spq ≥ 0 (6)
+
+−spqup uq
+
+otherwise.
+
+Our SSFPC consists of the prototype aggregation and constraint guidance. In the prototype aggregation [i.e., the ﬁrst term in the objective of problem (5)], each sample is close to its cluster prototype and far away from the other cluster prototypes. Due to each sample contribution on each cluster by its fuzzy memberships, we consider that a sample can affect each cluster prototype from positive (i.e., close to it) or negative (i.e, far away from it) aspect by the corresponding fuzzy membership. Thus, parameter α can be regarded as a threshold to control the effect of samples on the cluster prototypes. In addition, the metering of α should be consistent with γ. For example, for γ = 2, set α = 0.25, if the user deems that the samples affects positively with ui(j) ≥ 0.5.
+In the constraint guidance [i.e., the last term in the objective of problem (5)], the L2 norm or inner product are fused in (6) for different fuzzy pairwise constraints. It is interesting that the measurements of similarity and dissimilarity are asymmetric to
+
+preserve the fuzzy characteristics. In fact, supposing two fuzzy vectors up, uq ∈ R3, their similarity may be estimated in some manner, e.g., inner product or nondiagonal product stated in Section II-A. However, it is infeasible to use their inner product and/or nondiagonal product for similarity. Note that maximizing the inner product or minimizing the nondiagonal product leads to sheer samples. For example, spq = 1 implies up = uq, while maximizing inner product up uq or minimizing nondiagonal product (up × uq) − up uq leads to one of the three equations: up = uq = (1, 0, 0) , up = uq = (0, 1, 0) , and up = uq = (0, 0, 1) . Thus, we should minimize ||up − uq|| for similar up and uq to preserve their fuzzy characteristics. Correspondingly, the L2 norm is not a good manner for dissimilarity. For example, spq = −1 implies that up and uq are totally different, i.e., the nonzero elements in up correspond to zeros in uq, and vice versa. However, maximizing ||up − uq|| leads to sheer samples, e.g., up = (1, 0, 0) and uq = (0, 0, 1) . To preserve the fuzzy characteristics of dissimilarity, the inner product is our choice. In summary, to preserve the fuzzy characteristics, we should minimize the L2 norm of two fuzzy vectors for similarity and maximize their inner product for dissimilarity, as the formation of (6).
+C. Solving the Main Problem
+For the fuzzy parameter r in fuzzy clustering, researchers suggested 1.5 ≤ γ ≤ 2.5 for its better performance with the suitable fuzzy level [6], [8], [15], [19], [20]–[22], [41], [42]. Thus, we set γ = 2 in the main problem (5) for its computational simplicity.
+1) Framework of MEM Algorithm: Problem (5) is a nonconvex optimization problem, and we propose a modiﬁed EM (MEM) algorithm to solve it. Starting from an initial {ui(0)}, the cluster prototypes {cj(t)} in the expectation step and the fuzzy vectors {ui(t)} in the maximization step are updated alternately with t = 1, 2, . . ., by solving (5) with the ﬁxed counterparts, until some terminate conditions are met. The framework of MEM algorithm is summarized in Algorithm 1.
+Remark: Compared with the EM algorithm, several modiﬁcations are added in our MEM algorithm. First, the input includes a cluster number upper bound k instead of the cluster number itself. This is realized in the expectation step, where the solution to subproblem (8) may not exist, resulting in reducing cluster number. Then, in the maximization step, if an iterative algorithm is employed to solve problem (11), its initial point is set to be the previous one, resulting in the convergence of our algorithm.
+Theorem III.1: The series of objectives of problem (5) obtained by MEM (Algorithm 1) converges, whatever the global, local, or saddle points to subproblems (11) are obtained in iteration.
+Its proof is given in Appendix A. In Algorithm 1, subproblems (8), (10), and (11) need to be solved in the loop, and we will elaborate their solutions in the following. For simplicity, the superscripts that denote the iterative step are ignored in these subproblems.
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: SEMISUPERVISED FUZZY CLUSTERING WITH FUZZY PAIRWISE CONSTRAINTS
+
+3801
+
+Algorithm 1: MEM to Solve Problem (5).
+Input: Dataset X, fuzzy pairwise constraints S, cluster number upper bound k, parameter α ∈ [0, 1), and β > 0.
+Output: Fuzzy vectors {ui}. 1: Initialize {ui(0)} and set t = 0. 2: while true
+(a) Expectation step: Fix {ui(t)} and update {cj(t)} by solving
+
+km
+
+{cj }min
+
+ui(t)(j)2 − α ||xi − cj ||2 (7)
+
+j=1 i=1
+
+which can be decomposed into k subproblems with j = 1, . . . , k as
+m
+min ui(t)(j)2 − α ||xi − cj||2. (8)
+cj i=1
+(b) Maximization step: Fix {cj(t)} and update {ui(t+1)} by solving
+
+min
+{ui }
+
+mk 2
+
+(t) 2 β
+
+ui(j) ||xi − cj || +
+
+2
+
+i=1 j=1
+
+0<spq ∈S
+
+spq||up − uq||2 − β
+
+spqup uq
+
+0>spq ∈S
+
+k
+
+s.t.
+
+ui(j) = 1 ∀i = 1, . . . , m
+
+j=1
+
+ui(j) ≥ 0 ∀i = 1, . . . , m ∀j = 1, . . . , k. (9)
+
+According to the index set NS of S, the above problem can be decomposed into two subproblems as follows:
+
+min
+{ui|i∈/NS }
+
+k
+ui(j)2||xi − cj(t)||2
+j=1
+
+k
+
+s.t.
+
+ui(j) = 1
+
+j=1
+
+ui(j) ≥ 0, ∀j = 1, . . . , k
+
+(10)
+
+and min
+{ui|i∈NS }
+
+mk 2
+
+(t) 2 β
+
+ui(j) ||xi − cj || +
+
+2
+
+i∈NS j=1
+
+0<spq ∈S
+
+spq||up − uq||2 − β
+
+spqup uq
+
+0>spq ∈S
+
+k
+
+s.t.
+
+ui(j) = 1 ∀i ∈ NS
+
+j=1
+
+ui(j) ≥ 0, ∀i ∈ NS ∀j = 1, . . . , k.
+
+(11)
+
+(c) Termination check: If {ui(t)} is unchanged, break the loop; Otherwise, set t = t + 1.
+
+2) Closed-Form Solutions to Subproblems (8) and (10): In the expectation step, for the jth (j = 1, . . . , k) subproblem (8), if
+
+m
+
+(ui(j)2 − α) ≤ 0
+
+(12)
+
+i=1
+
+its solution does not exist, which implies that this cluster proto-
+type cj is inﬁnite. Thus, any sample does not belong to this cluster, and we delete this cluster (i.e., delete prototype cj and the jth dimension in fuzzy vectors {uj}). Otherwise, the
+closed-form solution to subproblem (8) is
+
+i=1 m (ui(j)2 − α)xi
+
+cj = m
+
+2
+
+.
+
+(13)
+
+i=1(ui(j) − α)
+
+In the maximization step, the closed-form solution to subproblem (10) with i ∈/ NS is
+
+ui =
+
+1
+
+k
+
+1
+
+j=1 ||xi−cj ||2
+
+1
+
+1
+
+||xi − c1||2 , . . . , ||xi − ck||2 .
+
+(14)
+
+3) Solution to Subproblem (11): Note that subproblem (11) is
+separable. We partition S into several mutually disjoint subsets S1, . . . , Sh w.r.t. the sample index. Let NS1 , . . . , NSh be the index sets of S1, . . . , Sh, respectively, where the samples in
+each index set are associated with each other directly or in-
+directly. Then, subproblem (11) is decomposed by {Sl, NSl |l = 1, . . . , h} into h subproblems as
+
+min ui(j)2||xi − cj||2 k + β
+
+{ui|i∈NSl }
+
+2
+
+i∈NSl j=1
+
+0<spq ∈Sl
+
+⎛
+
+⎞
+
+k
+
+k
+
+spq ⎝ up(j)2 + uq(j)2⎠ − β
+
+(t)
+spqup uq
+
+j=1
+
+j=1
+
+spq ∈Sl
+
+k
+
+s.t.
+
+ui(j) = 1 ∀i ∈ NSl
+
+j=1
+
+ui(j) ≥ 0, ∀i ∈ NSl ∀j = 1, . . . , k.
+
+(15)
+
+For simplicity, subproblem (15) is reformulated as
+
+min 1 u Du u2
+s.t. Au = 1r
+
+u ≥ 0rk
+
+(16)
+
+where u = (u1 , . . . , ur ) = (u11, . . . , u1 k, u21, . . . , u2 k, . . . , urk) ∈ Rrk, A = (1k , 0(r−1)k ; 0k , 1k , 0(r−2)k ; · · · ; 0(r−1)k , 1k ) ∈ Rr×rk, r = |NSl |, and the vectors 1r and 0rk consist of r ones and rk zeros, respectively. D ∈ Rrk×rk
+
+is a symmetric matrix and can be partitioned by k rows and k
+
+columns as
+
+⎛
+
+⎞
+
+D11 · · · D1r
+
+⎜ D=⎝
+
+.. .
+
+...
+
+..
+
+⎟ ⎠
+
+.
+
+(17)
+
+Dr1 · · · Drr
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+3802
+
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+
+where the diagonal blocks (i.e., Dii with i = 1, . . . , r) are the diagonal matrices whose diagonal elements are larger than zero, and Dij = Dji with i, j = 1, . . . , r. Thereinto, for i = 1, . . . , r
+Dii = diag(||xi − c1||2, . . . , ||xi − ck||2) + β sijI 2 sij >0 (18)
+
+where I is the identity matrix, and for i, j = 1, . . . , r (i = j)
+Dij = − β diag(sij, . . . , sij). (19) 2
+Note tr(D) > 0. D has at least a positive eigenvalue, which supports the following lemma.
+Lemma III.1: D is positive semideﬁnite or indeﬁnite alternatively.
+If D is positive semideﬁnite, problem (16) is a convex quadratic programming problem (CQPP) and can be solved by some CQPP solvers [43] to obtain its global solution. Otherwise, problem (16) is an IQPP. Though there have been some algorithms to solve an IQPP [44]–[47], their speciﬁc formations or large amount of computation impedes the application to our problem. However, we still have an opportunity to obtain the global solution to problem (16) with an indeﬁnite D.
+Consider the following quadratic programming problem:
+min 1 v B DBv + uˆ DBv v2
+s.t. Gv ≤ 1r
+
+v ≥ 0r(k−1)
+
+(20)
+
+where
+
+v = (v1 , . . . , vr ) = (v11, . . . , v1(k−1), v21,
+
+. . . , v2(k−1), . . . , vr(k−1)) ∈ Rr(k−1), G = (1k−1 ,
+
+0(r−1)(k−1) ; 0k−1 , 1k−1 , 0(r−2)(k−1) ; · · · ; 0(r−1)(k−1) ,
+
+1k−1 ) ∈ Rr×r(k−1), and
+
+⎛ −1k−1 I
+
+⎜
+
+−1k−1 I
+
+⎜
+
+B=⎜
+
+..
+
+⎝
+
+.
+
+⎞ ⎟ ⎟ ⎟ . (21) ⎠
+
+−1k−1 I
+
+Theorem III.2: Suppose v∗ is the solution to problem (20). Then
+
+u∗ = uˆ + Bv∗
+
+(22)
+
+is the solution to problem (16), where uˆ = (1, 0k−1 , . . . , 1, 0k−1 ) .
+
+Its proof is given in Appendix B.
+
+Remark: Apparently, B DB is a symmetric matrix and can
+
+be partitioned by k − 1 rows and k − 1 columns as
+
+⎛
+
+⎞
+
+D11 · · · D1r
+
+⎜ B DB = ⎝
+
+.. .
+
+...
+
+..
+
+⎟ ⎠.
+
+.
+
+(23)
+
+Dr1 · · · Drr
+
+After some algebra, it is easy to deduce that the formation of
+{D11, . . . , Drr} resembles the formation of {D11, . . . , Drr}, i.e., the diagonal blocks {D11, . . . , Drr} are the diagonal
+
+matrices whose diagonal elements are larger than zero. From Lemma III.1, we conclude that B DB is positive semideﬁnite or indeﬁnite alternatively. In fact, B DB may be positive semideﬁnite even though D is indeﬁnite. For example, D = (1, 0, 2, 0; 0, 5, 0, 2; 2, 0, 1, 0; 0,2,0,5) is indeﬁnite, because −1 is one of its eigenvalues. However, B DB = (6, 4; 4, 6) is positive deﬁnite obviously. Thus, if B DB is positive semideﬁnite, the global solution to problem (16) can be
+obtained by solving problem (20) by some CQPP solvers [43]. Lemma III.2: If B DB is indeﬁnite, then D is indeﬁnite. Its proof is given in Appendix C. If B DB is indeﬁnite, we propose a diagonal block coor-
+dinate decent (DBCD) algorithm to solve IQPP (16). Starting from a feasible point, problem (16) w.r.t. ui (i = 1, . . . , r), i.e.,
+
+1 min ui Diiui + (u1 , . . . , ui−1, ui+1, . . . , ur )(Di1, ui 2
+
+. . . , Di(i−1), Di(i+1), . . . , Dir) ui
+
+s.t. 1k ui = 1
+
+ui ≥ 0k
+
+(24)
+
+is solved in sequence to update ui. The above loop continues until some terminate conditions are satisﬁed. The ﬁnal u is set to be a solution to problem (16).
+In the DBCD algorithm, the Hessian matrix Dii of problem (24) is positive deﬁnite based on the formation of D. Thus, the global solution to CQPP (24) can be obtained by some CQPP solvers. The convergence of the DBCD algorithm is given as follows, and its proof can be found in Appendix D.
+Theorem III.3: DBCD algorithm converges to a stationary point to problem (16).
+Speciﬁcally, for a small size problem, we can get a global solution to IQPP (16) by DBCD with exhaustive initial points.
+Corollary III.1: There is a vertex u(0) to problem (16) with k = r = 2, such that DBCD with this initial u(0) converges to a global solution to problem (16), where the vertex is such a point that one of its elements is 1 and the rest of the elements are 0.
+Its proof is given in Appendix E. The pseudocode to solve problem (15) is summarized in Algorithm 2.
+
+D. SSFPC for Various Metric Spaces
+To suit for different data types and distributions, our SSFPC is extended into various metric spaces in this subsection. Note that the Euclidean distances between samples and prototypes are fused in (5) and (6). The SSFPC in a metric space can be formulated by replacing the Euclidean distance with the new distance d(xi, cj), and it can also be solved by Algorithm 2. It is worth to notice that the formula for updating the prototypes would be different from (13) in different metric spaces. However, we can skip updating the prototypes and update the fuzzy vectors immediately if necessary. As an example, we extend the SSFPC for nonlinear clustering via kernel tricks [36].
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: SEMISUPERVISED FUZZY CLUSTERING WITH FUZZY PAIRWISE CONSTRAINTS
+
+3803
+
+Algorithm 2: Solving Problem (15).
+Input: Mutually disjoint fuzzy pairwise constraints Sl with NSl , {xi|i ∈ NSl }, {cj|j = 1, . . . , k}, parameter β > 0, CQPP solver, and a small tolerance (typically tol = 1e − 3).
+Output: Solution {u∗i |i ∈ NSl }. 1: Build problem (16). 2: If D is positive semideﬁnite, employ the CQPP solver
+to solve problem (16). Then, return the solution and
+terminate the algorithm. 3: If B DB is positive semideﬁnite, employ the CQPP
+solver to solve problem (20) and substitute its solution into (22) to obtain u∗. Then, return u∗ and terminate
+the algorithm. 4: If k = r = 2, set u(0) be each vertex and implement
+the following loop exhaustively to obtain the smallest objective of (16); Otherwise, initialize u(0) and implement the following loop once. Set t = 1.
+5: while true for i = 1, . . . , r for all j = 1, . . . , r and j = i, set uj = uj(t−1), then
+set ui(t) be the solution to the CQPP (24) by the CQPP solver;
+end for if ||u(t) − u(t−1)|| < tol, set u∗ = u(t) and break; else set t = t + 1;
+end if
+end while
+
+Suppose φ(·) : Rn → Rd is a nonlinear mapping. Our kernel SSFPC considers
+
+min
+{ui},{cj }
+
+mk
+(ui(j)r − α)||φ(xi) − cj||2
+i=1 j=1
+
++β
+
+C(up, uq)
+
+(p,q)∈NS
+
+k
+
+s.t.
+
+ui(j) = 1 ∀i = 1, . . . , m
+
+j=1
+
+ui(j) ≥ 0, ∀i = 1, . . . , m ∀j = 1, . . . , k, (25)
+
+Problem (25) can be solved by MEM apparently. Correspondingly, for ﬁxed {ui} (i = 1, . . . , m), the jth (j = 1, . . . , k) cluster is deleted if (12) holds. Otherwise, we have
+
+i=1 m (ui(j)2 − α)φ(xi)
+
+cj =
+
+m
+
+2
+
+, j = 1, . . . , k. (26)
+
+i=1(ui(j) − α)
+
+If the nonlinear mapping φ(·) is given, the rest is similar to linear SSFPC by replacing xi with φ(xi) for i = 1, . . . , m. Otherwise, we can obtain the fuzzy vectors by skipping over the
+
+computation of the prototypes and solving the subproblem23
+
+in the maximization step via kernel tricks. For ﬁxed implicit
+{cj} (j = 1, . . . , k), the corresponding subproblem relates to ||φ(xi) − cj|| with i = 1, . . . , m and j = 1, . . . , k. According
+
+to (26), we deﬁne
+
+d(x, cj) = ||φ(x) − cj||2
+
+= φ(x) φ(x) − 2
+
+i=1 m (ui(j)2 − α)φ(xi) φ(x) m i=1(ui(j)2 − α)
+
+i=1 m (ui(j)2 − α)φ(xi)
+
+i=1 m (ui(j)2 − α)φ(xi)
+
++
+
+( m i=1(ui(j)2 − α))2
+
+= K(x, x) − 2
+
+i=1 m (ui(j)2 − α)K(xi, x) m i=1(ui(j)2 − α)
+
+i1=1 i2=1 m m (ui1 (j)2 − α)(ui2 (j)2 − α)K(xi1 , xi2 )
+
++
+
+m
+
+2
+
+2
+
+( i=1(ui(j) − α))
+
+(27)
+
+where K(·, ·) is a predeﬁned kernel function that refers to the inner product in the Reproducing Kernel Hilbert Space. Thus, by substituting (27) into (14), the closed-form solution for i ∈/ NS is
+
+1 ui = k
+
+1
+
+1
+
+,...,
+
+(28)
+
+j=1 d(xi, cj ) d(xi, c1)
+
+d(xi − ck)
+
+and the subproblem (11) for each subset Sl with NSl becomes
+
+min
+{ui|i∈NS }
+
+ui(j)2 m k d(x β i, cj ) +
+
+2
+
+i∈NS j=1
+
+0<spq ∈S
+
+spq||up − uq||2 − β
+
+(t)
+spqup uq
+
+0>spq ∈S
+
+k
+
+s.t.
+
+ui(j) = 1 ∀i ∈ NS
+
+j=1
+
+ui(j) ≥ 0 ∀i ∈ NS ∀j = 1, . . . , k
+
+(29)
+
+which can be solved similar to (11) by Algorithm 2. So the details are omitted.
+
+IV. EXPERIMENTS
+In this section, we analyze the clustering performance of our SSFPC on some benchmark datasets1 and a facial expression database [23] compared with several state-of-the-art semisupervised clustering models, including semisupervised DenPeak clustering (SSDC2) [18], dominant set clustering (DSC3) [17], fuzzy hierarchical semisupervised clustering (FHSS) [26], and pairwise-constrained competitive agglomeration (PCCA) [16]. The classical FCM [8] presented the baseline. All these models were implemented by MATLAB2017, on a PC with an Intel Core Duo Processor (4.2 GHz) with 16 GB RAM. In the experiments, the normalized adjusted rand index (ARI∈ [0%, 100%]) [48] and normalized mutual information (NMI∈ [0%, 100%]) [49] were used to measure the clustering performance. Their parameters were optimized to maximize the ARI and/or NMI by grid
+
+1[Online]. Available: http://archive.ics.uci.edu/ml/index.php 2[Online]. Available: https://github.com/Huxhh/SSDC 3[Online]. Available: https://github.com/erogol/DominantSetClustering
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+3804
+
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+
+TABLE I DETAILS OF BENCHMARK DATASETS
+
+searching, and the cluster number was set to the real one. For
+
+practical convenience, the corresponding SSFPC Matlab codes
+
+have been uploaded in github.4 The implementation details of
+
+these models are as follows.
+
+FCM [8] Without any constraints, it was implemented 20
+
+times by the FCM function with random initializa-
+
+tion provided by MATLAB. It output fuzzy vectors
+
+by parameter k.
+
+SSDC [18] It accepted pairwise constraints and output cluster
+
+labels.
+
+DSC [17] It accepted pairwise constraints and output cluster
+
+labels by parameter k.
+
+FHSS [26] It accepted soft pairwise constraints and output
+
+cluster labels with a cutoff parameter α = 0.05.
+
+PCCA [16] It accepted pairwise constraints and was im-
+
+plemented 20 times with random initialization.
+
+It output fuzzy vectors by parameter k and a tradeoff parameter selected from Ω := {2i|i =
+
+−8, −7, . . . , 7}.
+
+SSFPC
+
+It accepted fuzzy pairwise constraints and was
+
+implemented 20 times with random initialization.
+
+It output fuzzy vectors by parameter k and two
+
+tradeoff parameters, where parameter α was se-
+
+lected from Ω and parameter β was selected from
+
+{0, 0.02, 0.04, . . . , 0.3}.
+
+A. Benchmark Datasets
+In this subsection, we analyze the hard clustering performance of these models on 19 benchmark datasets.5 The details of these datasets are shown in Table I. For each dataset, we offered four groups of fuzzy pairwise constraints: 1) This group contained 0.05-m pairs, where the fuzzy pairwise constraints were opposite to the ground truth; 2) this group contained 0.1-m pairs, where half of them accorded with the ground truth and the rest were
+
+4[Online]. Available: https://github.com/gamer1882/FDC 5[Online]. Available: http://archive.ics.uci.edu/ml/datasets.php
+
+opposite; 3) this group contained 0.05-m pairs accorded with the ground truth; 4) this group contained 0.1-m pairs accorded with the ground truth. Thereinto, for data (s), the ratio of fuzzy pairwise constraints is a ﬁvefold reduction. Since there are at most m2 − m pairs for a dataset, the number of pairs in each group is much fewer than the maximum. For the models with traditional pairwise constraints (i.e., SSDC, DSC, and PCCA), the pairs in these groups were moved into the must-link M and cannot-link C. For the models with soft/fuzzy pairwise constraints (i.e., FHSS and our SSFPC), when the pair of samples was from the same class, the fuzzy value of a pair was set to 0.5 plus a random number with uniform distribution U[0, 0.5] if a sample in the pair is the 10-nearest neighbor of the other; otherwise, it was set to a random number with U[0, 1]. When the pair of samples was from difference classes, the fuzzy value of a pair was set to −0.5 minus a random number with U[0, 0.5] if each sample in the pair is not the 10-nearest neighbor of the other; otherwise, it was set to a random number with U[−1, 0]. The random values and opposite pair settings in these groups were used to simulate the practical application. The fuzzy vectors obtained by the fuzzy models, including FCM, PCCA, and our SSFPC, were transformed to labels by (1). The average ARI and NMI with the standard deviation for FCM, PCCA, and our SSFPC, and the one-run ARI and NMI for SSDC, DSC, and FHSS on these datasets were reported in Table II. The highest ARI and NMI for each dataset were bold compared with the baseline. From Table II, we observe that the SSDC, DSC, and FHSS perform under the baseline even though some correct pairwise constraints are given in groups (iii) and (iv). There are a few datasets on which SSDC and FHSS exceed the baseline with correct pairwise constraints, e.g., data (a). However, PCCA and our SSFPC performs much better than the baselines on many datasets even though some opposite pairwise constraints are given in groups (i) and (ii), e.g., data (h) and (j). On the other datasets, the performance of PCCA and SSFPC relies on the pairwise constraints. Generally, they work better with correct pairwise constraints than with wrong pairwise constraints. However, the clustering ability of PCCA becomes poor on some large-scale datasets, e.g., on data (r) and (s). Correspondingly, our SSFPC keeps its better performance than PCCA on most of these datasets. In conclusion, the SSDC, DSC, and FHSS are not competitive with the other models, and they underuse the (soft) pairwise constraints, especially DSC. Besides, FCM, PCCA, and our SSFPC are a series of fuzzy clustering models, and our SSFPC can utilize the fuzzy pairwise constraints more sufﬁciently than the pairwise constrains in PCCA. The wrong pairwise constraints mislead all of these clustering models, and PCCA and SSFPC are less affected because of their tradeoff parameters. Moreover, the fuzzy characteristics of fuzzy pairwise constraint may further reduce the inﬂuence from the wrong pairwise constraint, which lead our SSFPC perform better than the PCCA on groups (i) and (ii) of many datasets.
+Statistically, the paired t-test was adopted to compare the difference of our SSFPC and the other models on the benchmark datasets. For each group of the datasets in Table II, the •/◦ indicates SSFPC is signiﬁcantly better/worse than compared
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: SEMISUPERVISED FUZZY CLUSTERING WITH FUZZY PAIRWISE CONSTRAINTS
+TABLE II PERFORMANCE OF THE STATE-OF-THE-ART CLUSTERING MODELS ON THE BENCHMARK DATASETS
+
+3805
+
+‘–’ denotes out of memory; •/◦ indicates SSFPC is signiﬁcantly better/worse than compared model (paired t-tests at 95% signiﬁcance level). Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+3806
+
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+
+Fig. 2. Parameter inﬂuence of SSFPC on the four groups of six benchmark datasets. The parameter α increases along with the horizontal axis, and the left and right vertical axes shows the corresponding NMI (blue solid line) and cluster number k∗ (red dash line), respectively. (b) Zoo. (h) Ecoli. (i) Dermatology. (n) Segment. (p) Satimage. (r) Letter.
+
+model at 95% signiﬁcance level, and the overall numbers of •/◦ are calculated in the last row. On most of the datasets, our SSFPC is signiﬁcantly better than the other models with a large number of • and a low number of ◦. Therefore, it is statistically signiﬁcant that our SSFPC is better than the other models on the benchmark datasets, which supports the previous observation.
+Subsequently, we analyze the inﬂuence of the parameters α and β in the SSFPC. The purpose of β is clear: Larger β indicates that we count on the fuzzy pairwise constraints more, and vice versa. Thus, the precision of fuzzy pairwise constraint directs the performance of SSFPC. The other parameter α can adjust the cluster number in theory. To verify the inﬂuence of α, we augmented α from 0 on the above four groups of six benchmark datasets with larger cluster numbers. The clustering results and the cluster numbers were reported in Fig. 2, where the
+
+cluster number was decided by (1). It is obvious that the cluster number decreases with the increasing α generally, and there is a threshold smaller than 1, such that the cluster number would be ﬁxed to 1 when α is larger than this threshold. Notice that the cluster number may increase with a larger α, e.g., in group (iii), Fig. 2(i), for the cluster prototypes and cluster numbers may be inconsistent. Though we set k to be the truth from Table I, smaller clusters would be obtained with α = 0, e.g., on data (i). However, more clusters were formulated with nonzero α, and then better performance was obtained. In practice, we should adjust α carefully for different datasets, and its upper bound would be much smaller than 1, especially for large-scale datasets.
+Finally, we tested the SSFPC for various metric spaces. Generally, an appropriate metric can promote the performance of SSFPC, and the metric changes with the data space, which leads
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: SEMISUPERVISED FUZZY CLUSTERING WITH FUZZY PAIRWISE CONSTRAINTS
+TABLE III CLUSTERING PERFORMANCE ON THE JAFFE DATABASE WITH FIVE GROUPS OF FUZZY PAIRWISE CONSTRAINTS
+
+3807
+
+•/◦ indicates SSFPC is signiﬁcantly better/worse than compared model (paired t-tests at 95% signiﬁcance level).
+
+Fig. 3. Performance of kernel SSFPC on the datasets with group (iv) compared with linear SSFPC.
+to the metric learning problems [50], [51]. For fairness, we implemented the kernel SSFPC on these benchmark datasets with group (iv) compared with the linear SSFPC, where the Gaussian kernel [52] K(x1, x2) = exp{−μ||x1 − x2||2} was used and its parameter μ was selected from {2i|i = −10, −9, . . . , 5}. The comparisons were depicted in Fig. 3. Apparently, the Gaussian kernel can further improve the performance of SSFPC on most of the datasets. Once an appropriate metric is decided for a data space, we can apply it into SSFPC without any difﬁculty.
+B. Facial Expression Clustering
+This subsection experiments the facial expression clustering on Japanese female facial expression (JAFFE) database [23]. Data JAFFE includes two datasets of images from ten Japanese female expressers, whose averaged semantic ratings on six facial expressions are offered by 60 Japanese viewers. The six basic facial expressions are “Happy,” “Surprise,” “Sad,” “Angry,” “Disgust,” and “Fear”. In this database, the ﬁrst dataset consists of 213 images and the second dataset consists of 181 images by excluding the “fear” attributes and images. We hired the second dataset by offering ﬁve groups of fuzzy pairwise constraints, where these groups in sequence contain 0.2m, 0.4m, 0.6m, 0.8m,
+
+and m-fuzzy pairwise constraints. These fuzzy pairwise constraints were offered following the (6). Then, we implemented these clustering models on the dataset with these groups of fuzzy pairwise constraints and reported the results in Table III, where the cluster number is set to 5. Another criterion accuracy (Account) [53] and the classical kmeans [54] were added in the experiment to reveal the overall clustering performance. Table III shows that the clustering performance is improved with the increasing number of fuzzy pairwise constraints for all these semisupervised models, which implies that the pairwise constraints are very useful to facial expression clustering problems. Thereinto, the largest improvement that arises in our SSFPC indicates its outperformance with fuzzy pairwise constraints. Moreover, the highest criteria of SSFPC reveals that it discovers more facial expressions than other models.
+For facial expression clustering problem, the challenge is to discover more expressions in an image if it contains more than one expressions as shown in Fig. 1. Due to fuzzy clustering obtains fuzzy vectors regarded as ratings on the clusters, we focus on FCM, PCCA, and SSFPC to evaluate the ability of discovering more expressions in the following. We propose two vector-level criteria based on ranking: 1) Minimal average hamming distance (MAHD) and 2) largest index assignment (LIA). After ranking two fuzzy vectors, their Hamming distance [55] can be calculated easily if their cluster indices are aligned. The ground truth cluster indices of JAFFE have been given, but the cluster indices of fuzzy matrix are not known by fuzzy clustering. Thus, we deﬁne the MAHD as the minimum of the average Hamming distance between the ground truth matrix and a fuzzy matrix for all possible cluster indices. Table IV reported the MAHDs of the three fuzzy clustering models on the JAFFE with ﬁve groups of fuzzy pairwise constraints, where the smallest values were bold. Compared with FCM and PCCA, the MAHDs of our SSFPC are the smallest ones on the ﬁve groups, which implies that the fuzzy matrix by SSFPC is more similar to the ground truth. Though more fuzzy pairwise constraints greatly improve the hard clustering results in Table III, the improvements in Table IV are inapparent. Therefore, we infer from Table IV that our SSFPC may discover more expressions
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+3808
+
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+TABLE IV EXAMPLES OF THE FUZZY VECTORS BY THE FUZZY CLUSTERING MODELS ON JAFFE
+
+than FCM and PCCA, but the number of discovered expressions would be limited.
+The criterion MAHD has several shortcomings, e.g., it cannot detail each cluster, the calculation only suits for the same size of fuzzy matrices, and the permutation number is going to be huge for a slightly larger k. Hence, we hire another LIA to evaluate the contributions of fuzzy memberships based on the hard clustering criterion. Given a hard clustering criterion such as Acc., LIA obtains k∗ results by labeling the samples with the 1st, 2nd, . . ., or k∗th largest indices for all the fuzzy vectors in the ground truth and prediction, respectively. For instance, the criteria based on (1) are actually based on the 1st LIA. The coherence reﬂexes the ability of discovering more expressions. Fig. 4 reported the LIAbased Account of FCM, PCCA, and our SSFPC on the JAFFE database with the ﬁve groups of fuzzy pairwise constraints. From Fig. 4, we observe that the 1st LIA-based Account of PCCA is lower than FCM and SSFPC, which is consistent with the results in Table III. Moreover, the lower overall LIA-based Acc. of
+
+PCCA implies that the recognition ability of PCCA on the facial expressions is lower than FCM and our SSFPC. Compared with FCM, the overall LIA-based Acc. of our SSFPC is more higher, which is consistent with MAHD. By comparing the coherence among the LIA-base Acc. in Fig. 4, we observe that: 1) The coherence of PCCA is disordered; 2) the 1st and 2nd LIA-based Acc.’s of FCM are coherent, with the 3rd slightly lower LIAbased Acc.; 3) The phenomenon of FCM appears in SSFPC. Consequently, it is inferred that for the ability of discovering more expressions in an image, FCM and our SSFPC can discover the 2nd expression with the ability the same as discovering the 1st one, and they may discover the 3rd expression in an image but the ability is not as strong as previous. For PCCA, its ability is obviously weaker than FCM and SSFPC.
+To further reveal the differences among these fuzzy clustering models, Table V illustrated some examples of the results by the three fuzzy clustering models on JAFFE with the fuzzy pairwise constraints of group (v). Since the facial expression labels are
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: SEMISUPERVISED FUZZY CLUSTERING WITH FUZZY PAIRWISE CONSTRAINTS
+
+3809
+
+Fig. 4. LIA-based Acc. of the fuzzy clustering models on JAFFE with the ﬁve groups of fuzzy pairwise constraints.
+
+TABLE V MINIMAL AVERAGE HAMMING DISTANCE (MAHD) ON JAFFE
+unknown in these models, we selected several representatives and mixtures of the clusters in Table V, where the number along with the facial expression is the largest fuzzy membership in the fuzzy vector. Apparently, the differences of fuzzy memberships in FCM are tiny, and these in PCCA are disordered, supporting the conclusion from Fig. 4. From the images in Table V, we deem that the representatives of our SSFPC on “Happy,” “Surprise,” and “Disgust” are much accurate. For the images with more expressions, the distinctiveness of SSFPC is superior to FCM and PCCA obviously. Therefore, our SSFPC outperforms FCM and PCCA on JAFFE from various perspectives.
+V. CONCLUSION The fuzzy pairwise constraint has been proposed in fuzzy clustering, and an SSFPC has also been proposed to utilize the fuzzy pairwise constraints. The fuzzy structure of cluster prototypes and piecewise cost function of fuzzy pairwise constraint allow our SSFPC to present the fuzzy characteristics precisely. The nonconvex optimization problem in SSFPC has been decomposed into several CQPPs and IQPPs by the MEM algorithm, where the global solutions to these CQPPs have been given explicitly or solved by some CQPP solvers, and the stationary points to these IQPPs have been obtained by a proposed DBCD algorithm efﬁciently. Under certain conditions,
+
+e.g., binary clustering problem with disjoint fuzzy pairwise constraints, it has been proved that the global solutions to these IQPPs can be obtained by the DBCD algorithm. Moreover, SSFPC has been extended into various metric spaces to suit for different applications. Experimental results on the benchmark datasets and facial expression clustering problem have indicated that our SSFPC outperforms many other state-of-the-art clustering models. For practical convenience, the corresponding SSFPC codes have been uploaded upon.6 Future work includes applying fuzzy pairwise constraint for other fuzzy models, designing speciﬁc semisupervised clustering [56], [57] to suit for various applications, and hiring probability for fuzzy pairwise constraints to improve the reliability.
+A. Proof of Theorem III.1
+Proof: From the procedure of MEM, it is obvious that the cluster number may reduce to 1 at most. Suppose the ﬁnal cluster number is k∗. Then, once the cluster number reduces to k∗, the objective of (5) in neither the expectation step nor maximization step increases in iteration. Since the objective in (5) has a lower bound based on its constraints, the series of the objectives of problem (5) obtained by MEM converges.
+B. Proof of Theorem III.2
+Proof: From the constraint Au = 1r in problem (16), the equation u = uˆ + Bv always holds, where the columns of B build the fundamental system of solutions to the system of homogeneous linear equations Au = 0r. Substituting the above equation into problem (16), it is converted to (20). Therefore, the solutions to problems (16) and (20) satisfy (22).
+6[Online]. Available: https://github.com/gamer1882/FDC
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+3810
+
+IEEE TRANSACTIONS ON FUZZY SYSTEMS, VOL. 30, NO. 9, SEPTEMBER 2022
+
+C. Proof of Lemma III.2
+Proof: Suppose B DBv = λv, where λ < 0 is an eigenvalue and v is the corresponding eigenvector. We have v B DBv = λ, i.e, (Bv) D(Bv) < 0. Thus, D is indeﬁnite or negative semideﬁnite alternatively. From Lemma III.1, D is indeﬁnite.
+
+D. Proof of Theorem III.3
+
+Proof: From the constraints of problem (16), 0rk ≤ u ≤ 1rk
+holds. Thus, the objective 12 u Du has a lower bound. The CQPPs (24) are always solved in the steps of DBCD, which
+
+guarantees that the objective does not increase in each step.
+
+Combining the above facts, the series of the objective values
+
+{
+
+1 2
+
+u(t)Du(t)|t
+
+=
+
+1,
+
+2,
+
+.
+
+.
+
+.}
+
+converges.
+
+Since
+
+the
+
+block
+
+subprob-
+
+lem (24) is strictly convex, its unique global solution can al-
+
+ways be obtained. Thus, any accumulation points of the block
+
+coordinate descent algorithm (i.e., DBCD) are the stationary
+
+points [58], [59].
+
+E. Proof of Corollary III.1 Proof: Note that for k = r = 2, problem (20) becomes
+
+min 1 v B DBv + uˆ DBv v2
+
+s.t. 02 ≤ v ≤ 12.
+
+(30)
+
+From the proof of Theorem III.2, we just need to prove that
+
+there is a vertex v(0) to problem (30), such that the equivalence of DBCD with v(0) converges to the global solution to problem
+
+(30).
+
+Suppose v∗ = (v1∗, v2∗) is the global solution to problem (30),
+
+where
+
+v1∗ ,
+
+v∗
+2
+
+∈
+
+R.
+
+Then,
+
+we
+
+will
+
+show
+
+that
+
+v∗
+1
+
+is
+
+0
+
+or
+
+1,
+
+or
+
+v∗
+2
+
+is
+
+0
+
+or
+
+1
+
+alternatively.
+
+Suppose
+
+0
+
+<
+
+v∗
+1
+
+<
+
+1
+
+and
+
+0
+
+<
+
+v∗
+2
+
+<
+
+1.
+
+Since
+
+B DB is indeﬁnite, there is always a feasible descent direction
+
+for all feasible interior points, which is contradict with the fact
+
+that
+
+v∗
+
+is
+
+the
+
+global
+
+solution.
+
+Thus,
+
+0
+
+<
+
+v∗
+1
+
+<
+
+1
+
+and
+
+0
+
+<
+
+v∗
+2
+
+<
+
+1 cannot hold simultaneously. Without loss of generality, we
+
+suppose
+
+v∗
+1
+
+is
+
+0
+
+or
+
+1.
+
+Note that the equivalence of DBCD becomes the classical co-
+
+ordinate
+
+descent
+
+algorithm.
+
+If
+
+v∗
+2
+
+=
+
+0
+
+or
+
+v∗
+2
+
+=
+
+1,
+
+the
+
+conclusion
+
+of corollary holds obviously. Without loss of generality, suppose
+
+v∗ = (0, v2∗)
+
+,
+
+where
+
+0
+
+<
+
+v∗
+2
+
+<
+
+1.
+
+Then,
+
+we
+
+will
+
+show
+
+that
+
+the
+
+classical coordinate descent algorithm with initial vertex v(0)
+
+which equals (0, 0) or (0, 1) converges to v∗. For v∗, there
+
+is always an infeasible descent direction (d1, d2) , which is
+
+the eigenvector of B DB corresponding to the negative eigen-
+
+value, toward the negative inﬁnity. We have d1 < 0 obviously.
+
+Moreover, d2 = 0 holds; otherwise, the direction (d1, 0) (i.e.,
+
+the coordinate direction) is toward the negative inﬁnity, which
+
+is contradict with the fact that for any ﬁxed v2 problem (30)
+
+w.r.t. v1 is a CQPP. Therefore, there is an infeasible point v
+
+equals (v1, 0) or (v1, 1) with v1 < 0, which decreases the objective of (30) from v∗. Then, the objective at v is less than
+
+it at corresponding (0, 0) or (0, 1) , which implies that 0 is
+
+global solution to problem (30) w.r.t. v1 in the coordinate descent
+
+algorithm. In the next step, the coordinate descent algorithm obtain the global solution (0, v2∗) from CQPP (30) w.r.t. v2.
+REFERENCES
+[1] M. Anderberg, Cluster Analysis for Applications. New York, NY, USA: Academic Press, 1973.
+[2] H. Liu, Z. Tao, and Y. Fu, “Partition level constrained clustering,” IEEE Trans. Pattern Anal. Mach. Intell., vol. 40, no. 10, pp. 2469–2483, Oct. 2018.
+[3] J. Mei, “Semisupervised fuzzy clustering with partition information of subsets,” IEEE Trans. Fuzzy Syst., vol. 27, no. 9, pp. 1726–1737, Sep. 2019.
+[4] P. Mishro, S. Agrawal, R. Panda, and A. Abraham, “A novel type-2 fuzzy cmeans clustering for brain MR image segmentation,” IEEE Trans. Cybern., vol. 51, no. 8, pp. 3901–3912, Aug. 2021.
+[5] J. Shen, X. Dong, J. Peng, X. Jin, L. Shao, and F. Porikli, “Submodular function optimization for motion clustering and image segmentation,” IEEE Trans. Neural Netw. Learn. Syst., vol. 30, no. 9, pp. 2637–2649, Sep. 2019.
+[6] J. Bezdek, R. Ehrlich, and W. Full, “FCM: The fuzzy c-means clustering algorithm,” Comput. Geosci., vol. 10, no. 2/3, pp. 191–203, 1984.
+[7] H. Huang, Y. Chuang, and C. Chen, “Multiple kernel fuzzy clustering,” IEEE Trans. Fuzzy Syst., vol. 20, no. 1, pp. 120–134, Feb. 2012.
+[8] J. Nayak, B. Naik, and H. Behera, “Fuzzy C-means (FCM) clustering algorithm: A decade review from 2000 to 2014,” in Proc. Comput. Intell. Data Mining, Delhi, India, 2015, pp. 133–149.
+[9] A. Uçar, Y. Demir, and C. Güzelis¸, “A new facial expression recognition based on curvelet transform and online sequential extreme learning machine initialized with spherical clustering,” Neural Comput. Appl., vol. 27, no. 1, pp. 131–142, 2016.
+[10] T. Vandal, D. McDuff, and R. E. Kaliouby, “Event detection: Ultra large-scale clustering of facial expressions,” in Proc. 11th IEEE Int. Conf. Workshops Autom. Face Gesture Recognit., 2015, pp. 1–8.
+[11] A. Pour, A. Taheri, M. Alemi, and A. Meghdari, “Human-robot facial expression reciprocal interaction platform: Case studies on children with autism,” Int. J. Social Robot., vol. 10, no. 2, pp. 179–198, 2018.
+[12] Z. Hu, Y. Bodyanskiy, N. Kulishova, and O. Tyshchenko, “A multidimensional extended neo-fuzzy neuron for facial expression recognition,” Int.J. Intell. Syst. Appl., vol. 9, no. 9, pp. 29–36, 2017.
+[13] A. Hernandez-Matamoros, A. Bonarini, E. Escamilla-Hernandez, M. Nakano-Miyatake, and H. Perez-Meana, “Facial expression recognition with automatic segmentation of face regions using a fuzzy based classiﬁcation approach,” Knowl.-Based Syst., vol. 110, pp. 1–14, 2016.
+[14] L. Chen, C. Chen, and M. Lu, “A multiple-kernel fuzzy C-means algorithm for image segmentation,” IEEE Trans. Syst., Man, Cybern., B. (Cybern.), vol. 41, no. 5, pp. 1263–1274, Oct. 2011.
+[15] Y. Yan, L. Chen, and W. Tjhi, “Fuzzy semi-supervised co-clustering for text documents,” Fuzzy Sets Syst., vol. 215, pp. 74–89, 2013.
+[16] N. Grira, M. Crucianu, and N. Boujemaa, “Semi-supervised fuzzy clustering with pairwise-constrained competitive agglomeration,” in Proc. 14th IEEE Int. Conf. Fuzzy Syst., 2005, pp. 867–872.
+[17] P. Massimiliano and P. Marcello, “Dominant sets and pairwise clustering,” IEEE Trans. Pattern Anal. Mach. Intell., vol. 29, no. 1, pp. 167–172, Jan. 2007.
+[18] Y. Ren, X. Hu, K. Shi, G. Yu, D. Yao, and Z. Xu, “Semi-supervised DenPeak clustering with pairwise constraints,” in Proc. Paciﬁc Rim Int. Conf. Artif. Intell., 2018, pp. 837–850.
+[19] H. Frigui and C. Hwang, “Fuzzy clustering and aggregation of relational data with instance-level constraints,” IEEE Trans. Fuzzy Syst., vol. 16, no. 6, pp. 1565–1581, Dec. 2008.
+[20] J. Mei, H. Lv, J. Cao, and W. Gong, “Pairwise constrained fuzzy clustering: Relation, comparison and parallelization,” Int. J. Fuzzy Syst., vol. 21, no. 6, pp. 1938–1949, 2019.
+[21] F. de Melo and F. de Carvalho, “Semi-supervised fuzzy c-medoids clustering algorithm with multiple prototype representation,” in Proc. IEEE Int. Conf. Fuzzy Syst., 2013, pp. 1–7.
+[22] N. Grira, M. Crucianu, and N. Boujemaa, “Active semi-supervised fuzzy clustering,” Pattern Recognit., vol. 41, no. 5, pp. 1834–1844, 2008.
+[23] M. Lyons, S. Akamatsu, M. Kamachi, and J. Gyoba, “Coding facial expressions with Gabor wavelets,” in Proc. 3rd IEEE Int. Conf. Autom. Face Gesture Recognit., 1998, pp. 200–205.
+[24] H. Martin, T. Alexander, and K. Anil, “Model-based clustering with probabilistic constraints,” in Proc. SIAM Int. Conf. Data Mining, 2005, pp. 641–645.
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+WANG et al.: SEMISUPERVISED FUZZY CLUSTERING WITH FUZZY PAIRWISE CONSTRAINTS
+
+3811
+
+[25] I. Diaz-Valenzuela, M. Martin-Bautista, and V. Maria-Amparo, “A fuzzy semisupervised clustering method: Application to the classiﬁcation of scientiﬁc publications,” in Proc. Int. Conf. Inf. Process. Manage. Uncertainty Knowl.-Based Syst., 2014, pp. 179–188.
+[26] I. Diaz-Valenzuela, M. A. Vila, and M. J. Martin-Bautista, “On the use of fuzzy constraints in semisupervised clustering,” IEEE Trans. Fuzzy Syst., vol. 24, no. 4, pp. 992–999, Aug. 2016.
+[27] M. H. C. Law, A. Topchy, and A. K. Jain, “Clustering with soft and group constraints,” in Proc. Joint IAPR Int. Workshops Statistical Techn. Pattern Recognit. Struct. Syntactic Pattern Recognit., 2004, pp. 662–670.
+[28] L. Michele and W. Martin, “Clustering by soft-constraint afﬁnity propagation: Applications to gene-expression data,” Bioinformatics, vol. 23, no. 20, pp. 2708–2715, 2007.
+[29] G. Valerio, R. Andrea, and T. Franco, “Survey on using constraints in data mining,” Data Mining Knowl. Discovery, vol. 31, no. 2, pp. 424–464, 2017.
+[30] P. Pardalos, “Global optimization algorithms for linearly constrained indeﬁnite quadratic problems,” Comput. Math. Appl., vol. 21, no. 6/7, pp. 87–97, 1991.
+[31] W. Huyer and A. Neumaier, “MINQ8: General deﬁnite and bound constrained indeﬁnite quadratic programming,” Comput. Optim. Appl., vol. 69, no. 2, pp. 351–381, 2018.
+[32] N. Mammone, C. Ieracitano, H. Adeli, A. Bramanti, and F. Morabito, “Permutation Jaccard distance-based hierarchical clustering to estimate EEG network density modiﬁcations in MCI subjects,” IEEE Trans. Neural Netw. Learn. Syst., vol. 29, no. 10, pp. 5122–5135, Oct. 2018.
+[33] Z. Tao, H. Liu, H. Fu, and Y. Fu, “Image cosegmentation via saliencyguided constrained clustering with cosine similarity,” in Proc. 31st AAAI Conf. Artif. Intell., vol. 31, no. 1, 2017, pp. 4285–4291.
+[34] W. Cheng, X. Zhu, X. Chen, M. Li, J. Lu, and P. Li, “Manhattan distance-based adaptive 3D transform-domain collaborative ﬁltering for laser speckle imaging of blood ﬂow,” IEEE Trans. Med. Imag., vol. 38, no. 7, pp. 1726–1735, Jul. 2019.
+[35] R. Ramya and T. Sasikala, “An efﬁcient Minkowski distance-based matching with Merkle hash tree authentication for biometric recognition in cloud computing,” Soft Comput., vol. 23, no. 24, pp. 13423–13431, 2019.
+[36] B. Schölkopf and A. Smola, Learning With Kernels. Cambridge: MA, USA: MIT Press, 2002.
+[37] T. Moon, “The expectation-maximization algorithm,” IEEE Signal Process. Mag., vol. 13, no. 6, pp. 47–60, Nov. 1996.
+[38] N. Grira, M. Crucianu, and N. Boujemaa, “Fuzzy clustering with pairwise constraints for knowledge-driven image categorisation,” IEE Proc.-Vision, Image Signal Process., vol. 153, no. 3, pp. 299–304, 2006.
+[39] N. Wang, X. Li, and X. Luo, “Semi-supervised kernel-based fuzzy c-means with pairwise constraints,” in Proc. IEEE Int. Joint Conf. Neural Netw., 2008, pp. 1098–1102.
+[40] Y. Kanzawa, Y. Endo, and S. Miyamoto, “Semi-supervised fuzzy c-means algorithm by revising dissimilarity between data,” J. Adv. Comput. Intell. Intell. Inform., vol. 15, no. 1, pp. 95–101, 2011.
+[41] X. Yin, T. Shu, and Q. Huang, “Semi-supervised fuzzy clustering with metric learning and entropy regularization,” Knowl.-Based Syst., vol. 35, pp. 304–311, 2012.
+
+[42] D. Lai, J. Garibaldi, and J. Reps, “Investigating distance metric learning in semi-supervised fuzzy c-means clustering,” in Proc. IEEE Int. Conf. Fuzzy Syst., 2014, pp. 1817–1824.
+[43] S. Boyd, S. Boyd, and L. Vandenberghe, Convex Optimization. Cambridge, U.K.: Cambridge Univ. Press, 2004.
+[44] R. Mueller, “A method for solving the indeﬁnite quadratic programming problem,” Manage. Sci., vol. 16, no. 5, pp. 333–339, 1970.
+[45] S. Vavasis, “Approximation algorithms for indeﬁnite quadratic programming,” Math. Program., vol. 57, no. 1, pp. 279–311, 1992.
+[46] P. Absil and A. Tits, “Newton-KKT interior-point methods for indeﬁnite quadratic programming,” Comput. Optim. Appl., vol. 36, no. 1, pp. 5–41, 2007.
+[47] C. Wang, Y. Deng, and P. Shen, “A global optimization algorithm for solving indeﬁnite quadratic programming,” Eng. Lett., vol. 28, no. 4, pp. 1058–1062, 2020.
+[48] L. Hubert and P. Arabie, “Comparing partitions,” J. Classiﬁcation, vol. 2, no. 1, pp. 193–218, 1985.
+[49] P. A. Estevez, M. Tesmer, C. A. Perez, and J. M. Zurada, “Normalized mutual information feature selection,” IEEE Trans. Neural Netw., vol. 20, no. 2, pp. 189–201, Feb. 2009.
+[50] B. Kulis, “Metric learning: A survey,” Found. Trends Mach. Learn., vol. 5, no. 4, pp. 287–364, 2012.
+[51] C. Hsieh, L. Yang, Y. Cui, T. Lin, S. Belongie, and D. Estrin, “Collaborative metric learning,” in Proc. 26th Int. Conf. World Wide Web, 2017, pp. 193–201.
+[52] R. Khemchandani, Jayadeva, and S. Chandra, “Optimal kernel selection in twin support vector machines,” Optim. Lett., vol. 3, pp. 77–88, 2009.
+[53] Z. Wang, Y. Shao, L. Bai, and N. Deng, “Twin support vector machine for clustering,” IEEE Trans. Neural Netw. Learn. Syst., vol. 26, no. 10, pp. 2583–2588, Oct. 2015.
+[54] X. Huang, Y. Ye, and H. Zhang, “Extensions of kmeans-type algorithms: A new clustering framework by integrating intracluster compactness and intercluster separation,” IEEE Trans. Neural Netw. Learn. Syst., vol. 25, no. 8, pp. 1433–1446, Aug. 2014.
+[55] K. Pang and A. El Gamal, “Communication complexity of computing the hamming distance,” SIAM J. Comput., vol. 15, no. 4, pp. 932–947, 1986.
+[56] Z. Wang, Y. Shao, L. Bai, C. Li, and L. Liu, “General plane-based clustering with distribution loss,” IEEE Trans. Neural Netw. Learn. Syst., vol. 32, no. 9, pp. 3880–3893, Sep. 2021, doi: 10.1109/TNNLS.2020.3016078.
+[57] L. Bai, Y. Shao, Z. Wang, W. Chen, and N. Deng, “Multiple ﬂat projections for cross-manifold clustering,” IEEE Trans. Cybern., early access, 2021, pp. 1–15, doi: 10.1109/TCYB.2021.3050487.
+[58] E. Song, Q. Shi, and Y. Zhu, “Acceleration of block coordinate descent method achieves the o(1/k2˜) rate of convergence for a block coordinate strong convexity function (in chinese),” Scientia Sinica Mathematica, vol. 46, no. 10, pp. 1499–1506, 2016.
+[59] D. Bertsekas, Nonlinear Programming, Second Printing. Belmont, MA, USA: Athena Scientiﬁc, 2003.
+
+Authorized licensed use limited to: ZheJiang Sci-Tech University. Downloaded on August 27,2026 at 13:47:41 UTC from IEEE Xplore. Restrictions apply.
+
+

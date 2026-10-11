@@ -1,0 +1,439 @@
+第33卷 第3期 计算机技术与发展 Vol. 33 No. 3
+2023年3月 COMPUTER TECHNOLOGY AND DEVELOPMENT Mar. 2023
+融合FCM和TFNs的协同过滤推荐算法徐新卫1,陶 飞1,邓佳佳1,周 俊2(1.安徽工业大学管理科学与工程学院,安徽马鞍山243032;
+2.广东科技学院,广东东莞523073)
+摘 要:针对推荐算法中的稀疏性问题和传统推荐系统中使用离散评分,用户对物品的喜好程度只能通过5个等级来选
+取,用户对物品的偏好程度是模糊的且5等级评分不能合理表达用户的喜好,提出一种结合模糊C均值( Fuzzy C-Means,
+FCM)和梯形模糊数( Trapezoidal Fuzzy Numbers,TFNs)的协同过滤算法。首先,在传统的模糊C均值算法上融合遗传算
+法,将遗传算法的搜索结果作为模糊C均值的初始聚类中心,以其克服传统FCM搜索极易陷入局部最小值点的缺陷;然
+后,引入梯形模糊相似度模型,将离散评分数转化为梯形模糊数以此来计算用户相似度,从而利用模糊分数预测估计进行
+推荐;最后,选取MAE和RMSE作为评估指标,在Movielens数据集中进行实验,实验结果显示所提算法在与其余四种算法
+对比中预测误差更低,精确度更高,有效提高了推荐质量,也证明了该算法对于稀疏性问题有一定程度上的缓解,表明了
+该算法的有效性。
+关键词:协同过滤;梯形模糊数;模糊C均值;遗传算法;离散评分中图分类号:TP391. 3 文献标识码:A
+doi:10. 3969 / j. issn. 1673-629X. 2023. 03. 024
+文章编号:1673 - 629 X( 2023 ) 03 - 0161 - 06Collaborative Filtering Recommendation Algorithm Incorporating
+FCM and TFNs
+XU Xin-wei1 ,TAO Fei1 ,DENG Jia-jia1 ,ZHOU Jun2(1. School of Management Science and Engineering,Anhui University of Technology,Maanshan 243032,China;
+2. Guangdong Institute of Science and Technology,Dongguan 523073,China)
+Abstract:In view of the sparsity problem in recommendation algorithms and the discrete ratings used in traditional recommendation
+systems,the user' s preference for items only be selected by 5 levels,the fuzzy user's preference for items and the 5 -level rating cannot
+reasonably express the user' s preference,a collaborative filtering algorithm combining Fuzzy C-Means ( FCM) and Trapezoidal Fuzzy
+Numbers ( TFNs) is proposed. Firstly,the genetic algorithm is integrated with the traditional fuzzy c-means algorithm,and the search
+result of the genetic algorithm is used as the initial clustering center of the fuzzy c-means to overcome the defect that the traditional FCM
+search is quite easy to fall into the local minima. Then the trapezoidal fuzzy similarity model is introduced,and the discrete score numbers
+are transformed into trapezoidal fuzzy numbers to calculate the user similarity,so that the fuzzy score prediction estimation can be used for
+recommendation. Finally,MAE and RMSE are selected as evaluation indexes and experiments are conducted in Movielens dataset. It is
+showed that the proposed algorithm has lower prediction error and higher accuracy in comparison with the remaining four algorithms,
+which effectively improves the recommendation quality and also proves that the algorithm has a certain degree of alleviation for the
+sparsity problem,indicating its effectiveness.
+Key words:collaborative filtering;trapezoidal fuzzy number;fuzzy C-means;genetic algorithm;discrete scoring0 引 言伴随信息技术和互联网的高速发展,数据量表现
+出几何级稳定增长。而推荐系统( Recommendation
+Systems,RSs)是有效的信息处理手段之一。为了解决
+信息过载的问题,RSs主要采用信息过滤的技术,通过
+用户的历史行为信息提取出用户偏好,减少用户查找
+信息的时间,并将用户与商品相互联。协同过滤( Col-
+laborative Filtering,CF)是推荐最成功的技术之一,根
+收稿日期:2022-05-18 修回日期:2022-09-22
+基金项目:安徽省省级教学研究项目(2019jyxm0145)
+作者简介:徐新卫(1971-) ,男,副教授,博士,研究方向为智能计算、数据挖掘;通信作者:陶 飞(1996-) ,男,硕士研究生,研究方向为数据挖
+掘、机器学习、隐私保护。·162· 计算机技术与发展 第33卷据相似度指数发现与当前用户相似的用户,然后利用
+这些相似用户对产品进行评估。基于用户的CF算法
+( User-Based CF,UBCF)和基于项目的CF算法( Item
+- Based CF, IBCF )是协同过滤推荐算法
+( Recommendation Algorithms,RAs)的两种基本形式。
+算法主要是研究用户行为定位相似的用户。IBCF是
+利用项目间的相似性来提出与附近用户感兴趣的事物
+相似的东西。CF算法可以帮助客户找到合适的物品
+或服务,但它们被诸如冷启动、数据稀少和可扩展性等
+问题所困扰。
+近年来,学者们利用聚类方法[1]来解决CF算法
+中数据系数以及推荐精度低等问题。贾俊杰等[2]利用
+了信任的传递性,先计算出显隐式信任获得综合直接
+信任值,然后再获得Jaccard全局信任值,最后将综合
+直接信任值和Jaccard全局信任值结合得到综合信任
+值,将其融入FCM中实现推荐;Tran C等[3]提出了一
+种新的基于聚类的CF方法,仅仅使用激励/惩罚用户
+模型( Incentivized / Penalized User,IPU) ,只由用户给出
+评级来对用户进行聚类,无需进一步的事先信息从而
+进行推荐;张建华等[4]针对知识RAs的语义缺失和精
+准性低的问题,提出一种基于改进的LDA-FCM的知
+识RAs,利用LDA模型挖掘用户知识模型并用FCM
+聚类用户,再结合JS散度代替欧氏距离以提高推荐精
+度;王永贵等[5]提出一种优化聚类的CF算法,根据评
+分差异对原始评分矩阵进行预处理得到用户项目评分
+矩阵及项目类型矩阵,构建用户类型偏好矩阵,缓解了
+数据的稀疏性;赵学健等[6]利用遗传算法( Genetic Al-
+gorithm,GA)改进FCM,同时考虑用户特征偏好矩阵
+和用户项目评分矩阵计算相似度实现推荐;郑鑫等[7]
+采用FCM筛选最近邻居,结合奇异值分将用户评分分
+解为不同特征以实现推荐。
+通过上述分析,可以发现利用聚类方法对用户进
+行聚类时,一方面容易受到异常值和噪声的干扰。另
+一方面,FCM算法的结果并不是很稳定,因为它的起
+始质心是随意创建的。需要注意的是,基于协同过滤
+推荐算法( Collaborative Filtering Recommendation Al-
+gorithms, CFRAs )进行相似性度量是至关重要的。
+UBCF和IBCF算法中最常用的相似度量是余弦
+( Cosine)、余弦修正( Adjusted Cosine,AC)和皮尔逊相
+关系数( Pearson Correlation Coefficient,PCC)。但在用
+户行为复杂的情况下,PCC、AC和余弦作为相似度度
+量的基于CFRAs的性能上无法得到保证。因此,学者
+们在设计更全面的相似度方面做出了巨大的努力,将
+用户评分的信息量及模糊性考虑其中以计算相似度,
+提升推荐精度。
+例如,王森等[8]利用梯形模糊数( TrapezoidalFuzzy Numbers,TFNs)表示评分与满意度的映射关
+系,融合基于模糊评分的项目相似性和基于标签隶属
+度的相似性形成项目相似度,从而进行推荐; Zhang
+等[9]为确定用户的相似度,根据三角模糊数的相似度,
+将三角形面积和中点用来表达用户对项目的整体评
+价,从而使相似度计算的准确性得到提高;Yager[10]针
+对用户分数潜在的信息,采用模糊理论中的模糊子集
+并结合PCC算出评分的相似度,其后对两部分加权获
+得最终相似度;吴毅涛[11]考虑多数推荐系统使用离散
+评分,用户只能在评分级别{1,2,3,4,5}中选择相应
+的分数,提出了梯形模糊评分模型,将评分模糊化并考
+虑评分信息量和模糊性,用梯形模糊数来计算相似度
+以提高推荐质量,并证明模糊相似度( Fuzzy
+Similarity,FS)是余弦在模糊域上的扩展。
+因此,该文提出了一种融合FCM和TFNs的协同
+过滤推荐算法( Genetic Algorithm Improved Fuzzy C -
+means And Trapezoidal Fuzzy Number Collaborative
+Filtering Algorithm,GAFCM-TFNCF)。首先,使FCM
+与GA相结合,然后,对用户进行聚类,最后,根据FS
+将离散分数转换成梯形模糊数用来计算用户相似度,
+从而利用模糊分数预测评分。此方法的优点如下:
+(1)将GA的搜索结果作为FCM的初始聚类中
+心,可以有效避免FCM在迭代过程中陷入局部最小
+值点;
+(2)现有RSs下的评分只能片面地表达用户的偏
+好,该文通过引入TFNs将评分模糊化,从而计算用户
+的相似度,这样更能合理表达用户的观点。
+1 相关工作1. 1 FCM算法在实际应用中,基于FCM方法是使用最广泛的模
+糊聚类技术。它允许数据项属于隶属度从0到1不等
+的集合,通过优化目标函数来定义样本点的类别,以获
+得每个样本点对所有类中心的隶属度,从而达到样本
+数据自动分类的目的。基本如公式(1)所示:
+mcminJFCM( H,V) = Σ Σ ( μik ) M ‖uk - vi ‖2 (1)k=1 i=1其中, m是给定数据集中的数据向量总数; c为聚类数
+目; V = { v1 ,v2 ,…,vi ,…,vc}表示聚类中心; μik( μik ∈
+[0,1] )是用户uk对聚类中心vi( i = 1,2,…,c)的隶属
+度; Hm×c = ( μ ik)是一个模糊分区矩阵,也为聚类的结
+果; M是JFCM( H,V)中的一个参数,一般M ∈ [1. 25,
+2. 5] ,通常称为模糊器,用来控制成员等级影响的
+实数。
+聚类中心vi和隶属度矩阵H根据以下的公式来
+计算,使得JFCM( H,V)最小化。第3期 徐新卫等:融合FCM和TFNs的协同过滤推荐算法 ·163·dik = ‖uk - vi ‖2 (2)
+μ= 1
+Σ ( ik )ik c d M2-1 (3)
+j = 1 djk
+mΣ ( μ ik ) M ukvi = k = 1m (4)Σ ( μ ik ) Mk=1模糊集是一类具有连续成员级别的项目集合,由
+一个隶属函数μ ᢻA定义,该函数为每个对象分配一个0
+到1之间的隶属度。根据Ahmad S[13]给出的定义,梯
+形模糊数为Aᢻ= ( a1 ,a2 ,a3 ,a4 ;wA ) , Aᢻ是R上的模糊
+集, a1、a2、a3、a4表示梯形模糊数Aᢻ的各个顶点的横
+坐标值, a1 ≤ a2 ≤ a3 ≤ a4 , wA为模糊数的最大隶属
+度, 0 < wA ≤ 1,隶属函数如式(7)所示:
+■|w x - a1
+||w
+1 ,a2 )21A (7)
+| a4 - x
+| A a - a , x ∈ [a
+μ (x) =■A, x ∈ [a
+2 ,a3 ]3|wA a , x ∈ ( a
+| 4 -a
+3 ,a4 ]■|0, 其它假设存在bᢶ= ( b1 ,b2 ,b3 ,b4 )和ᢶc = ( c1 ,c2 ,c3 ,c4 )
+两个梯形模糊数,这两个模糊数定义如下式所示:
+bᢶ⊕ ᢶc = ( b1 + c1 ,b2 + c2 ,b3 + c3 ,b4 + c4 ) (8)
+bᢶ⊖ ᢶc = ( b1 - c4 ,b2 - c3 ,b3 - c2 ,b4 - c1 ) (9)
+bᢶ⊗ ᢶc = ( b1 *c1 ,b2 *c2 ,b3 *c3 ,b4 *c4 ) (10)
+bᢶ⨸ᢶc = ( b1 / c4 ,b2 / c3 ,b3 / c2 ,b4 / c1 ) (11)
+该文将利用上述公式改进目前CFRAs中模糊相
+似度的计算,从而进行评分预测。cΣμ ik = 1 (5)i=1式(2)中, dik( uk ,vi )是数据对象uk和簇vi之间的距离
+值,欧几里得度量来衡量距离值是常用方法之一。
+FCM算法旨在将方程中的准则函数最小化,距离值dik
+是通过迭代更新式(3)中的聚类中心vi和式(4)中的
+隶属度μ ik ,迭代更新重复过程,直到达到条件即
+终止。
+FCM算法流程可以如下表示[6] :(1)输入聚类数目c,模糊器M和距离函数‖·‖;
+(2)初始化聚类中心vi( i = 1,2,…,c) ;
+(3)根据公式(2)、(3 )和(5 ) ,计算uki( k = 1,2,
+…,m;i = 1,2,…,c) ;
+(4 )利用公式( 4 )计算聚类中心v1i ( i = 1,2,
+…,c) ;
+(5)如果满足1max( ‖v0i - v1i ‖ / ‖v1i ‖) ≤ ε ,则
+进行下一步;否则,让v0i = v1i ( i = 1,2,…,c)回到(3)继
+续执行;
+≤i≤c(6)输出聚类中心v1i ( i = 1,2,…,c)和隶属度矩
+阵H;
+(7)停止。1. 2 模糊集和梯形模糊数的运算在推荐系统中,用户需要从给定的评分集合{ 1,
+2,3,4,5}中选择一个评分,但是有限的评分不能合理
+表达用户对项目的偏好程度,往往选择一个接近的评
+分来表达偏好程度[8]。因此,本节提出利用梯形模糊
+数模型来表示用户评分之间的关系。Zadeh[12]在1968
+年提出了模糊理论,对模糊子集的定义为:给定论域
+U , U中的模糊集Aᢻ由特征函数μ ᢻA来表示,如式(6 )
+所示。
+μ ᢻA :U → [0,1] (6)
+S1( Aᢻi ,Bᢻ) = (1 - 1
+k=12 基于改进FCM和TFNs的协同过滤算法针对模糊相似度的计算,目前CF算法仅采用常
+规距离和重心距离,存在一定的误差。因此,该文考虑
+Ahmad S[13]提出的一种新的梯形相似性度量,它结合
+了几何距离( Geometric Distance, GD )、重心距离
+( Center Of Gravity, COG )、Dice相似性系数( Dice
+Similarity Coefficient, DSC )和 Hausdorff 距离
+( Hausdorff Distance, HD)。CF算法常用的是PCC、
+Cosine等计算相似度,但未能考虑评分信息量,并不适
+用于模糊评分的相似度计算,所以本节采用梯形相似
+度结合评分信息来进行推荐。
+2. 1 梯形模糊相似度给定一个连续的全域U和在U上的一组模糊数
+FS( U) [14] ,假设两个梯形模糊评分为Aᢻi = ( a
+a4 :wᢻA )和Bᢻj = ( b1 ,a2 ,a3 ,
+1 ,b2 ,b3 ,b4 :wBᢻ) ,根据Ahmad[13,15]的
+定义,相似度计算公式如式(12)所示:4j 4Σ a( SᢻA,SBᢻ)ᢻᢻ ×i - bj ) × (1 - ^xA - ^xB ) B2WᢻA WBᢻ[ ( a1 + a2 ) ( b1 + b2 ) + ( a3 + a4 ) ( b3 + b4 ) ]( )×
+( w2ᢻA ) [ ( a1 + a2 ) 2 + ( a3 + a4 ) 2 ] + ( w2Bᢻ) [ ( b1 + b2 ) 2 + ( b3 + b4 ) 2 ]
+( 1 ) (12)
+1 + [ m a x{ a1 - b1 , a2 - b2 , a3 - b3 , a4 - b4 } + WᢻA - WBᢻ ]
+其中, ^xᢻA和^yᢻA是梯形Aᢻ和Bᢻ的水平重心,如式(13)、
+(14)所示。几何距离( Geometric Distance,GD)、重心
+距离( Center Of Gravity,COG)、Dice相似性系数( Dice
+Similarity Coefficient, DSC )和 Hausdorff 距离·164· 计算机技术与发展 第33卷( Hausdorff Distance,HD)是式(12 )中的变量[8]。GD
+衡量了两个梯形的横向距离,梯形重心的水平与垂直
+距离为COG,重心纵坐标与梯形上下底的长度差相关
+联,所以COG反映了模糊数信息量的差异,信息差越
+大,COG越大,为判断两个集合的相似性采用DSC,它
+表明两个集合的重复率。wᢻA、wBᢻ表示梯形Aᢻ、Bᢻ的信
+息量, B( SᢻA ,SBᢻ)决定是否使用COG,就是当a4 - a1 +
+b4 - b1 = 0时,不使用COG,定义如式(15)所示。
+ᢻA( a2 + a3 ) + ( wᢻA - ^yA
+ᢻA 2wᢻA
+^x = ^y (13)
+ᢻ) ( a1 + a4 )
+ᢻA 3 - a214 A41^y = | 6 a - a ᢻ ≤ 1
+| wᢻA
+■|w ( a + 2) ,a ≠ a , 0 < w
+ᢻA ■
+■| 2 ,a1 = a4 , 0 < wᢻA ≤ 1(14)B(S ,S ) = { aᢻA Bᢻ (15)
+0, a4 - a1 + b4 - b1 = 0
+1, 4 - a1 + b4 - b1 > 0根据GD和COG可以看出两个用户对于一个项
+目的相似度,再通过加权所有项目相似度获得用户模
+糊相似度,公式如下:
+Σ Ru vi∈U,isim( u,v) = n( U) - ,i - R (16)
+nn
+由用户u和v共同评价的项目集表示为U ,数量
+表示为n( U) ,项目i被用户u评价的分数为Ru,i ,而
+用户u评价的项目数是n。
+2. 2 GAFCM-TFNCF算法流程因为遗传算法[16-17]在生成优化和搜索问题方面
+有着较不错的解决方案,目前许多学者已将GA用于
+处理聚类问题或者将多种不同的方式用来集成GA和
+聚类方法[18-20] ,且使用GA优化初始聚类中心和聚类
+方法的参数[21-22]。所以在用FCM算法进行聚类之
+前,先利用遗传算法对其进行改进。所提出的模型步
+骤如下[23] :
+(1)对原始数据集进行预处理,搭建出用户偏好
+矩阵,并将其进行归一化处理;
+(2)将GAFCM算法的参数M (种群规模)、m
+(隶属度因子)、c (聚类的簇数)、pc (交叉率)、pm (变
+异率)、tmax (最大迭代次数)、ε (收敛的精度)进行初
+始化;
+(3)将从数据集中随机选择初始染色体;
+(4)更新最佳染色体;
+(5)选择t染色体,利用轮盘赌选择放入选择池
+中,其轮盘赌是GA的一种选择机制,公式如下所示:
+Pi = t 1 )
+fi ( 7
+Σfjj=1其中, Pi为染色体i(1 ≤ i ≤ t)的选择概率, fi和fj分
+别是i和j的适应值。
+(6)随机将两条染色体作为双亲并检查交叉概
+率,以用来核实是否进行交叉步骤,在交叉过程中生成
+新染色体的概率定义如下:
+newXg = rXg + (1 - r) Yg (18)
+Yngew = rYg + (1 - r) Xg (19)
+其中, Xngew和Yngew是在交叉后后代的基因, Xg和Yg为
+父母基因, r是0到1之间的随机数,通常交叉概率设
+置在[0. 85,0. 95]之间。
+(7)核实突变pm的概率,以确定是否继续突变步
+骤,实施编码遗传突变概率定义如下:
+newXg = Xg + sg ·rg ·ag (20)
+ag = 2 -u·k (21)
+其中, sg和u为随机数,且sg ∈ { - 1,1}和u ∈ [0,
+1] , rg为变异的范围, rg ∈ [10 -6 ,0. 1] ; k ∈ {4,5,
+…,20}表示变异的精度。
+(8)若满足终止条件则结束,否则转到步骤(3) ;
+(9)将GA的输出结果作为FCM的初始聚类
+中心;(10)利用(2) ~ (5)进行计算获得聚类中心和隶
+属度矩阵,从而实现用户聚类划分。
+在经过上述操作后,利用梯形模糊评分来计算相
+似度并进行推荐。
+(1)相似度计算流程如下:输入:用户项目评分矩阵R ,邻居数量k。①根据(12)计算目标用户u和其他用户v在一个
+任务的共同评价方面的相似度S( Ru,i ,Rv,i ) ;
+②利用式(16)计算模糊相似度sim( u,v)。
+(2)产生推荐集。
+①作为邻居集,选择相似度最高的k个用户;②如式(22)所示,采用平均加权方法对预测评分
+进行加权。
+-- ,i - Rv p)Pu,i = Ru p + v∈K (22)Σsim( u,v) ( Rv
+Σ sim( u,v)
+其中,用户u对项目i的预测得分是Pu,i ,用户v任务
+得分均值是Rv ,用户u和用户v之间的相似度为
+sim( u,v) ,此外还通过p限制平均值对预测评分的影
+响程度。
+-输出:目标用户u对未知任务的预测评分,获得推
+荐结果。
+3 实验结果分析3. 1 实验环境及实验数据实验的操作系统为Windows10,CPU为Intel( R)第3期 徐新卫等:融合FCM和TFNs的协同过滤推荐算法 ·165·Core( TM) i5-1035G1@ 1. 00 GHz 1. 19 GHz,实验内
+存为16 GB,主要实验平台是Python 3. 7。为验证
+GAFCM - TFNCF算法的性能,利用常见的数据集
+Movielens进行实验,其数据集的描述如表1所示。
+表1 实验数据集数据集 用户数 项目数 评分数100 K 943 1 682 100 0001 M 6 040 3 952 1 000 000
+3. 2 评价指标实验数据设置
+稀疏度/ %93. 795. 81将平均绝对误差( Mean Absolute Error,MAE)、均
+方根误差( Root Mean Squared Error,RMSE)作为实验
+的度量标准;MAE和RMSE的值越小,预测的估计值
+就越接近真实值,推荐的准确性就越好。具体定义如
+公式(23)、(24)所示。
+, -R,Σ Pu i u iMAE = u,i∈T (23)
+T
+RMSE = T1 Σ( P - R2u,i∈Tu,i u,i ) (24)
+其中,用户u对项目i的预测评分值为Pu,i ;用户u对
+项目i的真实评分值是Ru,i ; T为测试集; T为测试
+集的数量。
+相关参数设置如下:种群规模M = 50,迭代数t =
+50,变异概率pm = 0. 05,交叉概率pc = 0. 85,收敛的精
+度ε = 0. 000 1,隶属度因子m = 2,聚类的簇数c = 8。
+3. 3 算法对比
+为了验证算法GAFCM-TFNCF的有效性,对比算
+法有UBCF、基于用户偏好和项目属性的协同过滤推
+荐算法UPPPCF[24]、传统基于FCM的协同过滤算法
+FCMCF 、基于项目模糊相似度的协同过滤推荐算法
+IFSCF 。
+[7][8]3. 4 实验结果将80%的数据集作为训练集,剩下的20%作为测
+试集。对比算法的参数均根据自身文献设置为最优并
+记录下结果以进行对比。使用MAE、RMSE来衡量预
+测评分的准确性。为减小由于分割数据集所带来的误
+差,将10次实验的平均值作为结果。以邻居数量当作
+变量,间隔为5,比较文中算法( GAFCM-TFNCF)与其
+它四种算法的预测精度,实验结果如图1所示。
+图1 五种算法在数据集100 K和1 M上的MAE和RMSE对比由图1可以看出,GAFCM-TFNCF算法在所有的
+对比算法中表现最佳。GAFCM - TFNCF算法相比其
+余四种算法MAE值要小很多。这表明融合GA和
+FCM进行聚类,极大避免了在搜索过程中陷入极小值
+点,然后再将用户评分模糊化能够极大地提高推荐的
+精准度。对比UPPPCF算法,当邻居数量不断变大后,
+因为用户对相同项目的评分变得很少,但GAFCM -
+TFNCF算法的MAE曲线相较于UPPPCF算法更平
+稳,这表明文中算法在性能表现上更加稳定,不易受到
+数据集大小的影响,而UPPPCF算法下降幅度较大,说·166· 计算机技术与发展 第33卷明容易受到数据集大小的影响。为了比较数据稀疏性对算法精度的影响,实验在
+Movielens-100 K数据集中进行,核定用户数和项目数
+不变的前提下,将评分数逐步进行减少,比较五种算法
+的MAE值,实验结果如图2所示。
+图2 不同数据稀疏度下的五种算法对比通过图2发现,随着稀疏度的不断增加,可使用的
+数据不断减少,五种算法的MAE值都不断增长,稀疏
+度在大于95%后增长速度变快。GAFCM -TFNCF算
+法增长幅度较其余四种算法小,推荐精度更高,表明该
+算法可以在数据稀疏中完成推荐,其中UBCF算法预
+测最差,这表明该算法对于稀疏度高的数据集并不
+适用。
+4 结束语针对推荐系统存在数据稀疏性、未考虑用户评分
+信息量等问题,提出一种基于改进FCM的用户模糊相
+似度的协同过滤推荐算法。对于传统FCM聚类对异
+常值和噪声很敏感的问题,采用GA融合FCM,避免
+FCM在开始搜索时陷入局部最小值点。同时兼顾梯
+形模糊评分模型,将离散评分模糊化用来计算相似度,
+从而更合理地表达了用户对项目的偏好。在推荐算法
+中采用常见数据集进行实验对比,表明算法具有更优
+的推荐精准度。在未来工作中,考虑在保证推荐准确
+度的同时,如何同时保护用户的隐私,这是今后的一个
+研究方向。
+参考文献:[1] KHOSHNESHIN M,STREET W N. Incremental collabora-
+tive filtering via evolutionary co-clustering[ C] / / ACM con-
+ference on recommender systems. Barcelona: DBLP,2010:
+325.[2] 贾俊杰,张玉超.基于用户模糊聚类的综合信任推荐算法
+[ J] .计算机工程,2021,47(6) :60-67.
+[3] TRAN C,KIM J Y,SHIN W Y,et al. Clustering-based col-laborative filtering using an incentivized / penalized user mod-
+el[ J] . IEEE Access,2019,7:62115-62125.
+[4] 张建华,冉 佳,刘 柯.基于改进LDA -FCM的UserCF
+知识推荐研究[ J] .科技管理研究,2020,40 ( 19 ) :140 -
+146.[5] 王永贵,刘凯奇.一种优化聚类的协同过滤推荐算法[ J].
+计算机工程与应用,2020 ,56 (15 ) :66 -73 .
+[6] 赵学健,张雨豪,陈 昊,等.基于FCM用户聚类的协同过
+滤推荐算法[ J] .计算机技术与发展,2021,31(8):6-12.
+[7] 郑 鑫,张韧志.一种基于模糊C均值聚类的协同过滤推
+荐算法[J].济南大学学报:自然科学版,2016,30(1) :55 -
+59.[8] 王 森,陈 莉,张 洁.基于项目模糊相似度的协同过滤
+推荐算法[ J] .计算机应用研究,2021,38(3) :696-701.
+[9] ZHANG X,MA W,CHEN L. New similarity of triangular
+fuzzy number and its application [ J] . The Scientific World
+Journal,2014,2014:215047.[10] YAGER R R. Fuzzy logic methods in recommender systems
+[J]. Fuzzy Sets and Systems,2003,136(2) :133-149.
+[11]吴毅涛,张兴明,王兴茂,等.基于用户模糊相似度的协同
+过滤算法[ J] .通信学报,2016,37(1) :198-206.
+[12] ZADEH L A. Probability measures of fuzzy events[ J] . Jour-
+nal of Mathematical Analysis and Applications, 1968, 23
+(2) :421-427.[13] AHMAD S A S,MOHAMAD D,SULAIMAN N H,et al. A
+distance and set theoretic-based similarity measure for gen-
+eralized trapezoidal fuzzy numbers [ C] / / Proceeding of the
+25th national symposium on mathematical sciences
+(SKSM25) :mathematical sciences as the core of intellectual
+excellence. Pahang:[ s. n. ] ,2018.
+[14 ] GUHA D, CHAKRABORTY D. A new approach to fuzzy
+distance measure and similarity measure between two gener-
+alized fuzzy numbers[J]. Applied Soft Computing,2010,10
+(1) :90-99.
+[15] GOLDBERG D E. Genetic algorithms in search, optimiza-
+tion,and machine learning[ J] . Ethnographic Praxis in Indus-
+try Conference Proceedings,1989,9(2) :80-85.[16] PIZZUTI C,PROCOPIO N. A K-means based genetic algo-
+rithm for data clustering[ C] / / International joint conference
+SOCO'16-CISIS' 16 - ICEUTE' 16. San Sebastián:Spring-
+er,2016 :211 - 222 .
+[17 ] MAULIK U, BANDYOPADHYAY S. Genetic algorithm -
+based clustering technique[ J] . Pattern Recognition,2000,33
+(9) :1455-1465.[18] BEZDEK J C,BOGGAVARAPU S,HALL L O,et al. Ge-
+netic algorithm guided clustering [ C ] / / Proceedings of the
+first IEEE conference on evolutionary computation. IEEE
+world congress on computational intelligence. Orlando:
+IEEE,1994 :34 - 39 .[19] JIMENEZ J F, CUEVAS F J, CARPIO J M. Genetic algo-(下转第172页)·172· 计算机技术与发展 第33卷gence,2002:187-192. 2010:242-247.[8] GONG S. A collaborative filtering recommendation algorithm
+based on user clustering and item clustering [ J] . Journal of
+Software,2010,5(7) :745-752.[9] MOHANA H, SURIAKALA M. Integrated cosine and tuned
+cosine similarity measure to alleviate data sparsity issues for
+personalized recommendation [ C ] / / 2018 3rd international
+conference on computational systems and information technol-
+ogy for sustainable solutions ( CSITSS ) . Bangalore: IEEE,
+2018 :41 - 49 .
+[10] KHOSHNESHIN M,STREET W N. Collaborative filtering via
+euclidean embedding [ C ] / / Proceedings of the fourth ACM
+conference on recommender systems. Barcelona:ACM,2010:
+87 - 94 .[11] XIA C,JIANG X,LIU S,et al. Dynamic item - based recom-
+mendation algorithm with time decay [ C] / / 2010 sixth inter-
+national conference on natural computation. Yantai: IEEE,
+[12]曾 安,高成思,徐小强.融合时间因素和用户评分特性的
+协同过滤算法[ J] .计算机科学,2017,44(9) :243-249.
+[13]梁艺伟.基于遗忘曲线的英语绘本阅读推荐系统的设计与
+实现[ D] .北京:北京交通大学,2019.
+[14]李 聪,梁昌勇,马 丽.基于领域最近邻的协同过滤推荐
+算法[ J] .计算机研究与发展,2008,45(9):1532-1538.
+[15 ] ZHANG Na, WANG Zhiyong. Collaborative filtering recom-
+mendation algorithm based on hybrid similarity[ M] / / Recent
+developments in intelligent computing,communication and de-
+vices. Singapore:Springer,2019:617-625.
+[16]傅金京,李玲娟.基于用户特征和评分的精准推荐策略研
+究[J].南京邮电大学学报:自然科学版,2021,41(1):107 -
+114.[17]刘超慧,韩传福,陈天成,等.融合惩罚因子和时间权重的
+协同过滤推荐算法[ J] .信息技术与网络安全,2020,39
+(5) :17-21.■■■■■■■■■■■■■■■■■■■■■■Information Systems,2021,63(7):1935-1959.[22]姚平平,邹东升,牛宝君.基于用户偏好和项目属性的协同
+过滤推荐算法[ J] .计算机系统应用,2015,24(7) :15-21.
+[23] MOHAMMADREZAPOUR O,KISI O,POURAHMAD F. Fuzzy
+c-means and k-means clustering with genetic algorithm for i-
+dentification of homogeneous regions of groundwater quality
+[ J] . Neural Computing and Applications,2020,32(8) :3763-
+3775.
+[24] AL-BAKRI N F,HASHIM S H. Collaborative filtering recom-
+mendation model based on k-means clustering[ J] . Al-Nahr-
+ain Journal of Science,2019,22(1) :74-79.■■■■■■■■■■■■■■■■■■■■■■■■(上接第166页)rithms applied to clustering problem and data mining [ C] / /
+Proceedings of the 7th WSEAS international conference on
+simulation, modelling and optimization. Beijing: [ s. n. ] ,
+2007 :219 - 224 .
+[20] KHOTIMAH B K,IRHAMNI F,SUNDARWATI T R I. A ge-
+netic algorithm for optimized initial centers k - means cluste-
+ring in SMEs[ J] . Journal of Theoretical and Applied Informa-
+tion Technology,2016,90(1) :23-30.
+[21] KUO R J,CHANG C K,NGUYEN T P Q,et al. Application of
+genetic algorithm - based intuitionistic fuzzy weighted c - or-
+dered-means algorithm to cluster analysis[J]. Knowledge and

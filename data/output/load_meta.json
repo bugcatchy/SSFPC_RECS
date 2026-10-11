@@ -1,0 +1,34 @@
+{
+  "input": "C:\\Users\\BugCat\\Desktop\\科研\\面向智能电网终端用户的“社会信息过滤”电力零售套餐推荐系统\\data\\interval load data\\data_3_groups.parquet",
+  "n_users": 6031,
+  "n_timestamps": 17520,
+  "feature_names": [
+    "avg_monthly",
+    "avg_monthly_sum_win",
+    "avg_monthly_spr_aut",
+    "avg_weekly_work",
+    "avg_weekly_nonwork"
+  ],
+  "definitions": {
+    "seasons": "南半球: 夏=12-2月, 秋=3-5月, 冬=6-8月, 春=9-11月",
+    "work_time": "工作日(周一至周五) 09:00-17:00",
+    "f2_f3_months": "f2=夏+冬6个月月均, f3=春+秋6个月月均",
+    "f4_f5_weeks": 52.142857142857146
+  },
+  "feature_mean": [
+    842.1334539600981,
+    923.7296600342696,
+    760.5372478859222,
+    34.286004222930295,
+    159.5200509350094
+  ],
+  "feature_std": [
+    585.6617181816495,
+    647.9130081397324,
+    536.8337390558323,
+    27.399606811068626,
+    110.03505071823285
+  ],
+  "check_f4_plus_f5_vs_f1": "f4+f5 与 f1*(12/52.14) 应近似相等",
+  "elapsed_sec": 1.7
+}

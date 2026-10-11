@@ -1,0 +1,1311 @@
+Computers & Geosciences Vol. 10, No. 2-3, pp. 191-203, 1984. 0098-3004/84 $3.00 + .00 
+Printed in the U.S.A. © 1984 Pergamon Press Ltd. 
+FCM: THE FUZZY c-MEANS CLUSTERING ALGORITHM 
+JAMES C. BEZDEK 
+Mathematics Department, Utah State University, Logan, UT 84322, U.S.A. 
+ROBERT EHRLICH 
+Geology Department, University of South Carolina, Columbia, SC 29208, U.S.A. 
+WILLIAM FULL 
+Geology Department, Wichita State University, Wichita, KS 67208, U.S.A. 
+(Received 6 May 1982; revised 16 May 1983) 
+AbstractnThis paper transmits a FORTRAN-IV coding of the fuzzy c-means (FCM) clustering program. 
+The FCM program is applicable to a wide variety of geostatistical data analysis problems. This program 
+generates fuzzy partitions and prototypes for any set of numerical data. These partitions are useful for 
+corroborating known substructures or suggesting substructure in unexplored data. The clustering criterion 
+used to aggregate subsets is a generalized least-squares objective function. Features of this program include 
+a choice of three norms (Euclidean, Diagonal, or Mahalonobis), an adjustable weighting factor that 
+essentially controls sensitivity to noise, acceptance of variable numbers of clusters, and outputs that 
+include several measures of cluster validity. 
+Key Words: Cluster analysis, Cluster validity, Fuzzy clustering, Fuzzy QMODEL, Least-squared errors. 
+INTRODUCTION 
+In general, cluster analysis refers to a broad spectrum 
+of methods which try to subdivide a data set X into 
+c subsets (clusters) which are pairwise disjoint, all 
+nonempty, and reproduce X. via union. The clusters 
+then are termed a hard (i.e., nonfuzzy) c-partition of 
+X. Many algorithms, each with its own mathematical 
+clustering criterion for identifying "optimal" clusters, 
+are discussed in the excellent monograph of Duda 
+and Hart (1973). A significant fact about this type of 
+algorithm is the defect in the underlying axiomatic 
+model that each point in X is unequivocally grouped 
+with other members of "its" cluster, and thus bears 
+no apparent similarity to other members of X. One 
+such manner to characterize an individual point's 
+similarity to all the clusters was introduced in 1965 
+by Zadeh (1965). The key to Zadeh's idea is to 
+represent the similarity a point shares with each 
+cluster with a function (termed the membership 
+function) whose values (called memberships) are be- 
+tween zero and one. Each sample will have a mem- 
+bership in every cluster, memberships close to unity 
+signify a high degree of similarity between the sample 
+and a cluster while memberships close to zero imply 
+little similarity between the sample and that cluster. 
+The history, philosophy, and derivation of such 
+mathematical systems are documented in Bezdek 
+(1981). The net effect of such a function for clustering 
+is to produce fuzzy c-partitions of a given data set. A 
+fuzzy c-partition of X is one which characterizes the 
+membership of each sample point in all the clusters 
+by a membership function which ranges between 
+zero and one. Additionally, the sum of the member- 
+ships for each sample point must be unity. 
+Let Y = {Yl, Y2 ..... y~} be a sample of N 
+observations in R n (n-dimensional Euclidean space); 
+Yk is the k-th feature vector; Ykj the j-th feature of Yk. 
+If C is an integer, 2 ~< c < n, a conventional (or 
+"hard") c-partition of Y is a c-tuple (YI, Y2 ..... Yc) 
+of subsets of Y that satisfies three conditions: 
+Y~=~' 1 <i~<c; (la) 
+Y~A Yj= (a; i ~ j (lb) 
+c 
+U Y, : Y (lc) i=l 
+In these equations, ~ stands for the empty set, and 
+(n, u) are respectively, intersection, and union. 
+In the context discussed later, the sets { YI} are 
+termed "clusters in Y. Clusters analysis (or simply 
+clustering) in Y refers to the identification of a 
+distinguished c-partition {Y~} of Y whose subsets 
+contain points which have high intracluster resem- 
+blance; and, simultaneously, low intercluster similar- 
+ity. The mathematical criterion of resemblance used 
+to define an "optimal" c-partion is termed a cluster 
+criterion. One hopes that the substructure of Y rep- 
+resented by { I~} suggests a useful division or rela- 
+tionship between the population variables of the real 
+physical process from whence Y was drawn. One of 
+the first questions one might ask is whether Y was 
+drawn. One of the first questions one might ask is 
+whether Y contains any clusters at all. In many 
+191 
+
+192 JAMES C. BEZDEK, ROBERT 
+geological analyses, a value for c is known a priori 
+on physical grounds. If c is unknown, then determi- 
+nation of an optimal c becomes an important issue. 
+This question is sometimes termed the "cluster valid- 
+ity" problem. Our discussion, in addition to the 
+clustering a posteriori measures of duster validity (or 
+"goodness of fit"). 
+Algorithms for clustering and cluster validity have 
+proliferated due to their promise for sorting out 
+complex interactions between variables in high di- 
+mensional data. Excellent surveys of many popular 
+methods for conventional clustering using determin- 
+istic and statistical clustering criteria are available; 
+for example, consult the books by Duda and Hart 
+(1973), Tou and Gonzalez (1974), or Hartigan (1975). 
+The conventional methodologies discussed in these 
+references include factor analytic techniques, which 
+occupy an important place in the analysis of geo- 
+scientific data. The principal algorithms in this last 
+category are embodied in the works of Klovan and 
+Imbrie (1971), Klovan and Miesch (1976), and Miesch 
+(1976a, 1976b). These algorithms for the factor ana- 
+lytical analysis of geoscientific data are known as the 
+QMODEL algorithms (Miesch, 1976a). 
+In several recent studies, the inadequacy of the 
+QMODEL algorithms for linear unmixing when con- 
+fronted with certain geometrical configurations in 
+grain shape data has been established numerically 
+(Full, Ehrlich, and Klovan, 198 l; Full, Ehrlich, and 
+Bezdek, 1982; Bezdek, and others, 1982. The problem 
+is caused by the presence of outliers. Aberrant points 
+may be real outliers, noise, or simply due to mea- 
+surement errors; however, peculiarities of this type 
+can cause difficulties for QMODEL that cannot be 
+resolved by standard approaches. The existence of 
+this dilemma led the authors to consider fuzzy clus- 
+tering methods as an adjunct procedure which might 
+circumvent the problems caused by data of this type. 
+Because fuzzy clustering is most readily understood 
+in terms of the axioms underlying its rationale, we 
+next give a brief description of the basic ideas involved 
+in this model. 
+FUZZY CLUSTERING 
+The FCM algorithms are best described by recasting 
+conditions (equation 1) in matrix-theoretic terms. 
+Towards this end, let U be a real c × N matrix, U 
+= [u~k]. U is the matrix representation of the partition 
+{ Y~} in equation (1) in the situation 
+1; yk E Y~ l 
+Ui(Yk)-~ Rik = O; otherwise) 
+N 
+U~k>O for alli; 
+i=1 
+N 
+U~k = 1 for all k. 
+i=1 
+EHRLICH, and WILLIAM FULL 
+In equation (2), u~ is a function; u~: Y--~ {0, 1}. In 
+conventional models, u~ is the characteristic function 
+of Y~: in fact, u~ and Y~ determine one another, so 
+there is no harm in labelling u; the ith hard subset of 
+the partition (it is unusual, of course, but is important 
+in terms of understanding the term "fuzzy set"). 
+Conditions of equations (l) and (2) are equivalent, 
+so U is termed a hard c-partition of Y. Generalizing 
+this idea, we refer to U as a fuzzy c-partition of Y 
+when the elements of U are numbers in the unit 
+interval [0, 1] that continue to satisfy both equations 
+(2b) and (2c). The basis for this definition are c 
+functions u~: Y--' [0, 1] whose values Ui(Yk) ~ [0, 1] 
+are interpreted as the grades of membership of the 
+yks in the "fuzzy subsets" u~ of Y. This notion is due 
+to Zadeh (1965), who conceived the idea of the fuzzy 
+set as a means for modelling physical systems that 
+exhibit nonstatistical uncertainties. Detailed discus- 
+sions for the rationale and philosophy of fuzzy sets 
+are available in many recent papers and books (e.g., 
+consult Bezdek (198 l)). 
+For the present discussion, it suffices to note that 
+hard partitions of Y are a special type of fuzzy ones, 
+wherein each data point is grouped unequivocally 
+with its intraduster neighbors. This requirement is a 
+particularly harsh one for physical systems that contain 
+mixtures, or hybrids, along with pure or antecedent 
+strains. Outliers (noise or otherwise) generally fall 
+into the category one should like to reserve for 
+"unclassifiable" points. Most conventional models 
+have no natural mechanism for absorbing the effects 
+of undistinctive or aberrant data, this is a direct 
+consequence of equation (la). Accordingly, the fuzzy 
+set, and, in turn, fuzzy partition, were introduced as 
+a means for altering the basic axioms underlying 
+clustering and classification models with the aim of 
+accomodating this need. By this device, a point Yk 
+may belong entirely to a single cluster, but in general, 
+is able to enjoy partial membership in several fuzzy 
+clusters (e.g., precisely the situation anticipated for 
+hybrids), We denote the sets of all hard and fuzzy c- 
+partitions of Y by: 
+M¢ = { Uc×NlU~J, ~ [0, 11; 
+Mfc = { UcxN[Uik E [0, ll; 
+equations (2b), (2c)}; 
+(3a) 
+equations (2b), (2c)]. 
+(3b) 
+Note that Mc is imbedded in Mfo This means that 
+fuzzy clustering algorithms can obtain hard c-parti- 
+tions. On the other hand, hard clustering algorithms 
+cannot determine fuzzy c-partitions of Y. In other 
+(2a) words, the fuzzy imbedment enriches (not replaces!) 
+the conventional partitioning model. Given that fuzzy 
+c-partitions have at least intuitive appeal, how does 
+(2b) one use the data to determine them? This is the next 
+question we address. 
+Several clustering criteria have been proposed for 
+(2c) identifying optimal fuzzy c-partitions in Y. Of these, 
+the most popular and well studied method to date is 
+
+The fuzzy c-means clustering algorithm 
+associated with the generalized least-squared errors 
+functional 
+/V ¢ 
+Jm(U, V) = E ~ (U,'k)mllyk -- V~II~ 
+k=l i=l 
+Equation (4) contains a number of variables: these 
+are 
+Y = {Y~, Y2 ..... YN} C R" = the data, 
+c = number of clusters in Y; 2 ~< c < n, 
+m = weighting exponent; 1 ~< m < 0% 
+U = fuzzy c-partition of Y; U E Mfc 
+v = (v~, v2 ..... Vc) = vectors of centers, 
+v~ = (va, vj2, .. •, v,-,) = center of cluster i, 
+II L = induced A-norm on R" 
+A = positive-definite (n × n) weight matrix. 
+193 
+(blur, defocus) membership towards the fuzziest state. 
+Each choice for m defines, all other parameters being 
+fixed, one FCM algorithm. No theoretical or corn- 
+(4) putational evidence distinguishes an optimal m. The 
+range of useful values seems to be [ 1, 30] or so. If a 
+test set is available for the process under investigation, 
+the best strategy for selecting m at present seems to 
+be experimental. For most data, 1.5 ~< m ~< 3.0 gives 
+good results. 
+(5a) The other parameter of arm that deserves special 
+mention is weight matrix A. This matrix controls the 
+(5b) shape that optimal clusters assume in R ~. Because 
+(5c) every norm on R ~ is inner product induced via the 
+formula 
+(5d) (x, Y~A = xrAr, (8) 
+(5e) there are infinitely many A-norms available for use 
+(5f) in equation (4). In practice, however, only a few of 
+these norms enjoy widespread use. The FCM listing 
+(5g) below allows a choice of three norms, each induced 
+(5h) by a specific weight matrix. Let 
+The squared distance between Yk and v~ shown in 
+equation (4) is computed in the A-norm as 
+d2k = IlYk -- o, ll~ = (yk - vOrh(Yk - v~). (6) 
+The weight attached to each squared error is (ua)", 
+the mth power of ykS membership in cluster i. The 
+vectors {v~} in equation (5f) are viewed as "cluster 
+centers" or centers of mass of the partitioning subsets. 
+If m = 1, it can be shown that Jm minimizes only at 
+hard U's E M~, and corresponding v~s are just the 
+geometric centroids of the Iris. With these observa- 
+tions, we can decompose J~ into its basic elements 
+to see what property of the points {Yk} it measures: 
+d~= 
+m 2 -- 
+(ua) dik- 
+c 
+m2 (Uik) dik 
+i=1 
+squared A-distance from point Yk 
+to center of mass v~. (7a) 
+squared A-error incurred by repre- 
+senting Yk by vi weighted by (a 
+power of) the membership of Yk in 
+cluster i. (7b) 
+= sum of squared A-errors due to yks 
+partial replacement by all c of the 
+centers {vi}. (7c) 
+= overall weighted sum of generalized 
+A-errors due to replacing Y by v. 
+(7d) 
+c 
+,~2 (ua) dik 
+k=l i=1 
+The role played by most of the variables exhibited 
+in equation (5) is clear. Two of the parameters Of Jm, 
+however warrant further discussion, namely, m and 
+A. Weighting exponent m controls the relative weights 
+placed on each of the squared errors d2k. As m --~ 1 
+from earlier discussion partitions that minimize Jm 
+become increasingly hard (and, as mentioned before, 
+at m = l, are necessarily hard). Conversely, each 
+entry of optimal Us for J,~ approaches (1/c) as m ---, 
+oo. Consequently, increasing m tends to degrade 
+N 
+cy = Z ykIN; (9a) 
+k=l 
+N 
+Cr = ~ (Yk -- Cy)(Yk -- Cr) t, (9b) 
+k~ 1 
+be the sample mean and sample covariance matrix 
+of data set Y; and let {a~} denote the eigenvalues of 
+Cy; let Dy be the diagonal matrix with diagonal 
+elements (dy)ii = ai; and finally, let I be the identity 
+matrix. The norms of greatest interest for use with 
+equation (4) correspond to 
+A = I ~ -Euclidean Norm, (10a) 
+A = D;1 ~ Diagonal Norm, (10b) 
+A = C; ~ ~ Mahalonobis Norm. (10c) 
+A detailed discussion of the geometric and statistical 
+implications of these choices can be seen in Bezdek 
+(1981). When A = /, arm identifies hyperspherical 
+clusters; for any other A, the clusters are essentially 
+hyperellipsodial, with axes proportional to the eigen- 
+values of A. When the diagonal norm is used, each 
+dimension is effectively scaled via the eigenvalues. 
+The Euclidean norm is the only choice for which 
+extensive experience with geological data is available. 
+Optimal fuzzy clusterings of Y are defined as pairs 
+(C r, ~) that locally minimize Jm. The necessary con- 
+ditions for m = 1 are well known (but hard to use, 
+because Mc is discrete, but large). For m > 1, if Yk 
+=/: ~ for all j and k, (U, ~) may be locally optimal for 
+arm only if 
+l)i = ~ (Uik)myk / ~ (~lik)m; l<~i<~ c; (1 la) 
+k=l k=l 
+'. Uik = "= ~-'~jk] ] , l < k < N; l < i < c 
+(lib) 
+
+194 JAMES C. BEZDEK, ROBERT EHRLICH, and WILLIAM FULL 
+where a~ = IlYk - fi, ll~. Conditions expressed in 
+equations (11) are necessary, but not sufficient; they 
+provide means for optimizing Jm via simple Picard 
+iteration, by looping back and forth from equation 
+(lla) to (lib) until the iterate sequence shows but 
+small changes in successive entries of 0 or ft. We 
+formalize the general procedure as follows: 
+Fuzzy c-Means (FCM) Algorithms 
+(A1) Fix c, m, A, IIkL. Choose an initial matrix 
+U (°) E Mfc. Then at step k, k, = 0, 1, ..., 
+LMAX. 
+(A) Compute means 6 (k), i = 1, 2, ..., c with 
+equation ( 11)a. 
+(A3) Compute an updated membership matrix 
+0 (k+t) = [t~ k+n] with equation (1 lb). 
+(A4) Compare 0 k+~ to 0 tk) in any convenient matrix 
+norm. If [10 (k+n - ~/(k)[[ < ~, stop. Otherwise, 
+set 0 (k) = 0 k+~ and return to (A2). 
+Finally, we observe that generalizations of J~ which 
+can accommodate a much wider variety of data 
+shapes than FCM are now well known (see Bezdek 
+(1981) for a detailed account). Nonetheless, the basic 
+FCM algorithm remains one of the most useful 
+general purpose fuzzy clustering routines, and is the 
+one utilized in the FUZZY QMODEL algorithms 
+discussed by Full, Ehrlich, and Bezdek (1982). Having 
+given a brief account of the generalities, we now turn 
+to computing protocols for the FCM listing accom- 
+panying this paper. 
+ALGORITHMIC PROTOCOLS 
+The listing of FCM appended below has some 
+features not detailed in (AI)-(A4). Our description 
+of the listing corresponds to the blocks as documented. 
+Input Variables. FCM arrays are listing docu- 
+mented. Symbolic dimensions are 
+(A1)-(A4) is the basic algorithmic strategy for the 
+FCM algorithms. 
+Individual control parameters, tie-breaking rules, 
+and computing protocols are discussed in conjunction 
+with the appended FORTRAN listing in Appen- 
+dix 1. 
+Theoretical convergence of the sequence { 0 (k), ~(k), 
+k = 0, l,... } generated by (A1)-(A4) has been 
+studied (by Bezdek, 1981). Practically speaking, no 
+difficulties have ever been encountered, and numerical 
+convergence is usually achieved in 10-25 iterations. 
+Whether local minima of Jm are good clusterings of 
+Y is another matter, for it is easy to obtain data sets 
+upon which Jm minimizes globally with visually 
+unappealing substructure. To mitigate this difficulty, 
+several types of cluster validity functionals are usually 
+calculated on each 0 produced by FCM. Among the 
+most popular are the partition coefficient and entropy 
+of 0E Mfc: 
+N c 
+Fc((/) = ~ ~ (~ik)2/N; (12a) 
+k=l iffil 
+N c 
+H~(O) = - ~ ~ (t~ik Ioga(a~k))/N. (12b) 
+kffil iffil 
+In equation (12b), logarithmic base a E (1, oo). 
+Properties of Fc and Hc utilized for validity checks 
+are: 
+Fc = 1 ,:* Hc = 0 ~=* 0 ~ Mc is hard; (13a) 
+Fc = l/c ~=* Hc = log~(c) ~=* 0 = [l/c]; (13b) 
+1 - ~ Fc <~ 1; 0 <~ Hc <~ log~(c). (13c) ¢ 
+Entropy H is a bit more sensitive than F to local 
+changes in partition quality. The FCM program listed 
+below calculates F, H, and (1 - F), the latter quantity 
+owing to the inequality (1 - F) < H for 0 ~ Mc 
+(whena = e= 2.71.-.). 
+NS = number of vectors in Y = N. 
+ND = number of features in Yk = n. 
+Present dimensions will accomodate up to c = 20 
+clusters, N = 500 data points, and n = 20 features. 
+Input variables ICON specifies the weight matrix A 
+as in equation (10): 
+ICON= I~A =I 
+ICON=2~A=D; I. 
+ICON = 3 ~ A = C~ -I . 
+Other parameters read are: 
+QQ = Weighting exponent m: 1 < QQ. 
+KBEGIN = Initial number of clusters: 
+2 ~< KBEGIN ~< DCEASE. 
+KCEASE = Final number of clusters: 
+KCEASE < NS. 
+At any step NCLUS = C is the operating number 
+of clusters. FCM iterates over NCLUS from KBEGIN 
+to KCEASE, generating an optimal pair (O, ~)NCLUS 
+for each number of clusters desired. Changes in m 
+and A must be made between runs (although they 
+could easily be made iterate parameters). 
+Control Parameters 
+EPS = Termination criterion E in (A4). 
+LMAX = Maximum number iterations at each c in 
+(A1). 
+Current values of EPS and LMAX are 0.01 and 50. 
+Lowering EPS almost always results in more iterations 
+to termination. 
+
+The fuzzy c-means clustering algorithm 195 
+Input Y 
+Compute Feature Means. Vector FM(ND) is the 
+mean vector cy of equation (9a). 
+Compute Scaling Matrix. Matrix CC(ND, ND) is 
+matrix A of equation (10), depending upon the choice 
+made for ICON. The inverse is constructed in the 
+main to avoid dependence upon peripheral subs. 
+Matrix CM --- A*A -I calculated as a check on the 
+computed inverse, but no residual is calculated; nor 
+does the FCM routine contain a flag if CM is not 
+"close" to L The construction of weight matrices 
+other than the three choices allowed depends on user 
+definition. 
+Loop Control. NCLUS = c is the current number 
+of clusters: QQ is the weighting exponent m. 
+Initial Guess. A pseudo-random initial guess for 
+U0 is generated in this block at each access. 
+Cluster Centers. Calculation of current centers 
+V(NC, ND) via equation (1 la). 
+Update Memberships. Calculations with equation 
+(1 lb); W(NC, ND) is the updated membership matrix. 
+The special situation m = 1 is not accounted for 
+here. Many programs are available for this situation 
+for example see Ball (1965). The authors will furnish 
+a listing for hard c-means upon request. Note that 
+this block does not have a transfer in situation Yk 
+= ~ for some k and i. This eventuality to our 
+knowledge, has never occurred in nearly 10 years of 
+computing experience. If a check and assignment are 
+desired, the method for assigning t~/s in any column 
+k where such a singularity occurs is arbitrary, as long 
+as constraints in equation (2) are satisfied. For ex- 
+ample, one may, in this instance, place equal weights 
+(that sum to one) on every row where Yk = V~, and 
+zero weights otherwise. This will continue the algo- 
+rithm, and roundoff error alone should carry the 
+sequence away from such points. 
+Error Criteria and Cutoffs. The criterion used to 
+terminate iteration at fixed NC is 
+Cluster Validity Indicants. Values of Jm, Fc, He, 
+and 1 - Fc are computed, and stored, respectively, 
+in the vectors VJM, F, H, and DIF. 
+Output Block. For the current value of NCLUS, 
+current terminal values of F~, 1 - F~, H~, Jm, {vi}, 
+and 0 are printed. 
+Output Summary. The final block of FCM outputs 
+statistics for the entire run. 
+The listing provided is a very basic version of 
+FCM: many embellishments are discussed in Bezdek 
+(1981). As an aid for debugging a coded copy of the 
+listing, we present a short example that furnishes a 
+means for checking numerical outputs. This example 
+highlights several of the important features of fuzzy 
+z-partitions in general, and those generated by FCM 
+in particular. Examples of the use of FCM in the 
+context of geological data analysis are presented in 
+Bezdek, and other (1982), and Full, Ehrlich, and 
+Bezdek (1982). 
+Storage Requirements. The program listed in the 
+appendix can handle 500 data samples with up to 50 
+variables. It will handle up to 20 clusters. The pro- 
+gram, as written, used under 256 K of computer 
+storage. If larger data sets are used, the program is 
+dearly documented as to which parameters to change. 
+A NUMERICAL EXAMPLE 
+Figure 1 displays a set Y of 16 points in R 2. This 
+artificial data set was originally published in Sneath 
+f vV ~ 
+/.-,, ,/,." ,, LoCke 1 
+ERRMAX = max{l~ k+l) - a~fl} < EPS. (14) 
+i,k 
+Threshold EPS thus controls the accuracy of terminal 
+output. An alternative method to terminate iteration 
+would be to compare components of each ~k+~) to 
+~k). There may be differences in terminal pairs (U, 
+~) obtained using a fixed EPS. Furthermore, there is 
+a tradeoff in CPU time, equation (14) requires (cN) 
+comparisons and max{l~$~+,) _ vtO),r'(k)n~Y requires (cn) ij 
+comparisons. Thus, if N is much larger than n, (N 
+>> n), termination based on the quality of successive 
+cluster centers computed via equation (1 la) becomes 
+more attractive. By the same token, this can reduce 
+storage space (for updated centers instead of an 
+updated membership matrix) significantly if n <~ N. 
+If equation (14) is never satisfied, iteration at current 
+NC will stop when k = LMAX: a convergence flag 
+is issued, and NC advance to NC + 1. More than 25 
+iterations are rarely needed for EPS in the 0.001 
+range. 
+No. 
+9 
+I0 
+II 
+12 
+13 
+14 
+15 
+16 
+Coordi nates 
+Ykl Yk2 
+0 4 
+0 3 
+1 5 
+2 4 
+3 3 
+2 2 
+2 1 
+1 0 
+5 5 
+6 5 
+7 6 
+5 3 
+7 3 
+6 2 
+6 l 
+8 ] 
+rn= Terennal cluster centers from Table 2, col. 3 
+/ - Terminal maximum membership "boundaries". 
+Fig. 1. An example: Artificial touching clusters. 
+
+196 JAMES C. BEZDEK, ROBERT 
+and Sokal (1973) in connection with the illustration 
+of a hard clustering algorithm called the unpaired 
+group mean average (UPGMA) method. This data 
+was subsequently studied in Bezdek (1974), where a 
+comparison between the UPGMA and FCM methods 
+was effected. The coordinates of Yk E Y are listed as 
+columns two and three of the tabular display of Fig. 
+1. This is a good data set for our purposes because it 
+is easily handled for validation, and further, has some 
+of the geometric properties that necessitate the intro- 
+duction of fuzzy models. Data of this type might be 
+drawn from a mixture of two bivariate normal dis- 
+tributions. The region of overlap contains several 
+points which might be considered "noise", viz. Ys 
+and Y~2. Parameters for the outputs to be discussed 
+were as follows: 
+Table ICON=A NCLUS=c QQ=rn EPS=E 
+1 1, 2, 3 2 2 0.01 
+2 2 2 1.25, 2.00 0.01 
+3 t 2-6 1.25-2.00 0.01 
+In other words, we illustrate in Tables 1 and 2, 
+respectively, the effects of variation in the norm 
+inducing matrix A, and weighting exponent on (t), 
+3) with all other parameters being fixed; while Table 
+3 exhibits variations in F, and H, due to changes in 
+m and c. 
+Initial guesses for Uo were not chosen randomly 
+here, so that users may validate their programs against 
+EHRLICH, and WILLIAM FULL 
+these tables. Rather, the initial matrix used for all of 
+the outputs discussed later had the following elements: 
+(Uo)ii -- (c + B); i = 1,2 ..... c 
+(Uo)u =(c +/~); j=c+l ..... n 
+(Uo)0 = (c +/3); otherwise 
+a = 1 - (q~/2); 
+/3 --- q~12. 
+The starting value for Fc using this Uo is always the 
+midpoint of [l/c, 1), the range of Fc, that is f~(Uo) 
+= ((1/c) + 1)/2. In real applications it is, of course, 
+important to run FCM for several different Uos, as 
+the iteration method used, like all descent methods, 
+is susceptible to local stagnations. If different Uos 
+result in different (0, fi)s, one thing is certain: further 
+analysis should be made before one places much 
+confidence in any algorithmicaUy suggested substruc- 
+ture in Y. 
+Table l shows that maximizing Fc is equivalent to 
+minimizing/arc but this behavior is not equivalent to 
+minimizing Jm- Several examples of the general di- 
+lemma are documented in Bezdek (1981). Observe 
+that all three partitions of Y are (qualitatively) more 
+or less equivalent. Lower membership generally cor- 
+Table 1. Variation in ((7, b) due to changes in Norm. There are only two clusters, hence 02k = (1 -- O,k) 
+as the sum of the tick equals one. Terminal membership U~k 
+Data 
+Point 
+9 
+I0 
+II 
+12 
+13 
+14 
+15 
+16 
+'~'11 912 
+~22 
+F c 
+H c 
+J m 
+Iter. 
+ICON = I ICON = 2 ICON = 3 
+A=I A= Dy I A= Cy l 
+0.92 0.88 0.89 
+0.95 0.93 0.92 
+0.86 O. 78 0.82 
+0.91 0.88 0.93 
+0.80 0.84 0.84 
+0.95 0,88 0.82 
+0.86 0.72 0.~5 
+0.82 0,67 0.62 
+0.22 0,35 0.43 
+0.12 0,26 0.33 
+0.18 0,32 0.37 
+O.lO 0,08 0.09 
+0.02 0,03 0.04 
+0.06 0,09 0.06 
+0.16 0,24 0.19 
+0.15 0.21 0.19 
+6.18 5,99 5.96 
+3.15 2,95 2.75 
+I'.44 1,67 1,73 
+2.83 3,01 3,19 
+0.80 0.71 0.71 
+0.35 0.45 0.45 
+51.65 13.69 13.69 
+6 6 ]2 
+
+The fuzzy c.means clustering algorithm 197 
+Table 2. Variation in (t~, ~) due to changes in m (two cluster example). Terminal membership Uik: U2k 
+= (1 - ~,k) 
+Data 
+Point 
+9 
+lO 
+II 
+12 
+13 
+14 
+15 
+16 
+ql l 
+~12 
+"~21 
+~22 
+F c 
+H c 
+Jm 
+Iter. 
+QQ = m = 1.25 QQ = m = 2.00 
+1.00 0.92 
+1.00 0.95 
+l. O0 O. 86 
+1.00 0.9l 
+l. O0 O. 80 
+l.O0 0.95 
+1.00 0.86 
+1.00 0.82 
+0.00 0.22 
+0.00 O. 12 
+0.00 0.18 
+O. O0 O. lO 
+0.00 0.02 
+0.00 0.06 
+0.00 0.16 
+0.00 0.15 
+6.25 6.18 
+3.25 3.15 
+1.37 1.44 
+2.75 2.83 
+l.O0 0.80 
+0.00 0.35 
+60.35 51.65 
+4 6 
+Table 3. Variation in F and H due to changes in m and c. 
+Weighting 
+Exponent 
+(m) 
+1.25 
+]. 50 
+1.75 
+2.00 
+Number of Partition Lower Normalized 
+Clusters Coefficient Bound Entropy 
+(c) (F c) (1-r c) (Hc) 
+2 0.998 0.002 0.007 
+3 0.983 0.017 0.037 
+4 0.979 0.021 0.044 
+5 0.996 0.004 0.013 
+2 0.955 0.Q45 0,I03 
+3 0.903 0.097 0.202 
+4 0.901 0.099 0.201 
+5 0.917 0.083 0.197 
+2 0.873 0.127 0.239 
+3 0.791 0.209 0.404 
+4 0.804 0.196 0.401 
+5 0.776 0.224 0.468 
+2 O. 794 O. 206 O. 352 
+3 0.686 0.314 0.575 
+4 O. 700 O. 300 O. 600 
+5 O. 662 O. 338 O. 701 
+responds to points distant from the "core" (i.e. ~j) of 
+cluster i. Thus, point 8 is clearly signaled an outlier, 
+for example in all three partitions. Notice, however, 
+that the Mahalanobis norm emphasizes this much 
+more heavily than, for example the Euclidean norm. 
+This is because level sets in the former norm are 
+elliptical, and in the latter circular. Thus, the variance 
+of Y8 in the vertical direction weights its influence 
+differently. In all situations, points near cluster centers 
+in the A-norm have higher memberships. Note that 
+~ is more stable to changes in A than v2: this 
+indicates that points with a high affinity for member- 
+ship in t~2 have somewhat more variability than those 
+seeking to associate with t2t. Table 1 also demonstrates 
+another general fact; the number of iterates needed 
+using the Mahalonobis norm is usually higher than 
+
+198 JAMES C. BEZDEK, ROBERT 
+the number required by other norms. See Bezdek 
+(1981) for more discussion concerning characteristic 
+cluster shapes associated with changes in A. 
+Table 2 illustrates the usual effect of increasing m 
+lower m's yield harder partitions and higher ones, 
+fuzzier memberships. For m = 1.25, U is hard (to 2 
+decimal places). Observe that Fc and Hc mirror this 
+fact, but again, Jm does not, having a higher value at 
+the lower m. Further observe that the cluster centers 
+are rather stable to changes in m. This is not always 
+the situation, and it is an unproven conjecture that 
+the stability of the bi's in the face of severe changes 
+in m is in some sense an indication of cluster validity. 
+Figure 1 exhibits vt and v2 for m = 2 = c, A = I; 
+their geometric positions are at least (visually) ap- 
+pealing. 
+Table 3 depicts the utility of Fc and Hc for the 
+cluster validity question. For every m, F, maximizes 
+(and H, minimizes) at c = 2. From this we can infer 
+that the "hardest" substructure detectable in Y occurs 
+are c = 2. These values do not, however, have any 
+direct tie to Y. Being computed on algorithmic 
+outputs based on Y rather than any concrete assump- 
+tions regarding the distribution of Y somewhat weak- 
+ens the theoretical plausibility of using Fc and H~ for 
+cluster validity. Nevertheless, they have been demon- 
+strably reliable in many experimental studies, and 
+are, at present, the most reliable indicants of validity 
+for the FCM algorithms. 
+REFERENCES 
+Ball, G. 1965, Data analysis in the social sciences: what 
+about the details?: Proc. FJCC, Spartan Books, Washing- 
+ton, D.C., p. 533-560. 
+Bezdek, J. C. 1974. Mathematical models for systematics 
+EHRLICH, and WILLIAM FULL 
+and Taxonomy, in, Estabrook, G., ed., Proceedings of the 
+8th International Conference on Numerical Taxonomy: 
+W. H. Freeman, San Francisco, p. 143-166. 
+Bezdek, J. C., 1980, A convergence theorem for the fuzzy 
+c-means clustering algorithms: IEEE Trans. PAMI, PAMI- 
+2(1), p. 1-8. 
+Bezdek, J. C., 1981, Pattern recognition with fuzzy objective 
+function algorithms: Plenum, New York, 256. p. 
+Bezdek, J. C., Trivedi, M., Ehrlich, R., and Full, W., 1982, 
+Fuzzy clustering; a new approach for geostatistical analysis: 
+Int. Jour. Sys., Meas., and Decisions. 
+Duda, R., and Hart, P., 1973, Pattern classification and 
+scene analysis: Wiley-Interscience, New York, 482. p. 
+Full, W., Ehrlich, R., and Bezdek, J., 1982, FUZZY QMO- 
+DEL: A new approach for linear unmixing: Jour. Math. 
+Geology. 
+Full, W., E., Erhlich, R., and Klovan, J. E., 1981, EX- 
+TENDED QMODEL--Objective definition of external 
+end members in the analysis of mixtures: Jour. Math. 
+Geology, v. 13, no. 4, p. 331-344. 
+Hartigan, J., 1975, Clustering algorithms: John Wiley and 
+Sons, New York, 351 p. 
+Klovan, J., and Imbrie, J., 1971, An algorithm and FOR- 
+TRAN-IV program for large scale Q-mode factor analysis 
+and calculation of factor Scores: Jour. Math. Geology, v. 
+3, no. 1, p. 61-76. 
+Klovan, J. E., and Miesch, A., 1976, EXTENDED CABFAC 
+and QMODEL Computer programs for Q-mode factor 
+analysis of compositional data: Computers & Geosciences, 
+v. 1, no. 3, p. 161-178. 
+Miesch, A. T., 1976a, Q-mode factor analysis of geochemical 
+and petrologic data matrices with constant row-sums: 
+U.S. Geol. Survey Prof. Paper 574-G, 47 p. 
+Miesch, A. T., 1976b, Interactive computer programs for 
+petrologic modeling with extended Q-mode factor analysis: 
+Computers & Geosciences, v. 2, no. 2, p. 439-492. 
+Sheath, P., and Sokal, R., 1973, Numerical taxonomy: 
+Freeman, San Francisco, 573 p. 
+Tou, J., and Gonzalez, R., 1974, Pattern recognition prin- 
+ciples: Addison-Wesley, Reading, Mass., 377 p. 
+Zadeh, L. A., 1965, Fuzzy sets: Inf. and Cont., v. 8, p. 338- 
+353. 
+FILE': KMEANS FORTRAN 
+APPENDIX 
+Listing of fuzzy C-means 
+A 03/18183 11:05 VMISP CONVERSATIONAL MOI~ITOR SYSTEM 
+oooclooo 
+00002000 
+THIS IS THE FCM (FUZZY C-MEANS} ROUTINE. THIS LISTING IS FOR A 000C3000 
+IBM TYPE COMPUTER WITH A FORTRAN IV COMPILER. IT ADAPTS FOR AI~Y 00004000 
+FORTRAN COMPILER WITH MODIFICATIONS SET AT THE USER SITE. 00005000 
+00006000 
+REFERENCE: "PATTERN RECOGNITION WITH FUZZY OBJECTIVE FUNCTIONSt i' 00007000 
+JAMES BEZDEK~ PLENUM, NEW YORK, 1981. 00008000 
+00009000 
+OOO 10000 
+DESCRIPTION OF OPERATING VARIABLES: 00011000 
+I. INPUT VARIABLES |FROM FILE 51 00012000 
+CARD I: 00013000 
+TITLE{20] ........ 80 CHARACTER HEADING 00014000 
+CARD 2: 00015000 
+FMT(20) .......... FORTRAN FORMAT {CONTAINED IN PARENTHESIS) 00016000 
+DESCRIBING THE INPUT FCRMAT FOR THE RAW DATAOO01?O00 
+UP TC 80 CHARACTERS MAY BE USED 00018000 
+CARD 3: 00019000 
+COL I: ICON ...... DISTANCE MEASURE TO ,BE USED. IF: ~ 00020000 
+ICON=I USE EUCLIDEAN NORM 00021000 
+ICON=2 USE DIAGONAL NORM 00022000 
+ICON=3 USE MAHALANOBIS "NORM 00023000 
+COLS 2-7: QO ..... WEIGHTING EXPONENT FOR FCM 00024000 
+COLS B-g: ND ..... NUMBER OF FEATURES PER INPUT VECTOR 00025000 
+
+Thefuzzy ~meansclustenng ~gofithm 
+C COLS IO-II:KBEGIN.STARIING NUMBER OF CLUSTERS 00026000 
+C COLS I2-13:KCEASE.FINISHING NUMBER OF CLUSTERS (NOTE: KBEGIN 00027000 
+C MUST BE LESS THAN OR EQUAL TO KCEASE) 00028000 
+C CARL 4 ON: 00029000 
+C Y(NS,ND) ......... FEATLRE VECTORS, INPUT ROW-WISE 00030000 
+C IT. INTERNAL VARIABLES 00031000 
+C NS ............... NUMBER OF DATA VECTORS 00032000 
+C EPS .............. MAXIMUM MEMBERRSHIP ERROR AT CONVERGENCE 00033000 
+C NC ............... CURRENT NUMBER OF CLUSTERS 00034000 
+C LMAX ............. MAXIMUM NUMBER OF ITERATIONS WITHOUT 00335000 
+C CONVERGENCE 00036000 
+C FM(ND) ........... SAMPLE MEAN VECTOR 00037000 
+C FVAR(ND) ......... VECTCR OF MARGINAL VARIANCES 00038000 
+C CC(ND,ND) ........ SCALING MATRIX 00339000 
+C AA(ND,ND) ........ SAMPLE COVARIANCE MATRIX 00040000 
+C AI(ND,ND) ........ INVERSE OF SAMPLE COVARIANCE MATRIX 00041300 
+C BB(ND) .... , ...... DUMMY FOLDING MATRIX 00042000 
+C CCC(ND) .......... DUMMY HOLDING MATRIX 00043000 
+C ST(ND,ND) ...... ..DUMMY PCLDING MATRIX FOR AA 00044000 
+C CM(ND,ND) ........ CM=AA*(AA INVERSE) 00045000 
+C U(NC,NS) ......... MEMBERSHIP MATRIX 00046000 
+C W(NC,NS) ...... ...U~DATED MEMBERSHIP MATRIX 00047000 
+C V(NC,ND) ......... CLUSTER CENTERS 00048000 
+C ITT(NC) .......... DUMMY POLDING MATRIX 00049000 
+C H(NC) ............ ENTROPY MATRIX 00050000 
+C VJM(NC) .......... PAYOFF MATRIX 00051000 
+C F(NC) ............ MATRIX OF PARTITION COEFFICIENIS 00052000 
+C DIF(NC) .......... MATRIX OF ENTROPY BOUNDS 00053000 
+C 000 540 O0 
+C 00055000 
+FILE: 
+199 
+KMEANS FCRTRAN A 03/18183 11:05 VM/SP CONVERSATIONAL MONITOR SYSTEM 
+1458 
+12321 
+C 
+DIMENSIGN FM(5OI,FVAR(50),F(20) 
+DIMENSION BB(50),CCC(50),H(20),DIF(20),ITT(20) 
+DIMENSION Y(500,2),U(20,5001,W(20,500) 
+DIMENSICN AA(50,50),AI(50,50) 
+DIMENSION CC(50,50),CM(50,50),ST(50,50} 
+DIMENSION V(20,50),VJM(20) 
+DIMENSION FMT(20),TITLE(20} 
+READ(5,1458) (TITLE(1),I=I,20) 
+FORMAT(2OA4) 
+READ(5,12321) (FMT(1),I=I,20) 
+FORMAT(2OA4) 
+00057000 
+00058000 
+00059000 
+00060000 
+00061000 
+00062000 
+00063000 
+00064000 
+00065000 
+00066000 
+00067000 
+00068300 
+C CONTROL 
+C ........... 
+EP S = . O l 
+NS=I 
+LMAX=50 
+C 
+PARAMETERS. 00069000 
+00070000 
+00071000 
+00072000 
+00073000 
+00074000 
+C READ FEATURE VECTORS (Y(I,J)). 
+C- 
+00075000 
+00076000 
+2021 
+410 
+1459 
+I 
+399 
+12738 
+lllll 
+C 
+REAO{5,202I) ICON,QQ,ND,KBEGIN,KCEASE 
+FORMAT(I1,F6.3,312) 
+WRITE(6,410) 
+FORMAT(///IH ,'*** *** BEGIN FUZZY C-MEANS OUTPUT *** ***') 
+WRITE(6,1459) (TITLE(III),III=I,20) 
+FORMAT(IOX,2OA4///) 
+READ(5,399,END=3)IY(NS,J),J=I,ND) 
+FORMAT (2F1.0) 
+WRITE(6,I2738I(Y(NS,J),J=I,ND) 
+FORMAT(2(IOX,IO(F7.2,1X)/)) 
+NS=NS+I 
+GO TO 1 
+NS=NS-I 
+NDIM=ND 
+NSAMP=NS 
+WRITE(6,I[III) NSAMP 
+FORMAT(10X,'NUMBER OF SAMPLES = ',I5) 
+ANSAMP=NSAMP 
+00077000 
+000?8000 
+O0079000 
+00080000 
+00081000 
+00082000 
+00083000 
+00084000 
+00085000 
+0008600O 
+00087000 
+00088000 
+00089000 
+00090000 
+00091000 
+00092000 
+00093000 
+00094000 
+00095000 
+C SCALED NORM REQUIRED IN STATEMENTS 31 AND 33. 
+C CALCULATIGN OF SCALING MATRIX FOLLOWS." 
+C FEATURE MEANS. 
+000$60C0 
+00097000 
+00098000 
+00099000 
+
+200 JAMES C. BEZDEK, ROBERT EHRLICH, and WILLIAM FULL 
+O0 350 I=I,NOIM OOIO0000 
+FM(I)=O. 001CI000 
+DO 35t J=I,NSAMP OOIG2000 
+35I FM(II=FM(II+YIJ,II OOtC3000 
+350 FMII)=FM(II/ANSAMP 00104000 
+C ..... 00105000 
+C FEATURE VARIANCES. 001060G0 
+C ...... 00107000 
+O0 352 I=[,NOIM 001C8000 
+FVAR(II=O. 00109000 
+00 353 J=I,NSAMP 00110000 
+FILE: KMEANS FORTRAN A 03/18/83 11:05 VMISP CONVERSATIONAL MONITOR SYSIEPa 
+353 FVAR{II=FVAR{If'+((Y(J,I)-FM(II)**2) O01ltDOO 
+352 FVARII)=FVAR(II/ANSAMP 00112000 
+IF(ICON-I)380,38C,382 00113000 
+380 DO 381 I=ItNOIM 001140C0 
+DO 381J=I,NDIM 00115000 
+381 CC(I,J):O. 00116300 
+00 370 I=I,NDIM 00117000 
+370 CC(I,I}=I. 00118000 
+GO TO 390 00119000 
+382 IF(ICON-2|384,384,386 00120300 
+384 DO 385 I:I,NDIM 00121000 
+00 385 J=I,NDIM 00122000 
+385 CC(I,J)=O. 00123000 
+00 371 I=I,NOIM 00124000 
+371 CC(I,I)=I./FM(1) 00125000 
+GO TO BgO 00126000 
+386 00 360 I=I,NDIM 00127000 
+DO 360 J=I,NDIM 00128000 
+AA{I,JI=O. 00129000 
+DO 361 K=I,NSAMP 00130000 
+361 AAII,J)=AA(I,JI+((Y(K,I|-FM(1))~(Y(K, JI-FM(J)}} 00131000 
+360 AA(I,J)=AA(I,JI/ANSAMP 00132000 
+DO 550 [=I,NDIM 001330C0 
+DO 550 J=I,NOIM 00134000 
+550 ST(I,J)=AA(I,J) 00135000 
+C 00136000 
+C INVERSION OF COVARIANCE MATPIX AA TO AI 00137000 
+C ................ 00138000 
+NN=NDIM-I 00139000 
+AA(I,II=I./AA(t,tl 00140000 
+DO 500 M=I,NN 00141000 
+K=M+I 00142000 
+00 501 I=I,M 00143000 
+BBII)=O. 00144000 
+DO 501 J=t,M 00145000 
+501 BB(II=8B(I)*AA(I,JI~AA(J,K) 00146000 
+0=0. 00147000 
+DO 502 I=I,M 00148000 
+502 D=D+AA(K,I )~BB(I) 00149000 
+O=-D+AA(K,K) 00150000 
+AA(K,K)=I./D 00151000 
+DO 503 I=t,M 001520C0 
+503 AA(I,K):-BB(II*AA(K,K) 00153000 
+00 504 J=t,M 00154060 
+CCC(J)=O. 00155000 
+DO 504 I=t,M 00156000 
+506 CCC(JI=CCC(JI÷AA(K,I|*AA(I,JI 00157000 
+00 505 J=I,M 00158000 
+505 AA(K,JI=-CCC(J)~AA(K,K) 00159000 
+00 500 I=I,M 00160000 
+00 500 J=I,M 00161000 
+500 AA(I,JI:AA(I,JI-BB(II~AA(K,J)" 00162000 
+00 520 I=t,NOIM 00163000 
+00 520 J=I,NOIM 00164000 
+520 AI(I,JI=AA(I,JI 00165030 
+FILE: KMEANS FORTRAN A 03118183 11:05 VM/SP CONVERSATIONAL MO~ITO~ SYSTEM 
+00 387 I=I,NOIM 00166000 
+DO 387 J=I,NDIM 00167000 
+
+The fuzzy c-means clustering algorithm 201 
+387 CC(I,J|=AI(I,JI OOt 
+C ...................................................................... 001 
+C CHECK INVERSE AA*AI=I 001 
+C ...................................................................... 001 
+DO 530 I=I,NDIM 001 
+DO 530 J=I,NDIM 001 
+CM(I,J|=O. 001 
+DO 530 K:I,NDIM OOI 
+530 CM(I,J)=CM(I,J)÷ST(I,KJ~AI(~,J) 001 
+WRITE(6,531) 001 
+531 FORMAT(' ' ,//,' CHECK MATRIX AI~AA=I, THE IDENTITY'//) OOt 
+DO 532 I=I,NDIM 001 
+532 WRITE (6,533) (CM(I,J},J=I,hDIM| OOI 
+68000 
+69000 
+70002 
+71000 
+72000 
+73003 
+74000 
+75000 
+7c000 
+77000 
+78000 
+79000 
+80000 
+533 FORMAT(IOX,2OF6.2) 
+390 WRITE(6,14601 (TITLE(}}}},Ill=I,20) 
+1460 FORMAT('I',IOX,2OA4///} 
+WRITEI6,420| 
+420 FORMAT(' ',///,15X,'SCALING MATRIX CC',///) 
+00 421 I:I,NOIM 
+421 WRITE(6,422| (CC(I,JI,J=I,hDIM) 
+422 FORMAT(5X,IO(FIO.I,IX|/5X,1C(FIO.I,IX)/| 
+WRITE{6,425) 
+425 FORMAT(/////} 
+C .... 
+00181000 
+00182000 
+00183300 
+00184000 
+00185000 
+001860C0 
+00187000 
+00188000 
+00189000 
+00190000 
+00191300 
+C QQ IS THE BASIC EXPONENT FOR FUZZY ISODATA. 
+C 
+00192000 
+001£3000 
+PP=(t./(QQ-I.)) 
+DO 55555 NCLUS=KBEGIN,KCEASE 
+WRITE(6,1460} (TITLE(}}}|,Ill=t,20} 
+WRITE(6,499) NCLUS,ICON,QQ 
+499 FORMAT(' ',' NUMBER OF CLUSTERS = ',13,5X,' 
+C'EXPONENT = ',F4.2,//| 
+IT=I 
+C 
+ICON = ',13,5X, 
+00194000 
+00155000 
+00196000 
+00157000 
+00198000 
+00199000 
+00200000 
+00201000 
+C RANDOM INITIAL GUESS FOR U(I,J| 00202000 
+C THE RANDOM GENERATOR SUBROUTINE RANDU FROM THE IBM SCIENTIFIC 00203000 
+C SUBROUTINE PACKAGE (SSP} IS USED AND IS CALLEO FROM AN EXTERNal 00204000 
+C LIBRARY. OTHER GENERATORS TFAT PRODUCE VALUES ON THE INTERVAL 00205000 
+C ZERO TO ONE CAN BE USED. 00206000 
+C ............................ 00257000 
+RANOOM=.?7BI 00208000 
+IX= I 00209003 
+NCLUSI=NCLUS-I 002 10000 
+D0 II00 K=I,NSAMP 00211000 
+S= 1.0 002 12000 
+DO 1101 I=I,NCLUSI 00213000 
+C CALL RANDUIIX,IY,RANDOM} 00214000 
+RANDOM=RANDOM/2. 00215000 
+IX:IY 00216000 
+ANC=NCLUS-I 00217000 
+U(I,KI=S~(I.O-RANDOM~(I.O/~NC|) 00218000 
+llOI S=S-U(I,K) 00219000 
+1100 U(NCLUS,K)=S 00220000 
+FILE: KMEANS FORTRAN A 03118/83 11:05 VM/SP CONVERSATIONAL MOhITOR SYSTEM 
+C 00221000 
+C CALCULATION OF CLUSTER CENTERS V(1). 00222000 
+C 00223000 
+7000 
+21 
+20 
+C 
+DO 20 I=I,NCLUS 00224000 
+DO 20 J=I,NDIM 00225000 
+V(I,J}=O. 00226000 
+D=O. 00227000 
+00 21 L=I,NSAMP 00228000 
+V( I,JI=V(I,JI*I(U(I,L}~QQ)~Y(L,J)| 00229000 
+D=D+(U(I,L}~QQ} 00230000 
+V(I,J|=V(I,J)/D 00231000 
+00232000 
+C UPCATE MEMBERSHIP FUNCTIONS. 
+C ..... 
+00233000 
+00234000 
+611I DO 38 I=I,NCLUS 00235000 
+DO 38 J=I,NSAMP 00236000 
+WI I,J}=O. 00237000 
+A=O. 00238000 
+DO 31L=I,NOIM 00239000 
+DO 3I M=I,NDIM 00240000 
+
+202 
+31 
+33 
+32 
+38 
+C 
+JAMES C. BEZDEK, ROBERT EHRLICH, and WILLIAM FULL 
+A=A+((Y(J,L)-V(I,L))*CC(L,M)tiY(J,M)-ViI,M))) 00241000 
+A=I./(Am~PP) 00242000 
+SUM=O. 00243000 
+DO 32 N:I,NCLUS 00244000 
+C=O. 00245000 
+00 33 L=I,NDIM 00246000 
+00 33 M=I,NOIM 00247000 
+C=C÷((YiJ,LI-ViN,L)I~CCIL,M)~(Y(J,M)-V(N,M))) 00248000 
+C=I./(C~*PP) 00249000 
+SUM=SUM+C 00250000 
+W( I,Ji=A/SUM 00251000 
+CONTINUE 00252000 
+00253000 
+C ERROR CRITERIA AND CUTOFFS. 00254000 
+C 00255000 
+9000 ERRMAX=O. 00256000 
+DO 40 I=I,NCLUS 00257000 
+DO 40 J=I,NSAMP 00258000 
+ERR:ABS(UiI,J)-WiI,J)} 00259000 
+IF(ERR.GT.ERRMAX) ERRMAX=ERR 00260000 
+40 CONTINUE 00261000 
+WRITE(6,400) IT,ERRMAX,NCLES 00282000 
+400 FORMAT(IH ,'ITERATION = ',I4,5X,'MAXIMUM ERROR = ' ,FIO.4, 00263000 
+IIOX,'NUVBER OF CLUSTERS = ',14| 00264000 
+DO 42 I=I,NCLUS 00265000 
+DO 42 J=I,NSAMP 00266000 
+42 UiI,JI=W(I,J) 00267000 
+IF(ERRMAX.LE.EPS) GO TO 600C 00268000 
+43 IT=IT+I 00269000 
+IF(IT-LMAX) 7C00,7000,6000 00270000 
+C 00271000 
+C CALCULATION OF CLUSTER VALIDITY STATISTICS F, H, I-E 
+C ..... 
+00272000 
+00273000 
+6000 ITTINCLUS)=IT 00274000 
+F(NCLUS)=O.O 00275000 
+FILE: KMEANS FORTRAN A 03118/83 11:05 VK/SP CONVERSATIONAL MOhlTOR SYSTEM 
+HINCLUS)=O.O 00276000 
+DO TO0 I=ItNCLUS 00277000 
+00 tO0 K=I,NSAMP 00278000 
+AU=U(I,K) 00279000 
+F(NCLUSI=F(NCLUS)÷AU**2/ANSAMP 00280000 
+IF (AUI lOO,lO0, lOl 00281000 
+IOl H(NCLUS)=H(NCLUSI-AU*ALOG(~UI/ANSAMP 00282000 
+IO0 CONTINUE 00283000 
+DIF(NCLUSI=I.0-F(NCLUS! 00284000 
+C ........ 00285000 
+C CALCULATION OF OBJECTIVE FUhCTION 00286000 
+C ......... 00287000 
+A=O. 00288000 
+DO BO I=I,NCLLS 00289000 
+00 80 J=I,NSAMP 00290000 
+OIST=O. 002~I000 
+DO 81L=£,NDIM 00292000 
+DO 8£ M=I,NDIM 002~3000 
+81 OIST=OIST÷I(YIJtL)-V(I,LII*CC(L,MI*(Y(J,M|-V|I,M)II 00294000 
+A=A+(IUII,J)**QQ)*DIST) 00295000 
+80 VJM(NCLUS)=A 00296000 
+C ......... 00297000 
+C OUTPUT BLOCK FOR CURRENT NCLUS 00298000 
+C 00299000 
+WRITE(6,40I) 
+~Ol FORNAT(' ,1//. FSTOP.,TX,eI-FSTOpo,5X,.ENTROpyet5X,ipAYOFFe,SX,/) 
+WRITE(6,699) F(NCLUSItOIF(hCLUS)tH|NCLUS)tVJM(NCLUS| 
+699 FORMATIIH ,2|F6.3,4XI,4X,FE.3,5X,E8.3| 
+WRITE(6t591 
+59 FORMATilXtlOO(*-e)//I 
+WRITEI6t402) 
+402 FORMAT(II/t15X,~CLUSTER CENTERS VII,J)*,l/l~. 
+DO 415 I=I,NCLUS 
+415 WRITE{6,404| (I,J,V(I,J)tJ=ItNOINI 
+~0~ FORMAT(* I=',I3t3X~'J=i,13,3X,'VII,J)='pJF8.4) 
+405 FORMAT(IH tT(F6.4,3X)) 
+WR17E{6,59) 
+WRITE|6,406) 
+O03000 O0 
+00301000 
+003G2000 
+00303000 
+003 G4000 
+00305000 
+003C6000 
+00307000 
+003C8000 
+00309000 
+00310000 
+00311000 
+00312000 
+003 13000 
+
+The ~zzyc-meansclustefingalgofithm 203 
+406 FORMAT(IH ,///,25X,'MEMBERSHIP FUNCTIONS',///} 00314000 
+00 407 J=I,NSAMP 00315000 
+407 WRITE(6,408) J,(U(I,J),I=I,NCLUS) 00316000 
+408 FORMAT(IH ,,J=',I3,5X,8(F6.4,3X|) 00317000 
+54444 CONTINUE 00318000 
+55555 CONTINUE 00319000 
+C 00320000 
+C OUTPUT SUMMARY FOR ALL VALUES OF C 00321000 
+C 00322000 
+WRITE(6,450) 00323000 
+450 FORMAT('I',25X,'RUN SUMMARY') 00324000 
+WRITE(6,460) NSAMP 00325000 
+460 FORMAT(' '///' NUMBER OF SUBJECTS N = ',14) 00326000 
+WRITE(6,461) NDIM 0032?000 
+461 FORMAT(IHO,'NUMBER OF FEATUBES NDIM = ',I4I 00328000 
+WRITE(6,462) EPS 00329000 
+462 FORMAT(IHO,'MEMBERSHIP DEFECT BOUND EPS = ',F6.4) 00330000 
+FILE: KMEANS FORTRAN A 03118/8Z 11:05 VMISP CONVERSATIONAL MONITOR SYSTEM 
+WRITE(6,464| ICON 
+464 FORMAT{IHO,'NORM THIS RUN ICCN = '~Ii) 
+WRITE(6,465) OQ 
+465 FORMAt(I~O,'WEIGHTING EXPONENT M =.',F4.2I 
+IF(IT.LE.49) GO TO 476 
+WRITE(6,70107) 
+?0107 FORMAT(' ','CONVERGENCE FLAG: UNABLE TO ACHIEVE SATISFACTORY 
+IERS AFTER 50 ITERATIONS.') 
+476 WRITE{6,466) 
+466 FORMAT(' '/I' NO. OF CLUSTERS',3X,'PART. COEFF.',SX, 
+C'LOWER 80UND',SX,'ENTROPY',5X,'NUMBER OF ITERATIONS') 
+WRITE(6,467I 
+467 FORMAT(IHO,6X,'C',I7X,'F',I5X,'I-F',I2X,'H',IOXw'IT') 
+O0 468 J=KBEGIN,KCEASE 
+468 WRITE(6,4691 J,F(J),DIF(J),F(JI,ITT(J) 
+469 FORMAT(IH ,6X,I2,14X,F6.3,11X,F6.3,TX,F6.3,BX,14) 
+55556 CONTINUE 
+616 WRITE(6,411) 
+411 FORMAT(////IH ,'*** *~ NORMAL END OF JOB ~* ~*~') 
+STOP 
+END 
+00331000 
+00332000 
+00333000 
+00334000 
+00335000 
+00336000 
+CLUSTO03 37000 
+00338000 
+00339000 
+00340000 
+00341000 
+00342000 
+00343000 
+00344000 
+00345000 
+00346000 
+00347000 
+00348000 
+00349000 
+00350000 
+00351000 

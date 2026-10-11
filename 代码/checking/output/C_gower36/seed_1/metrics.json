@@ -1,0 +1,64 @@
+{
+  "run_dir": "C:\\Users\\BugCat\\Desktop\\科研\\面向智能电网终端用户的“社会信息过滤”电力零售套餐推荐系统\\代码\\checking\\output\\C_gower36\\seed_1",
+  "k": 5,
+  "beta": 0.1,
+  "seed": 1,
+  "iters": 178,
+  "final_obj": 3240.5058726195343,
+  "cluster_sizes": [
+    105,
+    1926,
+    591,
+    1220,
+    2189
+  ],
+  "elapsed_sec": 173.2,
+  "fuzzy_internal": {
+    "PC": 0.5069810748100281,
+    "PE": 0.9092318415641785,
+    "XB": 0.2981720148367154
+  },
+  "hard_internal": {
+    "silhouette": 0.43264814563370263,
+    "CH": 9601.739159891626,
+    "DB": 0.8206800662819725
+  },
+  "constraint_metrics": {
+    "constrained_same_cluster_rate": 0.41957276306287417,
+    "random_baseline_rate": 0.2845493662173943,
+    "same_cluster_lift": 1.4745165966819362,
+    "constraint_residual_mean_s_du2": 0.2704062654524702
+  },
+  "external_vs_roberts": {
+    "3a": {
+      "ARI": 0.0132,
+      "NMI": 0.0261,
+      "n_labeled": 6031
+    },
+    "3h": {
+      "ARI": 0.0135,
+      "NMI": 0.0307,
+      "n_labeled": 3950
+    },
+    "3u": {
+      "ARI": 0.0165,
+      "NMI": 0.0348,
+      "n_labeled": 2081
+    },
+    "ca": {
+      "ARI": 0.0161,
+      "NMI": 0.0364,
+      "n_labeled": 1786
+    },
+    "ch": {
+      "ARI": 0.0203,
+      "NMI": 0.0442,
+      "n_labeled": 1260
+    },
+    "cu": {
+      "ARI": 0.0179,
+      "NMI": 0.055,
+      "n_labeled": 526
+    }
+  }
+}

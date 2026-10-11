@@ -1,0 +1,40 @@
+{
+  "input": "C:\\Users\\BugCat\\Desktop\\科研\\面向智能电网终端用户的“社会信息过滤”电力零售套餐推荐系统\\data\\index files\\demographic_lookup_3_groups.parquet",
+  "note": "负约束 (cannot-link) 边, 供 Wang 2022 完整版式(6) 使用; 字段口径与正约束 v2 完全相同, 仅选边规则为 s<0 且每行 Bottom-M",
+  "n_samples": 6031,
+  "negative_pair_stats": {
+    "per_user_neg_count_percentiles": {
+      "p0": 0.0,
+      "p25": 699.0,
+      "p50": 828.0,
+      "p75": 987.0,
+      "p100": 4767.0
+    },
+    "per_user_neg_count_mean": 1245.6,
+    "frac_users_with_any_negative": 0.9997,
+    "frac_users_ge_5_negatives": 0.9973,
+    "frac_users_ge_10_negatives": 0.9957,
+    "frac_users_ge_20_negatives": 0.9887,
+    "s_of_most_negative_partner_percentiles": {
+      "p0": -0.8712,
+      "p25": -0.5606,
+      "p50": -0.5303,
+      "p75": -0.4848,
+      "p100": 0.0152
+    }
+  },
+  "constraints": {
+    "n_samples": 6031,
+    "n_pairs": 59760,
+    "s_min": -0.8712121248245239,
+    "s_max": -7.677078247070312e-05,
+    "s_mean": -0.44667330384254456,
+    "bottom_m": 10,
+    "neg_threshold": 0.0,
+    "merged_with_positive": {
+      "n_nontrivial_blocks": 1,
+      "block_size_max": 6031,
+      "n_constrained_samples": 6031
+    }
+  }
+}

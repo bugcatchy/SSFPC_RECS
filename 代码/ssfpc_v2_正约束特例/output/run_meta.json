@@ -1,0 +1,180 @@
+{
+  "version": "v2 正约束特例",
+  "k": 5,
+  "beta": 0.1,
+  "beta_convention": "论文式(5)口径 (v1 的 2 倍关系已修正)",
+  "alpha": 0.0,
+  "seed": 0,
+  "device": "cuda",
+  "n_samples": 6031,
+  "n_pairs": 54473,
+  "n_blocks": 22,
+  "max_block_size": 1820,
+  "n_free_samples": 0,
+  "pd_check": [
+    {
+      "block": 0,
+      "size": 935,
+      "lam_min": -0.0,
+      "lam_max": 297.005169,
+      "psd_ok": true
+    },
+    {
+      "block": 1,
+      "size": 1820,
+      "lam_min": 0.0,
+      "lam_max": 351.032073,
+      "psd_ok": true
+    },
+    {
+      "block": 2,
+      "size": 287,
+      "lam_min": 0.0,
+      "lam_max": 212.068295,
+      "psd_ok": true
+    },
+    {
+      "block": 3,
+      "size": 133,
+      "lam_min": 0.0,
+      "lam_max": 133.0,
+      "psd_ok": true
+    },
+    {
+      "block": 4,
+      "size": 294,
+      "lam_min": 0.0,
+      "lam_max": 294.0,
+      "psd_ok": true
+    },
+    {
+      "block": 5,
+      "size": 201,
+      "lam_min": 0.0,
+      "lam_max": 201.0,
+      "psd_ok": true
+    },
+    {
+      "block": 6,
+      "size": 146,
+      "lam_min": -0.0,
+      "lam_max": 144.00284,
+      "psd_ok": true
+    },
+    {
+      "block": 7,
+      "size": 400,
+      "lam_min": -0.0,
+      "lam_max": 225.153491,
+      "psd_ok": true
+    },
+    {
+      "block": 8,
+      "size": 380,
+      "lam_min": -0.0,
+      "lam_max": 271.002559,
+      "psd_ok": true
+    },
+    {
+      "block": 9,
+      "size": 270,
+      "lam_min": 0.0,
+      "lam_max": 199.485348,
+      "psd_ok": true
+    },
+    {
+      "block": 10,
+      "size": 197,
+      "lam_min": 0.0,
+      "lam_max": 127.409843,
+      "psd_ok": true
+    },
+    {
+      "block": 11,
+      "size": 312,
+      "lam_min": 0.0,
+      "lam_max": 240.073045,
+      "psd_ok": true
+    },
+    {
+      "block": 12,
+      "size": 119,
+      "lam_min": 0.0,
+      "lam_max": 119.0,
+      "psd_ok": true
+    },
+    {
+      "block": 13,
+      "size": 92,
+      "lam_min": 0.0,
+      "lam_max": 92.0,
+      "psd_ok": true
+    },
+    {
+      "block": 14,
+      "size": 26,
+      "lam_min": -0.0,
+      "lam_max": 25.112122,
+      "psd_ok": true
+    },
+    {
+      "block": 15,
+      "size": 58,
+      "lam_min": -0.0,
+      "lam_max": 58.0,
+      "psd_ok": true
+    },
+    {
+      "block": 16,
+      "size": 85,
+      "lam_min": -0.0,
+      "lam_max": 84.00688,
+      "psd_ok": true
+    },
+    {
+      "block": 17,
+      "size": 25,
+      "lam_min": -0.0,
+      "lam_max": 25.0,
+      "psd_ok": true
+    },
+    {
+      "block": 18,
+      "size": 36,
+      "lam_min": -0.0,
+      "lam_max": 36.0,
+      "psd_ok": true
+    },
+    {
+      "block": 19,
+      "size": 138,
+      "lam_min": -0.0,
+      "lam_max": 128.014516,
+      "psd_ok": true
+    },
+    {
+      "block": 20,
+      "size": 45,
+      "lam_min": 0.0,
+      "lam_max": 45.0,
+      "psd_ok": true
+    },
+    {
+      "block": 21,
+      "size": 32,
+      "lam_min": -0.0,
+      "lam_max": 32.0,
+      "psd_ok": true
+    }
+  ],
+  "iters": 168,
+  "final_obj": 3352.0143653977925,
+  "cluster_sizes": [
+    1939,
+    110,
+    599,
+    2140,
+    1243
+  ],
+  "elapsed_sec": 141.1
+}

@@ -1,0 +1,116 @@
+{
+  "input": "C:\\Users\\BugCat\\Desktop\\科研\\面向智能电网终端用户的“社会信息过滤”电力零售套餐推荐系统\\data\\index files\\demographic_lookup_3_groups.parquet",
+  "version": "v2_扩展字段",
+  "n_samples": 6031,
+  "fields": {
+    "ordinal": [
+      "ASSRTD_HHOLD_INCOME_GROUP_CD",
+      "ASSRTD_GAS_USAGE_GROUP_CD"
+    ],
+    "nominal": [
+      "ASSRTD_DWELLING_TYPE_CD",
+      "ASSRTD_CLIMATE_ZONE_CD"
+    ],
+    "binary": [
+      "HAS_AIRCON",
+      "HAS_POOLPUMP",
+      "HAS_SOLAR",
+      "HAS_GAS",
+      "HAS_GAS_HEATING",
+      "HAS_GAS_HOT_WATER",
+      "HAS_GAS_COOKING",
+      "HAS_GAS_OTHER_APPLIANCE",
+      "HAS_GENERATION",
+      "IS_RENTING",
+      "IS_HOME_DURING_DAYTIME",
+      "HAS_INTERNET_ACCESS"
+    ],
+    "count": [
+      "GENERAL_SUPPLY_CNT",
+      "CONTROLLED_LOAD_CNT",
+      "GROSS_SOLAR_CNT",
+      "OTHER_LOAD_CNT"
+    ],
+    "geo": [
+      "SUBURB_NAME",
+      "LOCAL_GOV_AREA_NAME",
+      "TRIAL_REGION_NAME"
+    ],
+    "geo_scores": [
+      1.0,
+      0.67,
+      0.33
+    ],
+    "census": "CENSUS_GROUP_CODE",
+    "survey_ordinal": [
+      "HHOLD_INCOME_GROUP_CD",
+      "DRYER_USAGE_CD",
+      "REDUCING_CONSUMPTION_CD"
+    ],
+    "survey_numeric": [
+      "NUM_OCCUPANTS",
+      "NUM_CHILDREN_0_10",
+      "NUM_CHILDREN_11_17",
+      "NUM_OCCUPANTS_70PLUS",
+      "NUM_REFRIGERATORS",
+      "NUM_ROOMS_HEATED"
+    ],
+    "survey_nominal": [
+      "DWELLING_TYPE_CD",
+      "AIRCON_TYPE_CD",
+      "HAS_CHILDREN"
+    ]
+  },
+  "asymmetric_binary": false,
+  "s_threshold": 0.0,
+  "top_k": 10,
+  "methods": {
+    "gower": {
+      "n_samples": 6031,
+      "n_pairs": 42927,
+      "s_min": 0.5220777988433838,
+      "s_max": 1.0,
+      "s_mean": 0.92620450258255,
+      "n_components_total": 21,
+      "n_nontrivial_blocks": 21,
+      "block_size_max": 5039,
+      "block_size_median": 31.0,
+      "n_constrained_samples": 6031,
+      "frac_constrained": 1.0,
+      "n_isolated": 0
+    },
+    "cosine": {
+      "n_samples": 6031,
+      "n_pairs": 54975,
+      "s_min": 0.466666579246521,
+      "s_max": 0.9999998807907104,
+      "s_mean": 0.9834129810333252,
+      "n_components_total": 16,
+      "n_nontrivial_blocks": 16,
+      "block_size_max": 4007,
+      "block_size_median": 126.0,
+      "n_constrained_samples": 6031,
+      "frac_constrained": 1.0,
+      "n_isolated": 0
+    }
+  },
+  "s_distribution": {
+    "gower": {
+      "percentiles": {
+        "p0": -0.8712,
+        "p1": -0.3939,
+        "p5": -0.2576,
+        "p25": 0.0606,
+        "p50": 0.5606,
+        "p75": 0.6818,
+        "p95": 0.7882,
+        "p99": 0.8791,
+        "p100": 1.0
+      },
+      "frac_negative": 0.2066,
+      "frac_tie_1.0": 0.0021,
+      "n_unique_s": 79196
+    }
+  },
+  "elapsed_sec": 6.7
+}

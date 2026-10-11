@@ -1,0 +1,17 @@
+\contentsline {section}{\numberline {1}加项式FCM变体与电力用户聚类的结合}{2}{section.1}%
+\contentsline {subsection}{\numberline {1.1}加项式半监督变体}{2}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}与电力用户聚类的结合}{2}{subsection.1.2}%
+\contentsline {section}{\numberline {2}SSFPC的数学原理与迭代算法}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}目标函数的构造与最小化}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}交替迭代（MEM）}{3}{subsection.2.2}%
+\contentsline {subsection}{\numberline {2.3}块二次规划的定性与求解}{5}{subsection.2.3}%
+\contentsline {section}{\numberline {3}数据集来源与预处理}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}数据来源}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}预处理管线一：负荷 $\rightarrow $ 用电特征}{7}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}预处理管线二：社会画像 $\rightarrow $ 两两相似度约束}{7}{subsection.3.3}%
+\contentsline {section}{\numberline {4}A/B/C/D四组对照实验结果}{7}{section.4}%
+\contentsline {subsection}{\numberline {4.1}实验设计}{7}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}主指标结果（3 seeds均值）}{8}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}负约束专项（C $\leftarrow $ D消融）}{8}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}结论}{8}{subsection.4.4}%
+\contentsline {section}{\numberline {5}结论与下一步工作}{9}{section.5}%

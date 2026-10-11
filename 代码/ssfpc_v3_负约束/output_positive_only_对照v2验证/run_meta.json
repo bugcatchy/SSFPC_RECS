@@ -1,0 +1,31 @@
+{
+  "version": "v3 负约束·串行DBCD正式版 (对齐官方 QPP_IDsolver/Solver_x0)",
+  "k": 5,
+  "beta": 0.1,
+  "beta_convention": "论文式(5)(6)口径, 无 m/|S| 因子",
+  "alpha": 0.0,
+  "seed": 0,
+  "device": "cuda",
+  "positive_only": true,
+  "n_samples": 6031,
+  "n_pairs_pos": 42927,
+  "n_pairs_neg": 0,
+  "n_blocks": 21,
+  "max_block_size": 5039,
+  "n_free_samples": 0,
+  "inner_tol": 1e-08,
+  "inner_max_sweeps": 200,
+  "objective_ascents": 52,
+  "objective_note": "BCD 坐标准确最小化 ⇒ 目标应单调不增; ascents>0 需排查",
+  "iters": 188,
+  "final_obj": 3240.5060990417246,
+  "converged": true,
+  "cluster_sizes": [
+    1926,
+    105,
+    591,
+    2189,
+    1220
+  ],
+  "elapsed_sec": 123.8
+}
